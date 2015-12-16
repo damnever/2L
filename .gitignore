@@ -1,0 +1,4 @@
+*.p[ocd]
+*~
+__pycache__/
+2L/dev_settings.py
