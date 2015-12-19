@@ -9,21 +9,6 @@ from tornado.web import RequestHandler, HTTPError
 from tornado.escape import json_encode
 
 
-class BaseHandler(RequestHandler):
-
-    def get_current_user(self):
-        return None
-
-    def write_error(self, status_code, **kwargs):
-        message = ''
-        if status_code:
-            reason = httplib.responses.get(status_code, 'Unkonwn Error')
-            message = '{0} {1}.'.format(status_code, reason)
-        else:
-            message = '500 Internal Server Error.'
-        self.render('error.html', message)
-
-
 def as_json(method):
     @functools.wraps(method)
     def wrapper(self, *args, **kwargs):
@@ -41,6 +26,21 @@ def as_json(method):
         self.flush()
         return None
     return wrapper
+
+
+class BaseHandler(RequestHandler):
+
+    def get_current_user(self):
+        return None
+
+    def write_error(self, status_code, **kwargs):
+        message = ''
+        if status_code:
+            reason = httplib.responses.get(status_code, 'Unkonwn Error')
+            message = '{0} {1}.'.format(status_code, reason)
+        else:
+            message = '500 Internal Server Error.'
+        self.render('error.html', message)
 
 
 class APIHandler(BaseHandler):
