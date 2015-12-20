@@ -44,12 +44,12 @@ class LRU(with_metaclass(ABCMeta, object)):
             self.pop_key_value()
         self.add_key_value(key, value)
 
-    def get_cache(self, key):
+    def get_cache(self, key, default=None):
         if self.has_key(key):
             value = self.pop_by_key(key)
             self.set_cache(key, value)
             return value
-        return self.get_by_key(key)
+        return self.get_by_key(key, default)
 
     @classmethod
     def __subclasshook__(cls, C):
