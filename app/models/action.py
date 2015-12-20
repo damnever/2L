@@ -5,7 +5,7 @@ from __future__ import print_function, division, absolute_import
 from sqlalchemy import Column, Integer, DateTime
 from sqlalchemy.sql import functions
 
-from .base import Model
+from app.models.base import Model
 
 
 class Subscription(Model):

@@ -6,7 +6,7 @@ from sqlalchemy import Column, Integer, String, Text, DateTime, Boolean
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import functions
 
-from .base import Model
+from app.models.base import Model
 
 
 class Topic(Model):

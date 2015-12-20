@@ -5,7 +5,7 @@ from __future__ import print_function, division, absolute_import
 from sqlalchemy import Column, Integer, String, event
 from sqlalchemy.sql import select, functions
 
-from .base import Model
+from app.models.base import Model
 
 
 class Permission(Model):
