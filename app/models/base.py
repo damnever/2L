@@ -6,8 +6,6 @@ from sqlalchemy.ext.declarative import declarative_base, declared_attr
 from sqlalchemy import Column, Integer
 
 
-
-
 class _Base(object):
 
     __table_args__ = {
