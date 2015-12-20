@@ -3,29 +3,10 @@
 from __future__ import print_function, division, absolute_import
 
 import httplib
-import functools
 
 from tornado.web import RequestHandler, HTTPError
-from tornado.escape import json_encode
 
-
-def as_json(method):
-    @functools.wraps(method)
-    def wrapper(self, *args, **kwargs):
-        try:
-            result = method(self, *args, **kwargs)
-        except HTTPError as e:
-            self.write(json_encode({
-                'status': 0,
-                'code': e.status_code,
-                'reason': e.reason,
-            }))
-        else:
-            result.update({'status': 1})
-            self.write(json_encode(result))
-        self.flush()
-        return None
-    return wrapper
+from app.base.decorators import as_json
 
 
 class BaseHandler(RequestHandler):
@@ -79,6 +60,13 @@ class APIHandler(BaseHandler):
     @as_json
     def options(self, *args, **kwargs):
         raise HTTPError(405)
+
+    @as_json
+    def write_error(self, status_code, **kwargs):
+        if status_code:
+            raise HTTPError(status_code)
+        else:
+            raise HTTPError(500)
 
 
 class DefaultHandler(BaseHandler):
