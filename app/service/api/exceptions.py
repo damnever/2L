@@ -18,7 +18,15 @@ error_codes = {
 }
 
 
+def _make_error_class(cls_name, code, reason):
+    def __init__(self):
+        super(self.__classs__, self).__init__(code, reason)
+    bases = (ValidationError,)
+    attrs = {'__init__': __init__}
+    return type(cls_name, bases, attrs)
+
+
 for code, reason in error_codes.items():
     error = ''.join([w.capitalize()
             for w in reason.replace('-', '').split() + ['Error']])
-    globals()[error] = ValidationError(code, reason)
+    globals()[error] = _make_error_class(error, code, reason)
