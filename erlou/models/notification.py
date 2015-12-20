@@ -8,7 +8,6 @@ from .base import Model
 
 
 class Announcement(Model):
-    recv_user = Column('recv_user', Integer(), index=True, nullable=False)
     message = Column('message', Integer(), nullable=False)
     date = Column('date', Float(), nullable=False)
 
