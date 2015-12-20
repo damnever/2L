@@ -7,7 +7,7 @@ import functools
 from tornado.escape import json_encode
 from tornado.web import HTTPError
 
-from app.service.api.exceptions import ValidationError
+from app.base.exceptions import ValidationError
 
 
 def as_json(method):
