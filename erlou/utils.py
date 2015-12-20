@@ -9,11 +9,15 @@ import pkgutil
 
 root_pkg = os.path.basename(os.path.dirname(os.path.abspath(__file__)))
 
+
 def load_module_attrs(pkg_path, func, recursive=False):
+    """Get attributes from modules, use ``func`` to filter attributes,
+    ``func`` must return a list.
+    """
     attrs = list()
     pkg_name = root_pkg + pkg_path.split(root_pkg)[1].replace('/', '.')
 
-    for imp, name, ispkg in pkgutil.iter_modules([pkg_path]):
+    for _, name, ispkg in pkgutil.iter_modules([pkg_path]):
         if ispkg and recursive:
             next_path = os.path.join(pkg_path, name)
             attrs.extend(load_module_attrs(next_path, func, recursive))

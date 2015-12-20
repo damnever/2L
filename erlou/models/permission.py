@@ -8,15 +8,6 @@ from sqlalchemy.sql import select, functions
 from .base import Model
 
 
-class Roles(object):
-    # head of the site
-    GodFather = 'GodFather'
-    Admin = 'Admin'
-    User = 'User'
-    # Topic administer, such as, the administer of the Python topic
-    TopicAdmin = 'Topic:{0}:Admin'
-
-
 class Permission(Model):
     bit = Column('number', Integer, index=True)
     role = Column('role', String(24), index=True, nullable=False)

@@ -2,34 +2,33 @@
 
 from __future__ import print_function, division, absolute_import
 
-from sqlalchemy import Column, Integer, Float
+from sqlalchemy import Column, Integer, DateTime, String, Boolean
+from sqlalchemy.sql import functions
 
 from .base import Model
 
 
+class Notification(Model):
+    sender = Column('sender', Integer(), index=True, nullable=False)
+    recipient = Column('recipient', Integer(), index=True, nullable=False)
+    activity_type = Column('activity_type', String(50), nullable=False)
+    content_url = Column('content_url', String(100), nullable=False)
+    unread = Column('unread', Boolean(), nullable=False)
+    date = Column('date', DateTime(timezone=True), default=functions.now())
+
+
 class Announcement(Model):
-    message = Column('message', Integer(), nullable=False)
-    date = Column('date', Float(), nullable=False)
+    sender = Column('sender', Integer(), index=True, nullable=False)
+    recipient = Column('recipient', Integer(), index=True, nullable=False)
+    activity_type = Column('activity_type', String(50), nullable=False)
+    content_url = Column('content_url', String(100), nullable=False)
+    date = Column('date', DateTime(timezone=True), default=functions.now())
+    expire = Column('expire', DateTime(timezone=True), default=functions.now())
 
 
 class PrivateMessage(Model):
-    send_user = Column('send_user', Integer(), index=True, nullable=False)
-    recv_user = Column('recv_user', Integer(), index=True, nullable=False)
+    sender = Column('sender', Integer(), index=True, nullable=False)
+    recipient = Column('recipient', Integer(), index=True, nullable=False)
     message = Column('message', Integer(), nullable=False)
-    date = Column('date', Float(), nullable=False)
-
-
-class PostComment(Model):
-    send_user = Column('send_user', Integer(), index=True, nullable=False)
-    recv_user = Column('recv_user', Integer(), index=True, nullable=False)
-    post_id = Column('post_id', Integer(), nullable=False)
-    comment_id = Column('comment_id', Integer(), nullable=False)
-    date = Column('date', Float(), nullable=False)
-
-
-class CommentComment(Model):
-    send_user = Column('send_user', Integer(), index=True, nullable=False)
-    recv_user = Column('recv_user', Integer(), index=True, nullable=False)
-    post_id = Column('post_id', Integer(), nullable=False)
-    comment_id = Column('comment_id', Integer(), nullable=False)
-    date = Column('date', Float(), nullable=False)
+    unread = Column('unread', Boolean(), nullable=False)
+    date = Column('date', DateTime(timezone=True), default=functions.now())
