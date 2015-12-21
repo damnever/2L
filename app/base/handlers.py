@@ -29,6 +29,9 @@ class APIHandler(BaseHandler):
     must has return value, and do not use write, render, etc.
     """
 
+    def prepare(self):
+        pass
+
     def set_default_headers(self):
         super(APIHandler, self).set_default_headers()
         self.set_header('Content-Type', 'application/json')
