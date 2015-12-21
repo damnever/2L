@@ -35,10 +35,10 @@ class TopicAPIHandler(APIHandler):
 
 urls = [
     # `GET /api/topics`, return all topics.
-    # `GET /api/topics/:topic_id`, return information of topic_name.
+    # `GET /api/topics/:topic_id`, return information of the topic.
     (r'/api/topics(?:/(\d+))?', TopicsAPIHandler),
     # For the topic administer or GodFather...
     #  `POST /api/topic`, build a new topic.
-    #  `PATCH /api/topic/:topic_id`, update topic description or rules.
+    #  `PATCH /api/topic/:topic_id`, update information of the topic.
     (r'/api/topic(?:/(\d+))?', TopicAPIHandler),
 ]
