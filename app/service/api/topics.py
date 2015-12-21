@@ -38,7 +38,7 @@ urls = [
     # `GET /api/topics/:topic_id`, return information of the topic.
     (r'/api/topics(?:/(\d+))?', TopicsAPIHandler),
     # For the topic administer or GodFather...
-    #  `POST /api/topic`, build a new topic.
+    #  `POST /api/topic`, create a new topic.
     #  `PATCH /api/topic/:topic_id`, update information of the topic.
     (r'/api/topic(?:/(\d+))?', TopicAPIHandler),
 ]

@@ -19,6 +19,10 @@ class TopicPostsAPIHandler(APIHandler):
     def get(self, topic_id):
         return []
 
+    @as_json
+    def post(self, topic_id):
+        pass
+
 
 class UserPostsAPIHandler(APIHandler):
 
@@ -46,6 +50,9 @@ urls = [
     # `GET /api/posts/latest`, get all latest posts.
     (r'/api/posts/latest', LatestPostsAPIHandler),
     # `GET /api/posts/topic/:topic_id`, get all posts of the topic.
+    # For authenticated user:
+    #  `POST /api/posts/topic/:topic_id`, create a new post for
+    #   the topic.
     (r'/api/posts/topic/(\d+)', TopicPostsAPIHandler),
     # `GET /api/posts/topic/:username, get all posts of the user.
     (r'/api/posts/user/(\w+)', UserPostsAPIHandler),

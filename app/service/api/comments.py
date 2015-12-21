@@ -25,6 +25,7 @@ class UserCommentsAPIHandler(APIHandler):
 
 
 urls = [
+    # NOTE: comment can not be deleted...
     # `GET /api/comments/post/:post_id`, get all comments of the post.
     # For authenticated user:
     #   `POST /api/comments/post/:post_id`, add a new comments to post.

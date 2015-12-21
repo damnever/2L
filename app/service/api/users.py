@@ -10,7 +10,7 @@ class UsersAPIHandler(APIHandler):
 
     @as_json
     def get(self, username):
-        return None
+        return []
 
 
 class UserAPIHandler(APIHandler):
@@ -28,7 +28,7 @@ class FollowingAPIHandler(APIHandler):
 
     @as_json
     def get(self):
-        return None
+        return []
 
 
 class FollowOneAPIHandler(APIHandler):
@@ -49,7 +49,7 @@ class BlockedAPIHandler(APIHandler):
 
     @as_json
     def get(self):
-        return None
+        return []
 
 
 class BlockOneAPIHandler(APIHandler):
@@ -70,7 +70,7 @@ urls = [
     # `GET /api/users/:username`, get information of username.
     (r'/api/users/(\w+)', UsersAPIHandler),
 
-    # For the current user:
+    # For authenticated user:
 
     #  `GET /api/user`, get user information.
     #  `PATCH /api/user`, update user information.
