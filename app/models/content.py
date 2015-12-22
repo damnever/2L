@@ -3,7 +3,6 @@
 from __future__ import print_function, division, absolute_import
 
 from sqlalchemy import Column, Integer, String, Text, DateTime, Boolean
-from sqlalchemy.orm import relationship
 from sqlalchemy.sql import functions
 
 from app.models.base import Model
@@ -12,13 +11,8 @@ from app.models.base import Model
 class Topic(Model):
     name = Column('name', String(30), index=True, unique=True, nullable=False)
     avatar = Column('avatar', String(100), nullable=False)
-    description = Column('description', String(420), nullable=True)
-    rules = relationship('TopicRules', back_populates='topic')
-
-
-class TopicRules(Model):
-    index = Column('index', Integer, nullable=False)
-    rule = Column('rule', String(300), nullable=False)
+    description = Column('description', String(420), nullable=False)
+    rules = Column('rules', Text(), nullable=False)
 
 
 class Post(Model):

@@ -34,9 +34,9 @@ class Profile(Model):
     twitter = Column('twitter', String(100), default='')
 
 
-class Followers(Model):
+class Following(Model):
     user_id = Column('user_id', Integer(), index=True, nullable=False)
-    follower_id = Column('follower_id', Integer(), index=True, nullable=False)
+    following_id = Column('following_id', Integer(), index=True, nullable=False)
 
 
 class Blocked(Model):
