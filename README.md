@@ -1,3 +1,3 @@
 ## 2L
 
-~SB (BiShe)~
+~SB (bì shè)~
