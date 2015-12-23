@@ -2,11 +2,23 @@
 
 from __future__ import print_function, division, absolute_import
 
+from sqlalchemy import create_engine, Column, Integer
 from sqlalchemy.ext.declarative import declarative_base, declared_attr
-from sqlalchemy import Column, Integer
+from sqlalchemy.orm import scoped_session, sessionmaker
+
+from app.settings import MySQL
 
 
-class _Base(object):
+url = 'mysql://{username}:{password}@{host}:{port}/{db}'.format(**MySQL)
+engine = create_engine(url, echo=True)
+db_session = scoped_session(sessionmaker(autocommit=False,
+                                         autoflush=False,
+                                         bind=engine))
+
+Base = declarative_base()
+
+
+class MixIn(object):
 
     __table_args__ = {
         'mysql_engine': 'InnoDB',
@@ -22,8 +34,18 @@ class _Base(object):
         return Column('id', Integer(), primary_key=True, autoincrement=True)
 
 
-Base = declarative_base(cls=_Base)
-Model = Base
+class Model(MixIn, Base):
+
+    __abstract__ = True
+    query = db_session.query_property()
+
+
+def init_db():
+    Base.metadata.create_all(bind=engine)
+
+
+def shutdown_session():
+    db_session.remove()
 
 
 class Roles(object):
@@ -34,4 +56,3 @@ class Roles(object):
     User = 'User'
     # Topic administer, such as, the administer of the Python topic
     TopicAdmin = 'Topic:{0}:Admin'
-
