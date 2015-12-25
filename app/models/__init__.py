@@ -5,8 +5,8 @@ from __future__ import print_function, division, absolute_import
 import os
 import inspect
 
-from app.utils import load_module_attrs
-from app.models.base import Model, Base, Roles
+from app.libs.utils import load_module_attrs
+from app.models.base import Model, Roles
 
 
 def _filter(module):
@@ -22,4 +22,4 @@ models = {model.__name__: model for model in model_classes}
 
 globals().update(models)
 
-__all__ = models.keys() + ['Base', 'Roles']
+__all__ = models.keys() + ['Roles']

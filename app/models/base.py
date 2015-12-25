@@ -2,20 +2,10 @@
 
 from __future__ import print_function, division, absolute_import
 
-from sqlalchemy import create_engine, Column, Integer
-from sqlalchemy.ext.declarative import declarative_base, declared_attr
-from sqlalchemy.orm import scoped_session, sessionmaker
+from sqlalchemy import Column, Integer
+from sqlalchemy.ext.declarative import declared_attr
 
-from app.settings import MySQL
-
-
-url = 'mysql://{username}:{password}@{host}:{port}/{db}'.format(**MySQL)
-engine = create_engine(url, echo=True)
-db_session = scoped_session(sessionmaker(autocommit=False,
-                                         autoflush=False,
-                                         bind=engine))
-
-Base = declarative_base()
+from app.libs.db import Base, db_session
 
 
 class MixIn(object):
@@ -33,19 +23,22 @@ class MixIn(object):
     def id(cls):
         return Column('id', Integer(), primary_key=True, autoincrement=True)
 
+    @classmethod
+    def get(cls, id_):
+        return cls.query.filter(cls.id==id_).first()
+
+    @classmethod
+    def get_multi(cls, *ids):
+        return [cls.get(id_) for id_ in ids]
+
+    def delete(self):
+        db_session.delete(self)
+
 
 class Model(MixIn, Base):
 
     __abstract__ = True
     query = db_session.query_property()
-
-
-def init_db():
-    Base.metadata.create_all(bind=engine)
-
-
-def shutdown_session():
-    db_session.remove()
 
 
 class Roles(object):

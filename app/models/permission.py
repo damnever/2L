@@ -4,6 +4,7 @@ from __future__ import print_function, division, absolute_import
 
 from sqlalchemy import Column, Integer, String, event
 from sqlalchemy.sql import select, functions
+from sqlalchemy.orm import load_only
 
 from app.models.base import Model
 
@@ -11,6 +12,11 @@ from app.models.base import Model
 class Permission(Model):
     bit = Column('number', Integer, index=True)
     role = Column('role', String(24), index=True, nullable=False)
+
+    @classmethod
+    def get_by_role(cls, role):
+        r = cls.query.options(load_only('bit')).filter(cls.role==role)
+        return r.first()
 
 
 @event.listens_for(Permission, 'before_insert')
