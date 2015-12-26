@@ -2,68 +2,138 @@
 
 from __future__ import print_function, division, absolute_import
 
+from tornado import gen
+
 from app.base.handlers import APIHandler
 from app.base.decorators import as_json
+from app.services.api import exceptions
+from app.models import User, Following, Blocked
 
 
 class UsersAPIHandler(APIHandler):
 
     @as_json
+    @gen.coroutine
     def get(self, username):
-        return []
+        user = yield gen.maybe_future(User.get_by_name(username))
+        if user is None:
+            raise exceptions.UsernameDoesNotExists()
+        else:
+            raise gen.Return(user.information())
 
 
 class UserAPIHandler(APIHandler):
 
-    @as_json
-    def get(self):
-        return None
+    _fields = ("password role gold intorduce avatar location "
+               "wiki blog github google weibo twitter")
 
     @as_json
+    @gen.coroutine
+    def get(self):
+        username = self.current_user
+        info = yield gen.maybe_future(User.get_by_name(username).information())
+        following = yield gen.maybe_future(
+            Following.list_following(username).count())
+        blocked = yield gen.maybe_future(Blocked.list_blocked(username).count())
+        info.update({
+            'following': following,
+            'blocked': blocked,
+            'following_url': '/api/user/following',
+            'blocked_url': '/api/user/blocked',
+        })
+        raise gen.Return(info)
+
+    @as_json
+    @gen.coroutine
     def patch(self):
-        return None
+        fields = dict()
+        for key in self._fields.split():
+            value = self.get_argument(key, None)
+            if value is not None:
+                fields[key] = value
+
+        if not fields:
+            raise exceptions.EmptyFields()
+        else:
+            user = yield gen.maybe_future(User.get_by_name(self.current_user))
+            yield gen.maybe_future(user.update(fields))
 
 
 class FollowingAPIHandler(APIHandler):
 
     @as_json
+    @gen.coroutine
     def get(self):
-        return []
+        username = self.current_user
+        ids = yield gen.maybe_future(
+            Following.list_following(username).all())
+        if ids:
+            users = yield gen.maybe_future(User.get_multi(sorted(ids)))
+            followings = [user.information() for user in users]
+            raise gen.Return(followings)
 
 
 class FollowOneAPIHandler(APIHandler):
 
     @as_json
+    @gen.coroutine
     def post(self, username):
-        return None
+        if username is None:
+            raise exceptions.EmptyFields()
+        else:
+            me = self.current_user
+            yield gen.maybe_future(Following.create(me, username))
 
 
 class UnfollowOneAPIHandler(APIHandler):
 
     @as_json
+    @gen.coroutine
     def delete(self, username):
-        return None
+        if username is None:
+            raise exceptions.EmptyFields()
+        else:
+            me = self.current_user
+            yield gen.maybe_future(
+                Following.get_by_user_following(me, username).delete())
 
 
 class BlockedAPIHandler(APIHandler):
 
     @as_json
     def get(self):
-        return []
+        username = self.current_user
+        ids = yield gen.maybe_future(
+            Blocked.list_blocked(username).all())
+        if ids:
+            users = yield gen.maybe_future(User.get_multi(sorted(ids)))
+            blockeds = [user.information() for user in users]
+            raise gen.Return(blockeds)
+
 
 
 class BlockOneAPIHandler(APIHandler):
 
     @as_json
-    def post(self):
-        return None
+    def post(self, username):
+        if username is None:
+            raise exceptions.EmptyFields()
+        else:
+            me = self.current_user
+            yield gen.maybe_future(Blocked.create(me, username))
+
 
 
 class UnblockOneAPIHandler(APIHandler):
 
     @as_json
-    def delete(self):
-        return None
+    def delete(self, username):
+        if username is None:
+            raise exceptions.EmptyFields()
+        else:
+            me = self.current_user
+            yield gen.maybe_future(
+                Blocked.get_by_user_following(me, username).delete())
 
 
 urls = [

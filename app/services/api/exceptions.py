@@ -27,6 +27,5 @@ def _make_error_class(cls_name, code, reason):
 
 
 for code, reason in error_codes.items():
-    error = ''.join([w.capitalize()
-            for w in reason.replace('-', '').split() + ['Error']])
+    error = ''.join([w.capitalize() for w in reason.replace('-', '').split()])
     globals()[error] = _make_error_class(error, code, reason)
