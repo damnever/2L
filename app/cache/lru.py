@@ -51,6 +51,10 @@ class LRU(with_metaclass(ABCMeta, object)):
             return value
         return self.get_by_key(key, default)
 
+    def delete_cache(self, key):
+        if self.has_key(key):
+            self.pop_by_key(key)
+
     @classmethod
     def __subclasshook__(cls, C):
         def _has_methods(d):
