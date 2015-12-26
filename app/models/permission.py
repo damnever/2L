@@ -6,7 +6,7 @@ from sqlalchemy import Column, Integer, String, event
 from sqlalchemy.sql import select, functions
 from sqlalchemy.orm import load_only
 
-from app.models.base import Model
+from app.models.base import Model, db_session
 
 
 class Permission(Model):
@@ -17,6 +17,12 @@ class Permission(Model):
     def get_by_role(cls, role):
         r = cls.query.options(load_only('bit')).filter(cls.role==role)
         return r.first()
+
+    @classmethod
+    def create(cls, role):
+        p = cls(role=role)
+        db_session.add(p)
+        db_session.commit()
 
 
 @event.listens_for(Permission, 'before_insert')

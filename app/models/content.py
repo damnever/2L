@@ -18,12 +18,13 @@ class Topic(Model):
     rules = Column('rules', Text(), nullable=False)
 
     @classmethod
-    def count(cls):
-        return cls.query.count()
+    def list_all(cls):
+        return cls.query.all()
 
     @classmethod
-    def count_by_user(cls, username):
-        return cls.query.filter()
+    def list_by_user(cls, username):
+        user = User.get_by_name(username)
+        return cls.query.filter(cls.admin_id==user.id)
 
     @classmethod
     def create(cls, name, created_name, avatar, description, rules):
@@ -31,17 +32,26 @@ class Topic(Model):
         t = Topic(name=name, admin_id=user.id, avatar=avatar,
                   description=description, rules=rules)
         db_session.add(t)
+        db_session.commit()
 
-    def update(self, description=None, rules=None):
+    def update(self, description=None, rules=None, avatar=None):
         if description:
             self.description = description
         if rules:
             self.rules = rules
         db_session.add(self)
+        db_session.commit()
 
-    def created_user(self):
-        return User.get(self.created_id)
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'name': self.name,
+            'administer': self.administer.username,
+            'description': self.description,
+            'rules': self.rules,
+        }
 
+    @property
     def administer(self):
         return User.get(self.admin_id)
 
@@ -63,22 +73,13 @@ class Post(Model):
         return cls.query.count()
 
     @classmethod
-    def count_by_user(cls, username):
+    def list_by_user(cls, username):
         user = User.get_by_name(username)
-        return cls.query.filter(cls.author_id==user.id).count()
+        return cls.query.filter(cls.author_id==user.id)
 
     @classmethod
-    def count_by_topic(cls, topic_id):
-        return cls.query.filter(cls.topic_id==topic_id).count()
-
-    @classmethod
-    def get_by_user(cls, username):
-        user = User.get_by_name(username)
-        return cls.query.filter(cls.author_id==user.id).all()
-
-    @classmethod
-    def get_by_topic(cls, topic_id):
-        return cls.query.filter(cls.topic_id==topic_id).all()
+    def list_by_topic(cls, topic_id):
+        return cls.query.filter(cls.topic_id==topic_id)
 
     @classmethod
     def create(cls, author_name, topic_id, title, keywords,
@@ -92,6 +93,7 @@ class Post(Model):
             keep_silent=keep_silent,
         )
         db_session.add(p)
+        db_session.commit()
 
     def update(self, keywords=None, content=None, keep_silent=None):
         if keywords:
@@ -101,9 +103,7 @@ class Post(Model):
         if keep_silent:
             self.keep_silent = keep_silent
         db_session.add(self)
-
-    def delete(self):
-        db_session.delete(self)
+        db_session.commit()
 
     def author(self):
         return User.get(self.author_id)
@@ -123,35 +123,25 @@ class Comment(Model):
         return cls.query.count()
 
     @classmethod
-    def count_by_user(cls, username):
+    def list_by_user(cls, username):
         user = User.get_by_name(username)
-        return cls.query.filter(cls.author_id==user.id).count()
+        return cls.query.filter(cls.author_id==user.id)
 
     @classmethod
-    def count_by_post(cls, post_id):
-        return cls.query.filter(cls.post_id==post_id).count()
-
-    @classmethod
-    def get_by_user(cls, username):
-        user = User.get_by_name(username)
-        return cls.query.filter(cls.author_id==user.id).all()
-
-    @classmethod
-    def get_by_post(cls, post_id):
-        return cls.query.filter(cls.post_id==post_id).all()
+    def list_by_post(cls, post_id):
+        return cls.query.filter(cls.post_id==post_id)
 
     @classmethod
     def create(cls, author_name, post_id, content):
         user = User.get_by_name(author_name)
         c = cls(author_id=user.id, post_id=post_id, content=content)
         db_session.add(c)
+        db_session.commit()
 
     def update(self, content):
         self.content = content
         db_session.add(self)
-
-    def delete(self):
-        db_session.add(self)
+        db_session.commit()
 
     def author(self):
         return User.get(self.author_id)

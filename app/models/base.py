@@ -33,6 +33,7 @@ class MixIn(object):
 
     def delete(self):
         db_session.delete(self)
+        db_session.commit()
 
 
 class Model(MixIn, Base):

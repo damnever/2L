@@ -41,10 +41,12 @@ class User(Model):
         user = cls(**user_attrs)
         db_session.add(user)
         db_session.add(profile)
+        db_session.commit()
 
     def delete(self):
         db_session.delete(self.profile)
         db_session.delete(self)
+        db_session.commit()
 
     def update(self, **kwargs):
         for k, v in kwargs.items():
@@ -53,6 +55,7 @@ class User(Model):
             elif hasattr(self.profile, k):
                 setattr(self.profile, k, v)
         db_session.add(self)
+        db_session.commit()
 
     def has_permission(self, role):
         return self.query.filter(self.role&Permission.get_by_role(role))
@@ -108,12 +111,10 @@ class Following(Model):
     following_id = Column('following_id', Integer(), index=True, nullable=False)
 
     @classmethod
-    def get_count_by_userid(cls, user_id):
-        return cls.query.filter(cls.user_id==user_id).count()
-
-    @classmethod
-    def list_following_id(cls, user_id):
-        return cls.query.filter(cls.user_id==user_id).all()
+    def list_following(cls, username):
+        user = User.get_by_name(username)
+        return cls.query.with_entities(
+            cls.following_id).filter(cls.user_id==user.id)
 
     @classmethod
     def create(cls, username, following_name):
@@ -121,6 +122,7 @@ class Following(Model):
         following = User.get_by_name(following_name)
         f = Following(user_id=user.id, following_id=following.id)
         db_session.add(f)
+        db_session.commit()
 
     @classmethod
     def get_by_user_following(cls, username, following_name):
@@ -136,12 +138,10 @@ class Blocked(Model):
     blocked_id = Column('blocked_id', Integer(), index=True, nullable=False)
 
     @classmethod
-    def get_count_by_userid(cls, user_id):
-        return cls.query.filter(cls.user_id==user_id).count()
-
-    @classmethod
-    def list_blocked_id(cls, user_id):
-        return cls.query.filter(cls.user_id==user_id).all()
+    def list_blocked(cls, username):
+        user = User.get_by_name(username)
+        return cls.query.with_entities(
+            cls.blocked_id).filter(cls.user_id==user.id)
 
     @classmethod
     def create(cls, username, blocked_name):
@@ -149,6 +149,7 @@ class Blocked(Model):
         blocked = User.get_by_name(blocked_name)
         f = Blocked(user_id=user.id, blocked_id=blocked.id)
         db_session.add(f)
+        db_session.commit()
 
     @classmethod
     def get_by_user_blocked(cls, username, blocked_name):

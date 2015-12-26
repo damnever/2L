@@ -16,22 +16,13 @@ class Subscription(Model):
     date = Column('date', DateTime(timezone=True), default=functions.now())
 
     @classmethod
-    def count_by_user(cls, username):
+    def list_by_topic(cls, topic_id):
+        return cls.query.filter(cls.topic_id==topic_id)
+
+    @classmethod
+    def list_by_user(cls, username):
         user = User.get_by_name(username)
-        return cls.query.filter(cls.user_id==user.id).count()
-
-    @classmethod
-    def count_by_topic(cls, topic_id):
-        return cls.query.filter(cls.topic_id==topic_id).count()
-
-    @classmethod
-    def get_by_topic(cls, topic_id):
-        return cls.query.filter(cls.topic_id==topic_id).all()
-
-    @classmethod
-    def get_by_user(cls, username):
-        user = User.get_by_name(username)
-        return cls.query.filter(cls.user_id==user.id).all()
+        return cls.query.filter(cls.user_id==user.id)
 
     @classmethod
     def get_by_user_topic(cls, username, topic_id):
@@ -45,6 +36,7 @@ class Subscription(Model):
         user = User.get_by_name(username)
         s = cls(user_id=user.id, topic_id=topic_id)
         db_session.add(s)
+        db_session.commit()
 
 
 class Favorite(Model):
@@ -53,22 +45,13 @@ class Favorite(Model):
     date = Column('date', DateTime(timezone=True), default=functions.now())
 
     @classmethod
-    def count_by_user(cls, username):
+    def list_by_user(cls, username):
         user = User.get_by_name(username)
-        return cls.query.filter(cls.user_id==user.id).count()
+        return cls.query.filter(cls.user_id==user.id)
 
     @classmethod
-    def count_by_post(cls, post_id):
-        return cls.query.count()
-
-    @classmethod
-    def get_by_user(cls, username):
-        user = User.get_by_name(username)
-        return cls.query.filter(cls.user_id==user.id).all()
-
-    @classmethod
-    def get_by_post(cls, post_id):
-        return cls.query.filter(cls.post_id==post_id).all()
+    def list_by_post(cls, post_id):
+        return cls.query.filter(cls.post_id==post_id)
 
     @classmethod
     def get_by_user_post(cls, username, post_id):
@@ -82,6 +65,7 @@ class Favorite(Model):
         user = User.get_by_name(username)
         f = cls(user_id=user.id, post_id=post_id)
         db_session.add(f)
+        db_session.commit()
 
 
 class PostView(Model):
@@ -97,6 +81,7 @@ class PostView(Model):
         p = cls(post_id=post_id, user_id=user.id, system=system,
                 agent=agent, ip=ip)
         db_session.add(p)
+        db_session.commit()
 
 
 class PostUpVote(Model):
@@ -105,8 +90,8 @@ class PostUpVote(Model):
     date = Column('date', DateTime(timezone=True), default=functions.now())
 
     @classmethod
-    def count_by_post(cls, post_id):
-        return cls.query.filter(cls.post_id==post_id).count()
+    def list_by_post(cls, post_id):
+        return cls.query.filter(cls.post_id==post_id)
 
     @classmethod
     def get_by_user_post(cls, username, post_id):
@@ -120,6 +105,7 @@ class PostUpVote(Model):
         user = User.get_by_name(username)
         pu = cls(user_id=user.id, post_id=post_id)
         db_session.add(pu)
+        db_session.commit()
 
 
 class PostDownVote(Model):
@@ -128,8 +114,8 @@ class PostDownVote(Model):
     date = Column('date', DateTime(timezone=True), default=functions.now())
 
     @classmethod
-    def count_by_post(cls, post_id):
-        return cls.query.filter(cls.post_id==post_id).count()
+    def list_by_post(cls, post_id):
+        return cls.query.filter(cls.post_id==post_id)
 
     @classmethod
     def get_by_user_post(cls, username, post_id):
@@ -143,6 +129,7 @@ class PostDownVote(Model):
         user = User.get_by_name(username)
         pd = cls(user_id=user.id, post_id=post_id)
         db_session.add(pd)
+        db_session.commit()
 
 
 class CommentUpVote(Model):
@@ -151,8 +138,8 @@ class CommentUpVote(Model):
     date = Column('date', DateTime(timezone=True), default=functions.now())
 
     @classmethod
-    def count_by_comment(cls, comment_id):
-        return cls.query.filter(cls.comment_id==comment_id).count()
+    def list_by_comment(cls, comment_id):
+        return cls.query.filter(cls.comment_id==comment_id)
 
     @classmethod
     def get_by_user_comment(cls, username, comment_id):
@@ -166,6 +153,7 @@ class CommentUpVote(Model):
         user = User.get_by_name(username)
         cu = cls(user_id=user.id, comment_id=comment_id)
         db_session.add(cu)
+        db_session.commit()
 
 
 class CommentDownVote(Model):
@@ -174,8 +162,8 @@ class CommentDownVote(Model):
     date = Column('date', DateTime(timezone=True), default=functions.now())
 
     @classmethod
-    def count_by_comment(cls, comment_id):
-        return cls.query.filter(cls.comment_id==comment_id).count()
+    def list_by_comment(cls, comment_id):
+        return cls.query.filter(cls.comment_id==comment_id)
 
     @classmethod
     def get_by_user_comment(cls, username, comment_id):
@@ -189,3 +177,4 @@ class CommentDownVote(Model):
         user = User.get_by_name(username)
         cd = cls(user_id=user.id, comment_id=comment_id)
         db_session.add(cd)
+        db_session.commit()
