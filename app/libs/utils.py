@@ -5,9 +5,9 @@ from __future__ import print_function, division, absolute_import
 import os
 import importlib
 import pkgutil
+import hashlib
 
-
-root_pkg = os.path.basename(os.path.dirname(os.path.abspath(__file__)))
+from app.settings import ROOT_DIR
 
 
 def load_module_attrs(pkg_path, func, recursive=False):
@@ -15,6 +15,7 @@ def load_module_attrs(pkg_path, func, recursive=False):
     ``func`` must return a list.
     """
     attrs = list()
+    root_pkg = os.path.basename(ROOT_DIR)
     pkg_name = root_pkg + pkg_path.split(root_pkg)[1].replace('/', '.')
 
     for _, name, ispkg in pkgutil.iter_modules([pkg_path]):
@@ -29,3 +30,9 @@ def load_module_attrs(pkg_path, func, recursive=False):
             attrs.extend(attr)
 
     return attrs
+
+
+def encrypt_password(password):
+    """Yes, I do know what I am thinking..."""
+    mid = ''.join([hex(ord(w))[2:] for w in password])
+    return hashlib.sha1(mid).hexdigest()
