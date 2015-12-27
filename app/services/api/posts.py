@@ -11,15 +11,35 @@ from app.services.api import exceptions
 from app.models import Post, Comment, PostUpVote, PostDownVote, Favorite
 
 
+def _post_info(post):
+    info = post.to_dict()
+    comments = Comment.count_by_post(post.id)
+    favorites = Favorite.count_by_post(post.id)
+    up_votes = PostUpVote.count_by_post(post.id)
+    down_votes = PostDownVote.count_by_post(post.id)
+    info.update({
+        'up_votes': up_votes,
+        'down_votes': down_votes,
+        'favorites': favorites,
+        'comments': comments,
+        'comments_url': '/api/comments/post/{0}'.format(post.id),
+    })
+    return info
+
+
 class LatestPostsAPIHandler(APIHandler):
 
     @as_json
     @gen.coroutine
     def get(self):
-        posts = yield gen.maybe_future(Post.list_all().all())
+        posts = yield gen.maybe_future(Post.list_all())
+        infos = list()
+        for post in posts:
+            info = yield gen.maybe_future(_post_info(post))
+            infos.append(info)
         result = {
             'total': len(posts),
-            'posts': [p.to_dict() for p in posts],
+            'posts': infos,
         }
         raise gen.Return(result)
 
@@ -65,9 +85,13 @@ class UserPostsAPIHandler(APIHandler):
     @gen.coroutine
     def get(self, username):
         posts = yield gen.maybe_future(Post.list_by_user(username))
+        infos = list()
+        for post in posts:
+            info = yield gen.maybe_future(_post_info(post))
+            infos.append(info)
         result = {
             'total': len(posts),
-            'posts': [p.to_dict() for p in posts],
+            'posts': infos,
         }
         raise gen.Return(result)
 
@@ -78,18 +102,7 @@ class PostAPIHandler(APIHandler):
     @gen.coroutine
     def get(self, post_id):
         post = yield gen.maybe_future(Post.get(post_id))
-        comments = yield gen.maybe_future(Comment.count_by_post(post_id))
-        favorites = yield gen.maybe_future(Favorite.count_by_post(post_id))
-        up_votes = yield gen.maybe_future(PostUpVote.count_by_post(post_id))
-        down_votes = yield gen.maybe_future(PostDownVote.count_by_post(post_id))
-        info = post.to_dict()
-        info.update({
-            'up_votes': up_votes,
-            'down_votes': down_votes,
-            'favorites': favorites,
-            'comments': comments,
-            'comments_url': '/api/comments/post/{0}'.format(post_id),
-        })
+        info = yield gen.maybe_future(_post_info(post))
         raise gen.Return(info)
 
     @as_json
