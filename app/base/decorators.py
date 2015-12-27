@@ -11,6 +11,8 @@ from tornado.escape import json_encode
 from tornado.web import HTTPError
 
 from app.base.exceptions import ValidationError
+from app.models import User
+from app.base.roles import Roles
 
 
 def as_json(method):
@@ -43,14 +45,24 @@ def as_json(method):
 def authenticated(method):
     @functools.wraps(method)
     def wrapper(self, *args, **kwargs):
-        pass
+        if not self.current_user:
+            raise HTTPError(403)
+        return method(self, *args, **kwargs)
     return wrapper
 
 
 def need_permissions(*permissions):
     def decorator(method):
         @functools.wraps(method)
-        def wrapper(self, *args, **kwargs):
-            pass
+        @gen.coroutine
+        def wrapper(self, id_):
+            username = self.current_user
+            user = yield gen.maybe_future(User.get_by_name(username))
+            for permission in permissions:
+                if id_ and permission == Roles.TopicEdit:
+                    permission = permission.format(id_)
+                if not user.has_permission(permission):
+                    raise HTTPError(403)
+            raise gen.Return(method(self, id_))
         return wrapper
     return decorator
