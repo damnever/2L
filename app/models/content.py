@@ -24,7 +24,11 @@ class Topic(Model):
     @classmethod
     def list_by_user(cls, username):
         user = User.get_by_name(username)
-        return cls.query.filter(cls.admin_id==user.id)
+        return cls.query.filter(cls.admin_id==user.id).all()
+
+    @classmethod
+    def get_by_name(cls, name):
+        return cls.query.filter(cls.name==name).first()
 
     @classmethod
     def create(cls, name, created_name, avatar, description, rules):
@@ -59,7 +63,7 @@ class Topic(Model):
 class Post(Model):
     topic_id = Column('topic_id', Integer(), index=True, nullable=False)
     author_id = Column('author_id', Integer(), index=True, nullable=False)
-    title = Column('title', Text(120), nullable=False)
+    title = Column('title', Text(120), unique=True, nullable=False)
     created_date = Column('created_date', DateTime(timezone=True),
                           default=functions.now())
     update_date = Column('update_date', DateTime(timezone=True),
@@ -69,17 +73,21 @@ class Post(Model):
     keep_silent = Column('keep_silent', Boolean(), default=False)
 
     @classmethod
-    def count(cls):
-        return cls.query.count()
+    def get_by_title(cls, title):
+        return cls.query.filter(cls.title==title).first()
+
+    @classmethod
+    def list_all(cls):
+        return cls.query.all()
 
     @classmethod
     def list_by_user(cls, username):
         user = User.get_by_name(username)
-        return cls.query.filter(cls.author_id==user.id)
+        return cls.query.filter(cls.author_id==user.id).all()
 
     @classmethod
     def list_by_topic(cls, topic_id):
-        return cls.query.filter(cls.topic_id==topic_id)
+        return cls.query.filter(cls.topic_id==topic_id).all()
 
     @classmethod
     def create(cls, author_name, topic_id, title, keywords,
@@ -105,9 +113,23 @@ class Post(Model):
         db_session.add(self)
         db_session.commit()
 
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'author': self.author.username,
+            'title': self.title,
+            'keywords': self.keywords,
+            'content': self.content,
+            'keep_silent': self.keep_silent,
+            'created_date': self.created_date,
+            'update_date': self.update_date,
+        }
+
+    @property
     def author(self):
         return User.get(self.author_id)
 
+    @property
     def topic(self):
         return Topic.get(self.topic_id)
 
@@ -119,17 +141,26 @@ class Comment(Model):
     content = Column('content', Text(), nullable=False)
 
     @classmethod
-    def count(cls):
-        return cls.query.count()
+    def list_all(cls):
+        return cls.query.all()
+
+    @classmethod
+    def count_by_user(cls, username):
+        user = User.get_by_name(username)
+        return cls.query.filter(cls.author_id==user.id).count()
+
+    @classmethod
+    def count_by_post(cls, post_id):
+        return cls.query.filter(cls.post_id==post_id).count()
 
     @classmethod
     def list_by_user(cls, username):
         user = User.get_by_name(username)
-        return cls.query.filter(cls.author_id==user.id)
+        return cls.query.filter(cls.author_id==user.id).all()
 
     @classmethod
     def list_by_post(cls, post_id):
-        return cls.query.filter(cls.post_id==post_id)
+        return cls.query.filter(cls.post_id==post_id).all()
 
     @classmethod
     def create(cls, author_name, post_id, content):

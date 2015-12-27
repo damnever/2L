@@ -40,13 +40,3 @@ class Model(MixIn, Base):
 
     __abstract__ = True
     query = db_session.query_property()
-
-
-class Roles(object):
-    # head of the site
-    GodFather = 'GodFather'
-    Admin = 'Admin'
-    Vote = 'Vote'
-    User = 'User'
-    # Topic administer, such as, the administer of the Python topic
-    TopicAdmin = 'Topic:{0}:Admin'

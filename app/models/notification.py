@@ -24,14 +24,14 @@ class Notification(Model):
         stmt = cls.recipient_id==user.id
         if unread is not None:
             stmt = expression.and_(stmt, cls.unread==unread)
-        return cls.query.filter(stmt)
+        return cls.query.filter(stmt).all()
 
     @classmethod
     def list_by_type(cls, type_, unread=None):
         stmt = cls.activity_type==type_
         if unread is not None:
             stmt = expression.and_(stmt, cls.unread==unread)
-        return cls.query.filter(stmt)
+        return cls.query.filter(stmt).all()
 
     @classmethod
     def create(cls, sender_name, recipient_name, activity_type, content_url):
@@ -65,7 +65,7 @@ class Announcement(Model):
     @classmethod
     def list_by_recipient(cls, username):
         user = User.get_by_name(username)
-        return cls.query.filter(cls.recipient_id==user.id)
+        return cls.query.filter(cls.recipient_id==user.id).all()
 
     @classmethod
     def expired(cls, id_):
@@ -107,7 +107,7 @@ class PrivateMessage(Model):
         stmt = cls.sender_id==user.id
         if unread is not None:
             stmt = expression.and_(stmt, cls.unread==unread)
-        return cls.query.filter(stmt)
+        return cls.query.filter(stmt).all()
 
     @classmethod
     def list_by_recipient(cls, username, unread=None):
@@ -115,7 +115,7 @@ class PrivateMessage(Model):
         stmt = cls.recipient_id==user.id
         if unread is not None:
             stmt = expression.and_(stmt, cls.unread==unread)
-        return cls.query.filter()
+        return cls.query.filter().all()
 
     @classmethod
     def create(cls, sender_name, recipient_name, message):

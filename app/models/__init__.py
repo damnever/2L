@@ -6,7 +6,7 @@ import os
 import inspect
 
 from app.libs.utils import load_module_attrs
-from app.models.base import Model, Roles
+from app.models.base import Model
 
 
 def _filter(module):
@@ -22,4 +22,4 @@ models = {model.__name__: model for model in model_classes}
 
 globals().update(models)
 
-__all__ = models.keys() + ['Roles']
+__all__ = models.keys()

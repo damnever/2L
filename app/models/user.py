@@ -2,6 +2,9 @@
 
 from __future__ import print_function, division, absolute_import
 
+from datetime import datetime
+
+from tzlocal import get_localzone
 from sqlalchemy import Column, Integer, String, Text, ForeignKey, DateTime
 from sqlalchemy.orm import relationship, expression
 from sqlalchemy.sql import functions
@@ -9,6 +12,7 @@ from sqlalchemy.sql import functions
 from app.models.base import Model
 from app.models.permission import Permission
 from app.libs.db import db_session
+from app.settings import Level
 
 
 class User(Model):
@@ -16,7 +20,7 @@ class User(Model):
                       unique=True, nullable=False)
     password = Column('password', String(20), nullable=False)
     email = Column('email', String(100), unique=True, default='')
-    role = Column('role', Integer(), nullable=False)
+    role = Column('role', Integer(), default=0)
     profile = relationship('Profile', uselist=False, back_populates='user')
 
     @classmethod
@@ -53,7 +57,20 @@ class User(Model):
             if hasattr(self, k):
                 setattr(self, k, v)
             elif hasattr(self.profile, k):
+                if k == 'gold':
+                    v += getattr(self.profile, k)
                 setattr(self.profile, k, v)
+
+        if (not self.has_permission('TopicCreation') and
+                self.profile.gold >= Level['Gold']['TopicCreation']):
+            self.role += Permission.get_by_role('TopicCreation')
+        if (not self.has_permission('Vote') and
+                self.profile.gold >= Level['Gold']['Vote']):
+            self.role += Permission.get_by_role('TopicCreation')
+        td = datetime.now(get_localzone()) - self.profile.join_date
+        if (not self.has_permission('Comment') and
+                td.total_seconds() >= Level['Time']['Comment']):
+            self.role += Permission.get_by_role('Comment')
         db_session.add(self)
         db_session.commit()
 
@@ -92,7 +109,8 @@ class User(Model):
 
 class Profile(Model):
     user_id = Column('user_id', Integer(), ForeignKey('user.id'))
-    gold = Column('gold', Integer(), index=True, nullable=False, default=50)
+    gold = Column('gold', Integer(), nullable=False,
+                  default=Level['Gold']['Register'])
     join_date = Column('join_date', DateTime(timezone=True),
                        default=functions.now())
     introduce = Column('introduce', Text(300), default='You know, 2L~')
@@ -111,10 +129,15 @@ class Following(Model):
     following_id = Column('following_id', Integer(), index=True, nullable=False)
 
     @classmethod
+    def count_by_user(cls, username):
+        user = User.get_by_name(username)
+        return cls.query.filter(cls.user_id==user.id).count()
+
+    @classmethod
     def list_following(cls, username):
         user = User.get_by_name(username)
         return cls.query.with_entities(
-            cls.following_id).filter(cls.user_id==user.id)
+            cls.following_id).filter(cls.user_id==user.id).all()
 
     @classmethod
     def create(cls, username, following_name):
@@ -138,10 +161,15 @@ class Blocked(Model):
     blocked_id = Column('blocked_id', Integer(), index=True, nullable=False)
 
     @classmethod
+    def count_by_user(cls, username):
+        user = User.get_by_name(username)
+        return cls.query.filter(cls.user_id==user.id).count()
+
+    @classmethod
     def list_blocked(cls, username):
         user = User.get_by_name(username)
         return cls.query.with_entities(
-            cls.blocked_id).filter(cls.user_id==user.id)
+            cls.blocked_id).filter(cls.user_id==user.id).all()
 
     @classmethod
     def create(cls, username, blocked_name):
