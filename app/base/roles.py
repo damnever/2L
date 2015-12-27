@@ -11,3 +11,4 @@ class Roles(object):
     Vote = 'Vote'
     Comment = 'Comment'
     TopicEdit = 'Topic:{0}:Edit'
+    PostEdit = 'Post:{0}:Edit'

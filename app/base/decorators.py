@@ -36,6 +36,8 @@ def as_json(method):
                 'reason': 'Unknown server error.\n' + tb_text,
             })
         else:
+            if result is None:
+                result = dict()
             result.update({'status': 1})
             self.write(json_encode(result))
         self.flush()

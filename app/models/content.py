@@ -174,8 +174,18 @@ class Comment(Model):
         db_session.add(self)
         db_session.commit()
 
+
+    def to_dict(self):
+        return {
+            'author': self.author.username,
+            'date': self.date,
+            'content': self.content,
+        }
+
+    @property
     def author(self):
         return User.get(self.author_id)
 
+    @property
     def post(self):
         return Post.get(self.post_id)
