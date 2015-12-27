@@ -1,4 +1,4 @@
 *.py[ocd]
 *~
 __pycache__/
-2L/dev_settings.py
+app/dev_settings.py
