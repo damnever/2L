@@ -8,6 +8,7 @@ from app.base.handlers import APIHandler
 from app.base.decorators import as_json
 from app.services.api import exceptions
 from app.models import User, Following, Blocked
+from app.base.decorators import authenticated
 
 
 class UsersAPIHandler(APIHandler):
@@ -28,13 +29,14 @@ class UserAPIHandler(APIHandler):
                "wiki blog github google weibo twitter")
 
     @as_json
+    @authenticated
     @gen.coroutine
     def get(self):
         username = self.current_user
         info = yield gen.maybe_future(User.get_by_name(username).information())
         following = yield gen.maybe_future(
-            Following.list_following(username).count())
-        blocked = yield gen.maybe_future(Blocked.list_blocked(username).count())
+            Following.count_by_user(username))
+        blocked = yield gen.maybe_future(Blocked.count_by_user(username))
         info.update({
             'following': following,
             'blocked': blocked,
@@ -44,6 +46,7 @@ class UserAPIHandler(APIHandler):
         raise gen.Return(info)
 
     @as_json
+    @authenticated
     @gen.coroutine
     def patch(self):
         fields = dict()
@@ -62,11 +65,12 @@ class UserAPIHandler(APIHandler):
 class FollowingAPIHandler(APIHandler):
 
     @as_json
+    @authenticated
     @gen.coroutine
     def get(self):
         username = self.current_user
         ids = yield gen.maybe_future(
-            Following.list_following(username).all())
+            Following.list_following(username))
         if ids:
             users = yield gen.maybe_future(User.get_multi(sorted(ids)))
             followings = [user.information() for user in users]
@@ -76,6 +80,7 @@ class FollowingAPIHandler(APIHandler):
 class FollowOneAPIHandler(APIHandler):
 
     @as_json
+    @authenticated
     @gen.coroutine
     def post(self, username):
         if username is None:
@@ -88,6 +93,7 @@ class FollowOneAPIHandler(APIHandler):
 class UnfollowOneAPIHandler(APIHandler):
 
     @as_json
+    @authenticated
     @gen.coroutine
     def delete(self, username):
         if username is None:
@@ -101,10 +107,12 @@ class UnfollowOneAPIHandler(APIHandler):
 class BlockedAPIHandler(APIHandler):
 
     @as_json
+    @authenticated
+    @gen.coroutine
     def get(self):
         username = self.current_user
         ids = yield gen.maybe_future(
-            Blocked.list_blocked(username).all())
+            Blocked.list_blocked(username))
         if ids:
             users = yield gen.maybe_future(User.get_multi(sorted(ids)))
             blockeds = [user.information() for user in users]
@@ -115,6 +123,8 @@ class BlockedAPIHandler(APIHandler):
 class BlockOneAPIHandler(APIHandler):
 
     @as_json
+    @authenticated
+    @gen.coroutine
     def post(self, username):
         if username is None:
             raise exceptions.EmptyFields()
@@ -127,6 +137,8 @@ class BlockOneAPIHandler(APIHandler):
 class UnblockOneAPIHandler(APIHandler):
 
     @as_json
+    @authenticated
+    @gen.coroutine
     def delete(self, username):
         if username is None:
             raise exceptions.EmptyFields()

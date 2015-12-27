@@ -15,6 +15,8 @@ error_codes = {
     1016: 'E-mail already exists',
     1017: 'Verification code wrong',
     1018: 'Token wrong',
+    1019: 'Topic name already exists',
+    1020: 'Post title already exists',
 }
 
 

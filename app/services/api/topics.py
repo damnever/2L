@@ -5,7 +5,8 @@ from __future__ import print_function, division, absolute_import
 from tornado import gen
 
 from app.base.handlers import APIHandler
-from app.base.decorators import as_json
+from app.base.decorators import as_json, authenticated, need_permissions
+from app.base.roles import Roles
 from app.services.api import exceptions
 from app.models import Topic
 
@@ -30,6 +31,8 @@ class TopicsAPIHandler(APIHandler):
 class TopicAPIHandler(APIHandler):
 
     @as_json
+    @need_permissions(Roles.TopicCreation)
+    @authenticated
     @gen.coroutine
     def post(self):
         name = self.get_argument('name', None)
@@ -40,11 +43,18 @@ class TopicAPIHandler(APIHandler):
         if name is None or description is None or rules is None:
             raise exceptions.EmptyFields()
         else:
-            created_user = self.current_user
-            yield gen.maybe_future(
-                Topic.create(name, created_user, avatar, description, rules))
+            exists = yield gen.maybe_future(Topic.get_by_name(name))
+            if exists:
+                raise exceptions.TopicNameAlreadyExists()
+            else:
+                created_user = self.current_user
+                yield gen.maybe_future(
+                    Topic.create(name, created_user, avatar,
+                                 description, rules))
 
     @as_json
+    @need_permissions(Roles.TopicEdit)
+    @authenticated
     @gen.coroutine
     def patch(self, topic_id):
         fields = dict()

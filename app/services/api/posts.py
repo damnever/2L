@@ -2,48 +2,117 @@
 
 from __future__ import print_function, division, absolute_import
 
+from tornado import gen
+
 from app.base.handlers import APIHandler
-from app.base.decorators import as_json
+from app.base.decorators import as_json, authenticated, need_permissions
+from app.base.roles import Roles
+from app.services.api import exceptions
+from app.models import Post, Comment, PostUpVote, PostDownVote, Favorite
 
 
 class LatestPostsAPIHandler(APIHandler):
 
     @as_json
-    def get(self, post_id):
-        return []
+    @gen.coroutine
+    def get(self):
+        posts = yield gen.maybe_future(Post.list_all().all())
+        result = {
+            'total': len(posts),
+            'posts': [p.to_dict() for p in posts],
+        }
+        raise gen.Return(result)
 
 
 class TopicPostsAPIHandler(APIHandler):
 
     @as_json
+    @gen.coroutine
     def get(self, topic_id):
-        return []
+        posts = yield gen.maybe_future(Post.list_by_topic(topic_id))
+        result = {
+            'total': len(posts),
+            'posts': posts,
+        }
+        raise gen.Return(result)
 
     @as_json
+    @need_permissions(Roles.Comment)
+    @authenticated
+    @gen.coroutine
     def post(self, topic_id):
-        pass
+        title = self.get_argument('title', None)
+        keywords = self.get_argument('keywords', None)
+        content = self.get_argument('content', '')
+        keep_silent = self.get_argument('keep_silent', False)
+
+        if title is None or keywords is None:
+            raise exceptions.EmptyFields()
+        else:
+            exists = yield gen.maybe_future(Post.get_by_title(title))
+            if exists:
+                raise exceptions.PostTitleAlreadyExists()
+            else:
+                username = self.current_user
+                yield gen.maybe_future(
+                    Post.create(username, topic_id, title, keywords,
+                                content, keep_silent=keep_silent))
 
 
 class UserPostsAPIHandler(APIHandler):
 
     @as_json
+    @gen.coroutine
     def get(self, username):
-        return []
+        posts = yield gen.maybe_future(Post.list_by_user(username))
+        result = {
+            'total': len(posts),
+            'posts': [p.to_dict() for p in posts],
+        }
+        raise gen.Return(result)
 
 
 class PostAPIHandler(APIHandler):
 
     @as_json
+    @gen.coroutine
     def get(self, post_id):
-        return None
+        post = yield gen.maybe_future(Post.get(post_id))
+        comments = yield gen.maybe_future(Comment.count_by_post(post_id))
+        favorites = yield gen.maybe_future(Favorite.count_by_post(post_id))
+        up_votes = yield gen.maybe_future(PostUpVote.count_by_post(post_id))
+        down_votes = yield gen.maybe_future(PostDownVote.count_by_post(post_id))
+        info = post.to_dict()
+        info.update({
+            'up_votes': up_votes,
+            'down_votes': down_votes,
+            'favorites': favorites,
+            'comments': comments,
+            'comments_url': '/api/comments/post/{0}'.format(post_id),
+        })
+        raise gen.Return(info)
 
     @as_json
+    @need_permissions(Roles.PostEdit)
+    @authenticated
+    @gen.coroutine
     def patch(self, post_id):
-        return None
+        keywords = self.get_argument('keywords', None)
+        content = self.get_argument('content', None)
+        keep_silent = self.get_argument('keep_silent', None)
+
+        if keywords is None and content is None and keep_silent is None:
+            raise exceptions.EmptyFields()
+        else:
+            post = yield gen.maybe_future(Post.get(post_id))
+            yield gen.maybe_future(post.update(keywords, content, keep_silent))
 
     @as_json
+    @need_permissions(Roles.PostEdit)
+    @authenticated
+    @gen.coroutine
     def delete(self, post_id):
-        return None
+        yield gen.maybe_future(Post.get(post_id).delete())
 
 
 urls = [
