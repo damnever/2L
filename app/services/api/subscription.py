@@ -2,29 +2,49 @@
 
 from __future__ import print_function, division, absolute_import
 
+from tornado import gen
+
 from app.base.handlers import APIHandler
-from app.base.decorators import as_json
+from app.base.decorators import as_json, authenticated
+from app.models import Subscription
 
 
 class SubscribedTopicAPIHandler(APIHandler):
 
     @as_json
+    @authenticated
+    @gen.coroutine
     def get(self):
-        return []
+        username = self.current_user
+        subs = yield gen.maybe_future(Subscription.list_by_user(username))
+        result = {
+            'total': len(subs),
+            'topics': [s.to_dict() for s in subs],
+        }
+        raise gen.Return(result)
 
 
 class SubscribeTopicAPIHandler(APIHandler):
 
     @as_json
+    @authenticated
+    @gen.coroutine
     def post(self, topic_id):
-        pass
+        username = self.current_user
+        yield gen.maybe_future(Subscription.create(username, topic_id))
 
 
 class UnsubscribeTopicAPIHandler(APIHandler):
 
     @as_json
+    @authenticated
+    @gen.coroutine
     def delete(self, topic_id):
-        pass
+        username = self.current_user
+        s = yield gen.maybe_future(
+            Subscription.get_by_user_topic(username, topic_id))
+        if s:
+            yield gen.maybe_future(s.delete())
 
 
 urls = [

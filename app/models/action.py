@@ -7,6 +7,7 @@ from sqlalchemy.sql import functions, expression
 
 from app.models.base import Model
 from app.models.user import User
+from app.models.content import Topic
 from app.libs.db import db_session
 
 
@@ -37,6 +38,17 @@ class Subscription(Model):
         s = cls(user_id=user.id, topic_id=topic_id)
         db_session.add(s)
         db_session.commit()
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'topic': self.topic.to_dict(),
+            'date': self.date,
+        }
+
+    @property
+    def topic(self):
+        return Topic.get(self.topic_id)
 
 
 class Favorite(Model):
