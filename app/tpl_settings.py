@@ -71,5 +71,7 @@ Tornado = {
     'debug': True,
     'static_path': os.path.join(ROOT_DIR, 'static'),
     'template_path': os.path.join(ROOT_DIR, 'templates'),
-    'cookie_secret': '',
+    'xsrf_cookies': True,
+    # base64.b64encode(uuid.uuid4().bytes + uuid.uuid4().bytes)[:-1] + 'x'
+    'cookie_secret': 'mv69eaIlTPWUsSwCQMhMYO36uX6MM0uMiJ2D6rRjOdE4',
 }
