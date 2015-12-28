@@ -25,5 +25,10 @@ def init_db():
     Base.metadata.create_all(bind=engine)
 
 
+def drop_db():
+    from app.models import *
+    Base.metadata.drop_all(bind=engine)
+
+
 def shutdown_session():
     db_session.remove()

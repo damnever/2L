@@ -17,6 +17,13 @@ error_codes = {
     1018: 'Token wrong',
     1019: 'Topic name already exists',
     1020: 'Post title already exists',
+    1021: 'Topic already subscribed',
+    1022: 'Topic has not been subscribed',
+    1023: 'Post already favorited',
+    1024: 'Post has not been favorited',
+    1025: 'Can not vote up again',
+    1026: 'Can not vote down again',
+    1027: 'No vote can be cancel',
 }
 
 

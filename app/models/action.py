@@ -7,7 +7,7 @@ from sqlalchemy.sql import functions, expression
 
 from app.models.base import Model
 from app.models.user import User
-from app.models.content import Topic
+from app.models.content import Topic, Post
 from app.libs.db import db_session
 
 
@@ -83,6 +83,17 @@ class Favorite(Model):
         db_session.add(f)
         db_session.commit()
 
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'post': self.post.to_dict(),
+            'date': self.date,
+        }
+
+    @property
+    def post(self):
+        return Post.get(self.post_id)
+
 
 class PostUpVote(Model):
     post_id = Column('post_id', Integer(), index=True, nullable=False)
@@ -110,6 +121,17 @@ class PostUpVote(Model):
         pu = cls(user_id=user.id, post_id=post_id)
         db_session.add(pu)
         db_session.commit()
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'user': self.user.username,
+            'date': self.date,
+        }
+
+    @property
+    def user(self):
+        return User.get(self.user_id)
 
 
 class PostDownVote(Model):

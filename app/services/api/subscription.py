@@ -7,6 +7,7 @@ from tornado import gen
 from app.base.handlers import APIHandler
 from app.base.decorators import as_json, authenticated
 from app.models import Subscription
+from app.services.api import exceptions
 
 
 class SubscribedTopicAPIHandler(APIHandler):
@@ -31,7 +32,12 @@ class SubscribeTopicAPIHandler(APIHandler):
     @gen.coroutine
     def post(self, topic_id):
         username = self.current_user
-        yield gen.maybe_future(Subscription.create(username, topic_id))
+        s = yield gen.maybe_future(
+            Subscription.get_by_user_topic(username, topic_id))
+        if s:
+            raise exceptions.TopicAlreadySubscribed()
+        else:
+            yield gen.maybe_future(Subscription.create(username, topic_id))
 
 
 class UnsubscribeTopicAPIHandler(APIHandler):
@@ -45,6 +51,8 @@ class UnsubscribeTopicAPIHandler(APIHandler):
             Subscription.get_by_user_topic(username, topic_id))
         if s:
             yield gen.maybe_future(s.delete())
+        else:
+            raise exceptions.TopicHasNotBeenSubscribed()
 
 
 urls = [

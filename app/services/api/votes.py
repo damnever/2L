@@ -2,68 +2,98 @@
 
 from __future__ import print_function, division, absolute_import
 
+from tornado import gen
+
 from app.base.handlers import APIHandler
-from app.base.decorators import as_json
+from app.base.decorators import as_json, authenticated, need_permissions
+from app.base.roles import Roles
+from app.models import PostUpVote, PostDownVote, CommentUpVote, CommentDownVote
+from app.services.api import exceptions
 
 
-class PostUpVoteAPIHanlder(APIHandler):
+class BaseVoteAPIHandler(APIHandler):
+    """
+    The following Class attribute(or instance attribute) required:
+      table: the table class
+      category: POST or COMMENT or what else
+      vote_type: UP or DOWN
+    """
 
-    @as_json
-    def get(self, post_id):
-        return 0
+    def _list_by_category(self, id_):
+        category = self.category.lower()
+        clsmethod = getattr(self.table, 'list_by_{0}'.format(category))
+        return clsmethod(self.table, id_)
 
-    @as_json
-    def post(self, post_id):
-        pass
-
-    @as_json
-    def delete(self, post_id):
-        pass
-
-
-class PostDownVoteAPIHandler(APIHandler):
-
-    @as_json
-    def get(self, post_id):
-        return 0
-
-    @as_json
-    def post(self, post_id):
-        pass
+    def _get_by_user_category(self, username, id_):
+        category = self.category.lower()
+        clsmethod = getattr(self.table, 'get_by_user_{0}'.format(category))
+        return clsmethod(self.table, username, id_)
 
     @as_json
-    def delete(self, post_id):
-        pass
-
-
-class CommentUpVoteAPIHandler(APIHandler):
-
-    @as_json
-    def get(self, comment_id):
-        return 0
-
-    @as_json
-    def post(self, comment_id):
-        pass
+    @gen.coroutine
+    def get(self, id_):
+        votes = yield gen.maybe_future(self._list_by_category(id_))
+        sk = '{0}_votes'.format(self.vote_type.lower())
+        result = {
+            'total': len(votes),
+            sk: [v.to_dict() for v in votes],
+        }
+        raise gen.Return(result)
 
     @as_json
-    def delete(self, comment_id):
-        pass
-
-
-class CommentDownVoteAPIHandler(APIHandler):
+    @need_permissions(Roles.Vote)
+    @authenticated
+    @gen.coroutine
+    def post(self, id_):
+        username = self.current_user
+        v = yield gen.maybe_future(self._get_by_user_category(username, id_))
+        if v:
+            vote_type = self.vote_type.capitalize()
+            exception = getattr(exceptions,
+                                'CanNotVote{0}Again'.format(vote_type))
+            raise exception()
+        else:
+            yield gen.maybe_future(self.table.create(username, id_))
 
     @as_json
-    def get(self, comment_id):
-        return 0
+    @need_permissions(Roles.Vote)
+    @authenticated
+    @gen.coroutine
+    def delete(self, id_):
+        username = self.current_user
+        v = yield gen.maybe_future(self._get_by_user_category(username, id_))
+        if v:
+            yield gen.maybe_future(v.delete())
+        else:
+            raise exceptions.NoVoteCanBeCancel()
 
-    @as_json
-    def post(self, comment_id):
-        pass
 
-    @as_json
-    def delete(self, comment_id):
-        pass
+class PostUpVoteAPIHanlder(BaseVoteAPIHandler):
+
+    table = PostUpVote
+    category = 'post'
+    vote_type = 'up'
+
+
+class PostDownVoteAPIHandler(BaseVoteAPIHandler):
+
+    table = PostDownVote
+    category = 'post'
+    vote_type = 'down'
+
+
+class CommentUpVoteAPIHandler(BaseVoteAPIHandler):
+
+    table = CommentUpVote
+    category = 'comment'
+    vote_type = 'up'
+
+
+class CommentDownVoteAPIHandler(BaseVoteAPIHandler):
+
+    table = CommentDownVote
+    category = 'comment'
+    vote_type = 'down'
 
 
 urls = [

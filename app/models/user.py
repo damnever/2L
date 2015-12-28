@@ -6,8 +6,8 @@ from datetime import datetime
 
 from tzlocal import get_localzone
 from sqlalchemy import Column, Integer, String, Text, ForeignKey, DateTime
-from sqlalchemy.orm import relationship, expression
-from sqlalchemy.sql import functions
+from sqlalchemy.orm import relationship
+from sqlalchemy.sql import functions, expression
 
 from app.models.base import Model
 from app.models.permission import Permission
