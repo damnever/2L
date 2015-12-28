@@ -27,7 +27,7 @@ class App(Application):
         settings = {
             'default_handler_class': DefaultHandler,
         }
-        settings.update(**Tornado)
+        settings.update(Tornado)
         super(Application, self).__init__(urls, **settings)
 
 
