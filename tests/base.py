@@ -15,29 +15,28 @@ from app.settings import Tornado
 
 class BaseTestCase(AsyncHTTPTestCase):
 
-    _headers = {'X-Xsrftoken': Tornado['cookie_secret']}
+    _headers = {
+        'Accept': 'application/json',
+        'X-Xsrftoken': Tornado['cookie_secret']
+    }
 
     def get_app(self):
         return App()
 
-    def get(self, path, callback=None):
-        return self.fetch(path, method='GET', callback=callback)
+    def get(self, path):
+        return self.fetch(path, method='GET', headers=self._headers)
 
-    def post(self, path, body=None, callback=None):
+    def post(self, path, body=None):
         body = urlencode(body) if body else None
-        return self.fetch(path, method='POST', body=body,
-                          headers=self._headers, callback=callback)
+        return self.fetch(path, method='POST', body=body, headers=self._headers)
 
-    def delete(self, path, callback=None):
-        return self.fetch(path, method='DELETE',
-                          headers=self._headers, callback=callback)
+    def delete(self, path):
+        return self.fetch(path, method='DELETE', headers=self._headers)
 
     def put(self, path, body=None, callback=None):
         body = urlencode(body) if body else None
-        return self.fetch(path, method='PUT', body=body,
-                          headers=self._headers, callback=callback)
+        return self.fetch(path, method='PUT', body=body, headers=self._headers)
 
-    def patch(self, path, body=None, callback=None):
+    def patch(self, path, body=None):
         body = urlencode(body) if body else None
-        return self.fetch(path, method='PATCH', body=body,
-                          headers=self._headers, callback=callback)
+        return self.fetch(path, method='PATCH', body=body, headers=self._headers)
