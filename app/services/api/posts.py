@@ -27,21 +27,30 @@ def _post_info(post):
     return info
 
 
-class LatestPostsAPIHandler(APIHandler):
+class PostsAPIHandler(APIHandler):
 
     @as_json
     @gen.coroutine
-    def get(self):
-        posts = yield gen.maybe_future(Post.list_all())
-        infos = list()
-        for post in posts:
-            info = yield gen.maybe_future(_post_info(post))
-            infos.append(info)
-        result = {
-            'total': len(posts),
-            'posts': infos,
-        }
-        raise gen.Return(result)
+    def get(self, hot):
+        if hot:
+            pass
+        else:
+            page = self.get_argument('page', 1)
+            per_page = self.get_argument('per_page', 20)
+            pagination = yield gen.maybe_future(Post.page_list(page, per_page))
+            posts = list()
+            for post in pagination.items:
+                info = yield gen.maybe_future(_post_info(post))
+                posts.append(info)
+            result = {
+                'page': page,
+                'has_prev': pagination.has_prev,
+                'has_next': pagination.has_next,
+                'pages': pagination.pages,
+                'total': pagination.total,
+                'posts': posts,
+            }
+            raise gen.Return(result)
 
 
 class TopicPostsAPIHandler(APIHandler):
@@ -49,9 +58,20 @@ class TopicPostsAPIHandler(APIHandler):
     @as_json
     @gen.coroutine
     def get(self, topic_id):
-        posts = yield gen.maybe_future(Post.list_by_topic(topic_id))
+        page = self.get_argument('page', 1)
+        per_page = self.get_argument('per_page', 20)
+        pagination = yield gen.maybe_future(
+            Post.page_list_by_topic(topic_id, page, per_page))
+        posts = list()
+        for post in pagination.items:
+            info = yield gen.maybe_future(_post_info(post))
+            pagination.append(info)
         result = {
-            'total': len(posts),
+            'page': page,
+            'pages': pagination.pages,
+            'has_prev': pagination.has_prev,
+            'has_next': pagination.has_next,
+            'total': pagination.total,
             'posts': posts,
         }
         raise gen.Return(result)
@@ -84,14 +104,21 @@ class UserPostsAPIHandler(APIHandler):
     @as_json
     @gen.coroutine
     def get(self, username):
-        posts = yield gen.maybe_future(Post.list_by_user(username))
-        infos = list()
-        for post in posts:
+        page = self.get_argument('page', 1)
+        per_page = self.get_argument('per_page', 20)
+        pagination = yield gen.maybe_future(
+            Post.page_list_by_user(username, page, per_page))
+        posts = list()
+        for post in pagination.items:
             info = yield gen.maybe_future(_post_info(post))
-            infos.append(info)
+            posts.append(info)
         result = {
-            'total': len(posts),
-            'posts': infos,
+            'page': page,
+            'pages': pagination.pages,
+            'has_prev': pagination.has_prev,
+            'has_next': pagination.has_next,
+            'total': pagination.total,
+            'posts': posts,
         }
         raise gen.Return(result)
 
@@ -129,8 +156,9 @@ class PostAPIHandler(APIHandler):
 
 
 urls = [
-    # `GET /api/posts/latest`, get all latest posts.
-    (r'/api/posts/latest', LatestPostsAPIHandler),
+    # `GET /api/posts/all`, get all posts.
+    # `GET /api/posts/hot`, get hot posts.
+    (r'/api/posts/(w+)', PostsAPIHandler),
     # `GET /api/posts/topic/:topic_id`, get all posts of the topic.
     # For authenticated user:
     #  `POST /api/posts/topic/:topic_id`, create a new post for

@@ -3,7 +3,7 @@
 from __future__ import print_function, division, absolute_import
 
 from sqlalchemy import Column, Integer, String, Text, DateTime, Boolean
-from sqlalchemy.sql import functions
+from sqlalchemy.sql import functions, expression
 
 from app.models.base import Model
 from app.models.user import User
@@ -69,6 +69,8 @@ class Post(Model):
                           default=functions.now())
     update_date = Column('update_date', DateTime(timezone=True),
                          default=functions.now(), onupdate=functions.now())
+    comment_date = Column('comment_date', DateTime(timezone=True),
+                          default=functions.now())
     keywords = Column('keywords', String(120), nullable=False)
     content = Column('content', Text(), default='')
     keep_silent = Column('keep_silent', Boolean(), default=False)
@@ -78,17 +80,22 @@ class Post(Model):
         return cls.query.filter(cls.title==title).first()
 
     @classmethod
-    def list_all(cls):
-        return cls.query.all()
+    def page_list(cls, page, per_page):
+        q = cls.query.order_by(expression.desc(cls.comment_date))
+        return q.paginate(page, per_page)
 
     @classmethod
-    def list_by_user(cls, username):
+    def page_list_by_user(cls, username, page, per_page):
         user = User.get_by_name(username)
-        return cls.query.filter(cls.author_id==user.id).all()
+        q = cls.query.filter(cls.author_id==user.id).order_by(
+            expression.desc(cls.comment_date))
+        return q.paginate(page, per_page)
 
     @classmethod
-    def list_by_topic(cls, topic_id):
-        return cls.query.filter(cls.topic_id==topic_id).all()
+    def page_list_by_topic(cls, topic_id, page, per_page):
+        q = cls.query.filter(cls.topic_id==topic_id).order_by(
+            expression.desc(cls.comment_date))
+        return q.paginate(page, per_page)
 
     @classmethod
     def create(cls, author_name, topic_id, title, keywords,
@@ -126,6 +133,10 @@ class Post(Model):
             'update_date': self.update_date,
         }
 
+    def _new_comment(self, now):
+        self.comment_date = now
+        db_session.add(self)
+
     @property
     def author(self):
         return User.get(self.author_id)
@@ -142,8 +153,9 @@ class Comment(Model):
     content = Column('content', Text(), nullable=False)
 
     @classmethod
-    def list_all(cls):
-        return cls.query.all()
+    def page_list(cls, page, per_page):
+        p = cls.query.order_by(expression.asc(cls.comment_date))
+        return p.paginate(page, per_page)
 
     @classmethod
     def count_by_user(cls, username):
@@ -155,18 +167,24 @@ class Comment(Model):
         return cls.query.filter(cls.post_id==post_id).count()
 
     @classmethod
-    def list_by_user(cls, username):
+    def page_list_by_user(cls, username, page, per_page):
         user = User.get_by_name(username)
-        return cls.query.filter(cls.author_id==user.id).all()
+        p = cls.query.order_by(
+            expression.asc(cls.comment_date)).filter(cls.author_id==user.id)
+        return p.paginate(page, per_page)
 
     @classmethod
-    def list_by_post(cls, post_id):
-        return cls.query.filter(cls.post_id==post_id).all()
+    def page_list_by_post(cls, post_id, page, per_page):
+        p = cls.query.order_by(
+            expression.asc(cls.comment_date)).filter(cls.post_id==post_id)
+        return p.paginate(page, per_page)
 
     @classmethod
     def create(cls, author_name, post_id, content):
         user = User.get_by_name(author_name)
-        c = cls(author_id=user.id, post_id=post_id, content=content)
+        now = functions.now()
+        Post.get(post_id)._new_comment(now)
+        c = cls(author_id=user.id, post_id=post_id, content=content, date=now)
         db_session.add(c)
         db_session.commit()
 

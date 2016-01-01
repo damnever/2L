@@ -27,14 +27,21 @@ class PostCommentsAPIHandler(APIHandler):
     @as_json
     @gen.coroutine
     def get(self, post_id):
-        comments = yield gen.maybe_future(Comment.list_by_post(post_id))
-        infos = list()
-        for comment in comments:
+        page = self.get_argument('page', 1)
+        per_page = self.get_argument('per_page', 20)
+        pagination = yield gen.maybe_future(
+            Comment.page_list_by_post(post_id, page, per_page))
+        comments = list()
+        for comment in pagination.items:
             info = yield gen.maybe_future(_comment_info(comment))
-            infos.append(info)
+            comments.append(info)
         result = {
-            'total': len(infos),
-            'infos': infos,
+            'page': page,
+            'pages': pagination.pages,
+            'has_prev': pagination.has_prev,
+            'has_next': pagination.has_next,
+            'total': pagination.total,
+            'comments': comments,
         }
         raise gen.Return(result)
 
@@ -57,14 +64,21 @@ class UserCommentsAPIHandler(APIHandler):
     @as_json
     @gen.coroutine
     def get(self, username):
-        comments = yield gen.maybe_future(Comment.list_by_user(username))
-        infos = list()
-        for comment in comments:
+        page = self.get_argument('page', 1)
+        per_page = self.get_argument('per_page', 20)
+        pagination = yield gen.maybe_future(
+            Comment.page_list_by_user(username, page, per_page))
+        comments = list()
+        for comment in pagination.items:
             info = yield gen.maybe_future(_comment_info(comment))
-            infos.append(info)
+            comments.append(info)
         result = {
-            'total': len(infos),
-            'infos': infos,
+            'page': page,
+            'pages': pagination.pages,
+            'has_prev': pagination.has_prev,
+            'has_next': pagination.has_next,
+            'total': pagination.total,
+            'comments': comments,
         }
         raise gen.Return(result)
 
