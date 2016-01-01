@@ -34,8 +34,7 @@ class UserAPIHandler(APIHandler):
     def get(self):
         username = self.current_user
         info = yield gen.maybe_future(User.get_by_name(username).information())
-        following = yield gen.maybe_future(
-            Following.count_by_user(username))
+        following = yield gen.maybe_future(Following.count_by_user(username))
         blocked = yield gen.maybe_future(Blocked.count_by_user(username))
         info.update({
             'following': following,
@@ -58,8 +57,20 @@ class UserAPIHandler(APIHandler):
         if not fields:
             raise exceptions.EmptyFields()
         else:
-            user = yield gen.maybe_future(User.get_by_name(self.current_user))
+            username = self.current_user
+            user = yield gen.maybe_future(User.get_by_name(username))
             yield gen.maybe_future(user.update(fields))
+            info = user.information()
+            following = yield gen.maybe_future(
+                Following.count_by_user(username))
+            blocked = yield gen.maybe_future(Blocked.count_by_user(username))
+            info.update({
+                'following': following,
+                'blocked': blocked,
+                'following_url': '/api/user/following',
+                'blocked_url': '/api/user/blocked',
+            })
+            raise gen.Return(info)
 
 
 class FollowingAPIHandler(APIHandler):
@@ -83,11 +94,8 @@ class FollowOneAPIHandler(APIHandler):
     @authenticated
     @gen.coroutine
     def post(self, username):
-        if username is None:
-            raise exceptions.EmptyFields()
-        else:
-            me = self.current_user
-            yield gen.maybe_future(Following.create(me, username))
+        me = self.current_user
+        yield gen.maybe_future(Following.create(me, username))
 
 
 class UnfollowOneAPIHandler(APIHandler):
@@ -96,12 +104,9 @@ class UnfollowOneAPIHandler(APIHandler):
     @authenticated
     @gen.coroutine
     def delete(self, username):
-        if username is None:
-            raise exceptions.EmptyFields()
-        else:
-            me = self.current_user
-            yield gen.maybe_future(
-                Following.get_by_user_following(me, username).delete())
+        me = self.current_user
+        yield gen.maybe_future(
+            Following.get_by_user_following(me, username).delete())
 
 
 class BlockedAPIHandler(APIHandler):
@@ -126,11 +131,8 @@ class BlockOneAPIHandler(APIHandler):
     @authenticated
     @gen.coroutine
     def post(self, username):
-        if username is None:
-            raise exceptions.EmptyFields()
-        else:
-            me = self.current_user
-            yield gen.maybe_future(Blocked.create(me, username))
+        me = self.current_user
+        yield gen.maybe_future(Blocked.create(me, username))
 
 
 
@@ -140,12 +142,9 @@ class UnblockOneAPIHandler(APIHandler):
     @authenticated
     @gen.coroutine
     def delete(self, username):
-        if username is None:
-            raise exceptions.EmptyFields()
-        else:
-            me = self.current_user
-            yield gen.maybe_future(
-                Blocked.get_by_user_following(me, username).delete())
+        me = self.current_user
+        yield gen.maybe_future(
+            Blocked.get_by_user_following(me, username).delete())
 
 
 urls = [

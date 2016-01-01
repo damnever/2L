@@ -50,6 +50,7 @@ class Topic(Model):
         return {
             'id': self.id,
             'name': self.name,
+            'avatar': self.avatar,
             'administer': self.administer.username,
             'description': self.description,
             'rules': self.rules,
@@ -173,7 +174,6 @@ class Comment(Model):
         self.content = content
         db_session.add(self)
         db_session.commit()
-
 
     def to_dict(self):
         return {

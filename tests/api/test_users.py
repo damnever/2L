@@ -6,7 +6,6 @@ import json
 
 import mox
 
-from app.libs.db import init_db, drop_db
 from app.models import User, Following, Blocked
 from app.settings import Level
 from app.base.handlers import APIHandler
@@ -36,13 +35,8 @@ class UsersTests(BaseTestCase):
 
     def setUp(self):
         super(UsersTests, self).setUp()
-        init_db()
         self._data = DATA
         User.create(**self._data)
-
-    def tearDown(self):
-        super(UsersTests, self).tearDown()
-        drop_db()
 
     def test_get_user_info(self):
         r = self.get(self._path.format(self._data['username']))
@@ -72,7 +66,6 @@ class UserTests(BaseTestCase):
     def setUp(self):
         super(UsersTests, self).setUp()
         self._mox = mox.Mox()
-        init_db()
         self._me = DATA
         User.create(**self._me)
         self._mox.StubOutWithMock(APIHandler,
@@ -83,7 +76,6 @@ class UserTests(BaseTestCase):
     def tearDown(self):
         super(UsersTests, self).tearDown()
         self._mox.UnsetStubs()
-        drop_db()
 
     def test_get_self_info(self):
         r = self.get(self._path)
@@ -132,7 +124,6 @@ class FollowingTests(BaseTestCase):
     def setUp(self):
         super(UsersTests, self).setUp()
         self._mox = mox.Mox()
-        init_db()
         self._other = DATA
         self._me = {
             'username': 'root',
@@ -150,7 +141,6 @@ class FollowingTests(BaseTestCase):
     def tearDown(self):
         super(UsersTests, self).tearDown()
         self._mox.UnsetStubs()
-        drop_db()
 
     def get_followings(self):
         body = self._other
@@ -177,7 +167,6 @@ class FollowOneTests(BaseTestCase):
     def setUp(self):
         super(UsersTests, self).setUp()
         self._mox = mox.Mox()
-        init_db()
         self._other = DATA
         self._me = {
             'username': 'root',
@@ -194,7 +183,6 @@ class FollowOneTests(BaseTestCase):
     def tearDown(self):
         super(UsersTests, self).tearDown()
         self._mox.UnsetStubs()
-        drop_db()
 
     def test_follow_one(self):
         r = self.post(self._path.format(self._other['username']))
@@ -213,7 +201,6 @@ class UnfollowOneTests(BaseTestCase):
     def setUp(self):
         super(UsersTests, self).setUp()
         self._mox = mox.Mox()
-        init_db()
         self._other = DATA
         self._me = {
             'username': 'root',
@@ -231,7 +218,6 @@ class UnfollowOneTests(BaseTestCase):
     def tearDown(self):
         super(UsersTests, self).tearDown()
         self._mox.UnsetStubs()
-        drop_db()
 
     def test_unfollow_one(self):
         r = self.delete(self._path.format(self._other['username']))
@@ -250,7 +236,6 @@ class BlockedTests(BaseTestCase):
     def setUp(self):
         super(UsersTests, self).setUp()
         self._mox = mox.Mox()
-        init_db()
         self._other = DATA
         self._me = {
             'username': 'root',
@@ -268,7 +253,6 @@ class BlockedTests(BaseTestCase):
     def tearDown(self):
         super(UsersTests, self).tearDown()
         self._mox.UnsetStubs()
-        drop_db()
 
     def get_followings(self):
         body = self._other
@@ -295,7 +279,6 @@ class BlockOneTests(BaseTestCase):
     def setUp(self):
         super(UsersTests, self).setUp()
         self._mox = mox.Mox()
-        init_db()
         self._other = DATA
         self._me = {
             'username': 'root',
@@ -312,7 +295,6 @@ class BlockOneTests(BaseTestCase):
     def tearDown(self):
         super(UsersTests, self).tearDown()
         self._mox.UnsetStubs()
-        drop_db()
 
     def test_follow_one(self):
         r = self.post(self._path.format(self._other['username']))
@@ -331,7 +313,6 @@ class UnblockOneTests(BaseTestCase):
     def setUp(self):
         super(UsersTests, self).setUp()
         self._mox = mox.Mox()
-        init_db()
         self._other = DATA
         self._me = {
             'username': 'root',
@@ -349,7 +330,6 @@ class UnblockOneTests(BaseTestCase):
     def tearDown(self):
         super(UsersTests, self).tearDown()
         self._mox.UnsetStubs()
-        drop_db()
 
     def test_unblock_one(self):
         r = self.delete(self._path.format(self._other['username']))

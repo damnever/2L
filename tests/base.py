@@ -10,6 +10,7 @@ except ImportError:
 from tornado.testing import AsyncHTTPTestCase
 
 from app.app import App
+from app.libs.db import init_db, drop_db, shutdown_session
 from app.settings import Tornado
 
 
@@ -19,6 +20,15 @@ class BaseTestCase(AsyncHTTPTestCase):
         'Accept': 'application/json',
         'X-Xsrftoken': Tornado['cookie_secret']
     }
+
+    def setUp(self):
+        super(BaseTestCase, self).setUp()
+        init_db()
+
+    def tearDown(self):
+        super(BaseTestCase, self).tearDown()
+        shutdown_session()
+        drop_db()
 
     def get_app(self):
         return App()
