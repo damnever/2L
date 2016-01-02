@@ -6,8 +6,7 @@ import json
 
 from app.libs.db import init_db, drop_db
 from app.models import User
-
-from tests.base import BaseTestCase
+from app.tests.base import BaseTestCase
 
 
 class RegisterTests(BaseTestCase):

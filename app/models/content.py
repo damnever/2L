@@ -64,7 +64,7 @@ class Topic(Model):
 class Post(Model):
     topic_id = Column('topic_id', Integer(), index=True, nullable=False)
     author_id = Column('author_id', Integer(), index=True, nullable=False)
-    title = Column('title', Text(120), unique=True, nullable=False)
+    title = Column('title', String(120), unique=True, nullable=False)
     created_date = Column('created_date', DateTime(timezone=True),
                           default=functions.now())
     update_date = Column('update_date', DateTime(timezone=True),

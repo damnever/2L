@@ -107,13 +107,15 @@ Base = declarative_base()
 def init_db():
     # import all modules here that might define models so that
     # they will be registered properly on the metadata.
-    from app.models import *
+    # from app.models import *
+    _engine = create_engine(url.rsplit('/', 1)[0], echo=True)
+    _engine.execute('CREATE DATABASE IF NOT EXISTS {0}'.format(MySQL['db']))
     Base.metadata.create_all(bind=engine)
 
 
 def drop_db():
-    from app.models import *
-    Base.metadata.drop_all(bind=engine)
+    _engine = create_engine(url.rsplit('/', 1)[0], echo=True)
+    _engine.execute('DROP DATABASE IF EXISTS {0}'.format(MySQL['db']))
 
 
 def shutdown_session():

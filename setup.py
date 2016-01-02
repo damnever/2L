@@ -1,7 +1,11 @@
 # -*- coding: utf-8 -*-
 
 from setuptools import setup
+from pip.req import parse_requirements
 
+
+reqs = [str(r.req)
+        for r in parse_requirements('requirements.txt', session=False)]
 
 setup(
     name='2L',
@@ -18,9 +22,10 @@ setup(
         'Programming Language :: Python :: 2',
         'Programming Language :: Python :: 3',
     ],
+    install_requires=reqs,
     entry_points={
         'console_scripts': [
-            '2L=app.app:run',
+            '2L=app.commands:main',
         ]
     },
 )

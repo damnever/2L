@@ -9,8 +9,7 @@ import mox
 from app.models import User, Following, Blocked
 from app.settings import Level
 from app.base.handlers import APIHandler
-
-from tests.base import BaseTestCase
+from app.tests.base import BaseTestCase
 
 
 DATA = {

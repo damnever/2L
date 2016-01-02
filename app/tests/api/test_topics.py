@@ -8,8 +8,7 @@ import mox
 
 from app.models import Topic, User
 from app.base.handlers import APIHandler
-
-from tests.base import BaseTestCase
+from app.tests.base import BaseTestCase
 
 
 USER = {

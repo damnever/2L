@@ -11,7 +11,7 @@ from tornado.web import RequestHandler, HTTPError
 from tornado.log import app_log
 
 from app.base.decorators import as_json
-from app.libs.db.database import db_session
+from app.libs.db import db_session
 from app.cache import session
 
 

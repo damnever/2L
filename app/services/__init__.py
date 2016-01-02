@@ -10,7 +10,7 @@ from app.libs.utils import load_module_attrs
 
 def _filter(module):
     if hasattr(module, 'urls') and isinstance(module.urls, types.ListType):
-        return urls
+        return getattr(module, 'urls')
 
 
 path = os.path.abspath(os.path.dirname(__file__))
