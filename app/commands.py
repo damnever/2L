@@ -22,7 +22,7 @@ def runserver(host, port):
     """Run 2L services."""
     click.echo(('[2L] The services running at: '
                 'http://{0}:{1}/').format(host, port))
-    run_server(port)
+    run_server(host, port)
 
 
 @main.command()

@@ -22,14 +22,16 @@ class App(Application):
             'default_handler_class': DefaultHandler,
         }
         settings.update(Tornado)
-        super(Application, self).__init__(urls, **settings)
+        super(App, self).__init__(urls, **settings)
 
 
 def signal_handler(signum, frame):
     shutdown_session()
+    print(' Stoping...')
+    IOLoop.instance().stop()
 
 
-def run_server(host='localhost', port=8888):
+def run_server(host='127.0.0.1', port=8888):
     for sig in (signal.SIGINT, signal.SIGTERM):
         signal.signal(sig, signal_handler)
     http_server = HTTPServer(App(), xheaders=True)
