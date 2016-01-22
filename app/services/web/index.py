@@ -8,4 +8,11 @@ from app.base.handlers import BaseHandler
 class IndexHandler(BaseHandler):
 
     def get(self):
-        self.render('index.html')
+        self.render('index.html',
+                    #  current_user='Damnever',
+                    keywords=None,
+                    description=None,
+                    title=None)
+
+
+urls = [(r'/', IndexHandler)]

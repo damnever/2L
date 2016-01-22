@@ -16,7 +16,7 @@ from app.settings import Level
 
 
 class User(Model):
-    username = Column('username', String(24), index=True,
+    username = Column('username', String(10), index=True,
                       unique=True, nullable=False)
     password = Column('password', String(20), nullable=False)
     email = Column('email', String(100), unique=True, default='')
@@ -79,7 +79,7 @@ class User(Model):
 
     def permissions(self):
         r = self.query.join(Permission).filter(
-                self.role&Permission.bit).filter(self.__class__.id==self.id)
+            self.role&Permission.bit).filter(self.__class__.id==self.id)
         return r.all()
 
     def information(self):

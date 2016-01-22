@@ -42,7 +42,7 @@ class BaseHandler(RequestHandler):
             message = '{0} {1}.'.format(status_code, reason)
         else:
             message = '500 Internal Server Error.'
-        self.render('error.html', message)
+        self.render('error.html', message=message)
 
 
 class APIHandler(BaseHandler):
@@ -97,4 +97,4 @@ class APIHandler(BaseHandler):
 class DefaultHandler(BaseHandler):
 
     def get(self):
-        self.render('error.html', 'Nothing For You.')
+        self.render('error.html', message='Nothing For You.')
