@@ -6,16 +6,32 @@ try:
     from http.client import responses  # Py3
 except ImportError:
     from httplib import responses
+from concurrent.futures import ThreadPoolExecutor
 
+from tornado.concurrent import run_on_executor
 from tornado.web import RequestHandler, HTTPError
 from tornado.log import app_log
 
 from app.base.decorators import as_json
 from app.libs.db import db_session
 from app.cache import session
+from app.settings import ThreadPoolMaxWorkers
 
 
-class BaseHandler(RequestHandler):
+class AsyncTaskMixIn(object):
+    """Making a synchronous method asynchronously on a executor.
+
+    The ``IOLoop`` and executor to be used are determined by the
+    ``io_loop`` and ``executor`` attributes of ``self``.
+    """
+    executor = ThreadPoolExecutor(max_workers=ThreadPoolMaxWorkers)
+
+    @run_on_executor
+    def async_task(self, callback, *args, **kwargs):
+        return callback(*args, **kwargs)
+
+
+class BaseHandler(AsyncTaskMixIn, RequestHandler):
 
     @property
     def log(self):
@@ -30,8 +46,9 @@ class BaseHandler(RequestHandler):
         return session
 
     def get_current_user(self):
-        username = self.get_secure_cookie('username')
-        if username and self.session.get(username) is not None:
+        token = self.get_secure_cookie('token')
+        if token:
+            username = self.session.get(token)
             return username
         return None
 
