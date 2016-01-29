@@ -21,7 +21,7 @@ class User(Model):
     password = Column('password', String(20), nullable=False)
     email = Column('email', String(100), unique=True, default='')
     role = Column('role', Integer(), default=0)
-    profile = relationship('Profile', uselist=False, back_populates='user')
+    profile = relationship('Profile', uselist=False, backref='user')
 
     @classmethod
     def get_by_name(cls, username):
