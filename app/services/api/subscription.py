@@ -17,7 +17,7 @@ class SubscribedTopicAPIHandler(APIHandler):
     @gen.coroutine
     def get(self):
         username = self.current_user
-        subs = yield gen.maybe_future(Subscription.list_by_user(username))
+        subs = yield self.async_task(Subscription.list_by_user, username)
         result = {
             'total': len(subs),
             'topics': [s.to_dict() for s in subs],
@@ -32,12 +32,12 @@ class SubscribeTopicAPIHandler(APIHandler):
     @gen.coroutine
     def post(self, topic_id):
         username = self.current_user
-        s = yield gen.maybe_future(
-            Subscription.get_by_user_topic(username, topic_id))
+        s = yield self.async_task(Subscription.get_by_user_topic,
+                                  username, topic_id)
         if s:
             raise exceptions.TopicAlreadySubscribed()
         else:
-            yield gen.maybe_future(Subscription.create(username, topic_id))
+            yield self.async_task(Subscription.create, username, topic_id)
 
 
 class UnsubscribeTopicAPIHandler(APIHandler):
@@ -47,10 +47,10 @@ class UnsubscribeTopicAPIHandler(APIHandler):
     @gen.coroutine
     def delete(self, topic_id):
         username = self.current_user
-        s = yield gen.maybe_future(
-            Subscription.get_by_user_topic(username, topic_id))
+        s = yield self.async_task(Subscription.get_by_user_topic,
+                                  username, topic_id)
         if s:
-            yield gen.maybe_future(s.delete())
+            yield self.async_task(s.delete)
         else:
             raise exceptions.TopicHasNotBeenSubscribed()
 

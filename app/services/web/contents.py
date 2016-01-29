@@ -2,7 +2,6 @@
 
 from __future__ import print_function, division, absolute_import
 
-
 from app.base.handlers import BaseHandler
 
 
@@ -40,13 +39,24 @@ class PostHandler(BaseHandler):
             title='古语有云，二楼煞笔',
             keywords='Damnever, 二楼, 煞笔',
             description='古语有云，二楼煞笔',
+            post_id=post_id,
             author='Damnever',
             avatar='/static/2L.png',
             date='2016-01-06 20:35:23',
-            content=('自古二楼出傻逼，想必大家都已经知道了\n---\n'
-                     '- 主贴：11区老是争钓鱼岛，天朝到底怎么样才能彻底解决钓鱼岛问题？\n'
-                     '- 二楼：操，还犹豫个屁！直接用核武把11区核平了，把小日本炸到太平洋里就解决了。\n'
-                     '- 吐槽：自古二楼出傻逼！！'),
+            content='''自古二楼出傻逼，想必大家都已经知道了:
+
+- 主贴：11区老是争钓鱼岛，天朝到底怎么样才能彻底解决钓鱼岛问题？
+- 二楼：操，还犹豫个屁！直接用核武把11区核平了，把小日本炸到太平洋里就解决了。
+- 吐槽：自古二楼出傻逼！！
+
+```python
+from __future__ import print_function
+
+print("Python is the best language!")
+```
+
+![picture](http://127.0.0.1:8888/static/2L.png)
+'''
         )
 
 

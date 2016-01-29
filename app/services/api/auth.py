@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-#TODO: sth.?? I have no idea... limit API access rate, OAuth???
+# TODO: sth.?? I have no idea... limit API access rate, OAuth???
 
 from __future__ import print_function, division, absolute_import
 
@@ -10,7 +10,7 @@ from app.base.handlers import APIHandler
 from app.base.decorators import as_json
 from app.services.api import exceptions
 from app.models import User
-from app.libs.utils import encrypt_password
+from app.libs.utils import encrypt_password, gen_token
 
 
 class LoginHandler(APIHandler):
@@ -25,13 +25,14 @@ class LoginHandler(APIHandler):
         if username is None or password is None:
             raise exceptions.EmptyFields()
         else:
-            user = yield gen.maybe_future(User.get_by_name(username))
+            user = yield self.async_task(User.get_by_name, username)
             if user is None:
                 raise exceptions.UsernameDoesNotExists()
             if encrypt_password(password) != user.password:
                 raise exceptions.PasswordWrong()
-            self.set_secure_cookie('username', username, expire)
-            self.session.set(username, user.id, expire)
+            token = gen_token()
+            self.set_secure_cookie('token', token, expire)
+            self.session.set(username, token, expire)
 
 
 class RegisterHandler(APIHandler):
@@ -46,14 +47,15 @@ class RegisterHandler(APIHandler):
         if username is None or password is None or email is None:
             raise exceptions.EmptyFields()
         else:
-            user = yield gen.maybe_future(User.get_by_name(username))
+            user = yield self.async_task(User.get_by_name, username)
             if user is not None:
                 raise exceptions.UsernameAlreadyExists()
-            user = yield gen.maybe_future(User.get_by_email(email))
+            user = yield self.async_task(User.get_by_email, email)
             if user is not None:
                 raise exceptions.EmailAlreadyExists()
             password = encrypt_password(password)
-            User.create(username=username, password=password, email=email)
+            self.async_task(User.create, username=username,
+                            password=password, email=email)
 
 
 urls = [

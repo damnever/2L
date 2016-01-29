@@ -16,7 +16,7 @@ class UsersAPIHandler(APIHandler):
     @as_json
     @gen.coroutine
     def get(self, username):
-        user = yield gen.maybe_future(User.get_by_name(username))
+        user = yield self.async_task(User.get_by_name, username)
         if user is None:
             raise exceptions.UsernameDoesNotExists()
         else:
@@ -33,9 +33,10 @@ class UserAPIHandler(APIHandler):
     @gen.coroutine
     def get(self):
         username = self.current_user
-        info = yield gen.maybe_future(User.get_by_name(username).information())
-        following = yield gen.maybe_future(Following.count_by_user(username))
-        blocked = yield gen.maybe_future(Blocked.count_by_user(username))
+        user = yield self.async_task(User.get_by_name, username)
+        info = user.information()
+        following = yield self.async_task(Following.count_by_user, username)
+        blocked = yield self.async_task(Blocked.count_by_user, username)
         info.update({
             'following': following,
             'blocked': blocked,
@@ -58,12 +59,11 @@ class UserAPIHandler(APIHandler):
             raise exceptions.EmptyFields()
         else:
             username = self.current_user
-            user = yield gen.maybe_future(User.get_by_name(username))
-            yield gen.maybe_future(user.update(fields))
+            user = yield self.async_task(User.get_by_name, username)
+            yield self.async_task(user.update, fields)
             info = user.information()
-            following = yield gen.maybe_future(
-                Following.count_by_user(username))
-            blocked = yield gen.maybe_future(Blocked.count_by_user(username))
+            following = yield self.async_task(Following.count_by_user, username)
+            blocked = yield self.async_task(Blocked.count_by_user, username)
             info.update({
                 'following': following,
                 'blocked': blocked,
@@ -80,10 +80,9 @@ class FollowingAPIHandler(APIHandler):
     @gen.coroutine
     def get(self):
         username = self.current_user
-        ids = yield gen.maybe_future(
-            Following.list_following(username))
+        ids = yield self.async_task(Following.list_following, username)
         if ids:
-            users = yield gen.maybe_future(User.get_multi(sorted(ids)))
+            users = yield self.async_task(User.get_multi, sorted(ids))
             followings = [user.information() for user in users]
             raise gen.Return(followings)
 
@@ -95,7 +94,7 @@ class FollowOneAPIHandler(APIHandler):
     @gen.coroutine
     def post(self, username):
         me = self.current_user
-        yield gen.maybe_future(Following.create(me, username))
+        yield self.async_task(Following.create, me, username)
 
 
 class UnfollowOneAPIHandler(APIHandler):
@@ -105,8 +104,8 @@ class UnfollowOneAPIHandler(APIHandler):
     @gen.coroutine
     def delete(self, username):
         me = self.current_user
-        yield gen.maybe_future(
-            Following.get_by_user_following(me, username).delete())
+        r = yield self.async_task(Following.get_by_user_following, me, username)
+        yield self.async_task(r.delete)
 
 
 class BlockedAPIHandler(APIHandler):
@@ -116,13 +115,11 @@ class BlockedAPIHandler(APIHandler):
     @gen.coroutine
     def get(self):
         username = self.current_user
-        ids = yield gen.maybe_future(
-            Blocked.list_blocked(username))
+        ids = yield self.async_task(Blocked.list_blocked, username)
         if ids:
-            users = yield gen.maybe_future(User.get_multi(sorted(ids)))
+            users = yield self.async_task(User.get_multi, sorted(ids))
             blockeds = [user.information() for user in users]
             raise gen.Return(blockeds)
-
 
 
 class BlockOneAPIHandler(APIHandler):
@@ -132,8 +129,7 @@ class BlockOneAPIHandler(APIHandler):
     @gen.coroutine
     def post(self, username):
         me = self.current_user
-        yield gen.maybe_future(Blocked.create(me, username))
-
+        yield self.async_task(Blocked.create, me, username)
 
 
 class UnblockOneAPIHandler(APIHandler):
@@ -143,8 +139,8 @@ class UnblockOneAPIHandler(APIHandler):
     @gen.coroutine
     def delete(self, username):
         me = self.current_user
-        yield gen.maybe_future(
-            Blocked.get_by_user_following(me, username).delete())
+        r = yield self.async_task(Blocked.get_by_user_following, me, username)
+        yield self.async_task(r.delete)
 
 
 urls = [
@@ -167,5 +163,5 @@ urls = [
     #  `POST /api/user/block/:username`, blocked a new user.
     (r'/api/user/block/(\w+)', BlockOneAPIHandler),
     #  `DELETE /api/user/unblock/:username`, unblock a user.
-    (r'/api/user/unblock/(\w+)',UnblockOneAPIHandler),
+    (r'/api/user/unblock/(\w+)', UnblockOneAPIHandler),
 ]

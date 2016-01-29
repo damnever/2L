@@ -37,10 +37,10 @@ class PostsAPIHandler(APIHandler):
         else:
             page = self.get_argument('page', 1)
             per_page = self.get_argument('per_page', 20)
-            pagination = yield gen.maybe_future(Post.page_list(page, per_page))
+            pagination = yield self.async_task(Post.page_list, page, per_page)
             posts = list()
             for post in pagination.items:
-                info = yield gen.maybe_future(_post_info(post))
+                info = yield self.async_task(_post_info, post)
                 posts.append(info)
             result = {
                 'page': page,
@@ -60,11 +60,11 @@ class TopicPostsAPIHandler(APIHandler):
     def get(self, topic_id):
         page = self.get_argument('page', 1)
         per_page = self.get_argument('per_page', 20)
-        pagination = yield gen.maybe_future(
-            Post.page_list_by_topic(topic_id, page, per_page))
+        pagination = yield self.async_task(Post.page_list_by_topic,
+                                           topic_id, page, per_page)
         posts = list()
         for post in pagination.items:
-            info = yield gen.maybe_future(_post_info(post))
+            info = yield self.async_task(_post_info, post)
             pagination.append(info)
         result = {
             'page': page,
@@ -89,14 +89,14 @@ class TopicPostsAPIHandler(APIHandler):
         if title is None or keywords is None:
             raise exceptions.EmptyFields()
         else:
-            exists = yield gen.maybe_future(Post.get_by_title(title))
+            exists = yield self.async_task(Post.get_by_title, title)
             if exists:
                 raise exceptions.PostTitleAlreadyExists()
             else:
                 username = self.current_user
-                yield gen.maybe_future(
-                    Post.create(username, topic_id, title, keywords,
-                                content, keep_silent=keep_silent))
+                yield self.async_task(
+                    Post.create, username, topic_id, title,
+                    keywords, content, keep_silent=keep_silent)
 
 
 class UserPostsAPIHandler(APIHandler):
@@ -106,11 +106,11 @@ class UserPostsAPIHandler(APIHandler):
     def get(self, username):
         page = self.get_argument('page', 1)
         per_page = self.get_argument('per_page', 20)
-        pagination = yield gen.maybe_future(
-            Post.page_list_by_user(username, page, per_page))
+        pagination = yield gen.async_task(Post.page_list_by_user,
+                                          username, page, per_page)
         posts = list()
         for post in pagination.items:
-            info = yield gen.maybe_future(_post_info(post))
+            info = yield self.async_task(_post_info, post)
             posts.append(info)
         result = {
             'page': page,
@@ -128,8 +128,8 @@ class PostAPIHandler(APIHandler):
     @as_json
     @gen.coroutine
     def get(self, post_id):
-        post = yield gen.maybe_future(Post.get(post_id))
-        info = yield gen.maybe_future(_post_info(post))
+        post = yield self.async_task(Post.get, post_id)
+        info = yield self.async_task(_post_info, post)
         raise gen.Return(info)
 
     @as_json
@@ -144,15 +144,16 @@ class PostAPIHandler(APIHandler):
         if keywords is None and content is None and keep_silent is None:
             raise exceptions.EmptyFields()
         else:
-            post = yield gen.maybe_future(Post.get(post_id))
-            yield gen.maybe_future(post.update(keywords, content, keep_silent))
+            post = yield self.async_task(Post.get, post_id)
+            yield self.async_task(post.update, keywords, content, keep_silent)
 
     @as_json
     @need_permissions(Roles.PostEdit)
     @authenticated
     @gen.coroutine
     def delete(self, post_id):
-        yield gen.maybe_future(Post.get(post_id).delete())
+        p = yield self.async_task(Post.get, post_id)
+        yield self.async_task(p.delete)
 
 
 urls = [

@@ -17,10 +17,10 @@ class TopicsAPIHandler(APIHandler):
     @gen.coroutine
     def get(self, topic_id):
         if topic_id:
-            topic = yield gen.maybe_future(Topic.get(topic_id))
+            topic = yield self.async_task(Topic.get, topic_id)
             raise gen.Return(topic.to_dict())
         else:
-            topics = yield gen.maybe_future(Topic.list_all())
+            topics = yield self.async_task(Topic.list_all)
             result = {
                 'total': len(topics),
                 'topics': [topic.to_dict() for topic in topics],
@@ -43,14 +43,13 @@ class TopicAPIHandler(APIHandler):
         if name is None or description is None or rules is None:
             raise exceptions.EmptyFields()
         else:
-            exists = yield gen.maybe_future(Topic.get_by_name(name))
+            exists = yield self.async_task(Topic.get_by_name, name)
             if exists:
                 raise exceptions.TopicNameAlreadyExists()
             else:
                 created_user = self.current_user
-                yield gen.maybe_future(
-                    Topic.create(name, created_user, avatar,
-                                 description, rules))
+                yield self.async_task(Topic.create, name, created_user,
+                                      avatar, description, rules)
 
     @as_json
     @need_permissions(Roles.TopicEdit)
@@ -66,8 +65,8 @@ class TopicAPIHandler(APIHandler):
         if not fields:
             raise exceptions.EmptyFields()
         else:
-            topic = yield gen.maybe_future(Topic.get(topic_id))
-            yield gen.maybe_future(topic.update(**fields))
+            topic = yield self.async_task(Topic.get, topic_id)
+            yield self.async_task(topic.update, **fields)
 
 
 urls = [

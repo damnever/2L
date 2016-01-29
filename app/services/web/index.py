@@ -14,5 +14,16 @@ class IndexHandler(BaseHandler):
                     description=None,
                     title=None)
 
+class HotHandler(BaseHandler):
 
-urls = [(r'/', IndexHandler)]
+    def get(self):
+        self.render('hot.html',
+                    keywords=None,
+                    description=None,
+                    title="最热")
+
+
+urls = [
+    (r'/', IndexHandler),
+    (r'/hot', HotHandler),
+]

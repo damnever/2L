@@ -32,7 +32,7 @@ class BaseVoteAPIHandler(APIHandler):
     @as_json
     @gen.coroutine
     def get(self, id_):
-        votes = yield gen.maybe_future(self._list_by_category(id_))
+        votes = yield self.async_task(self._list_by_category, id_)
         sk = '{0}_votes'.format(self.vote_type.lower())
         result = {
             'total': len(votes),
@@ -46,14 +46,14 @@ class BaseVoteAPIHandler(APIHandler):
     @gen.coroutine
     def post(self, id_):
         username = self.current_user
-        v = yield gen.maybe_future(self._get_by_user_category(username, id_))
+        v = yield self.async_task(self._get_by_user_category, username, id_)
         if v:
             vote_type = self.vote_type.capitalize()
             exception = getattr(exceptions,
                                 'CanNotVote{0}Again'.format(vote_type))
             raise exception()
         else:
-            yield gen.maybe_future(self.table.create(username, id_))
+            yield self.async_task(self.table.create, username, id_)
 
     @as_json
     @need_permissions(Roles.Vote)
@@ -61,9 +61,9 @@ class BaseVoteAPIHandler(APIHandler):
     @gen.coroutine
     def delete(self, id_):
         username = self.current_user
-        v = yield gen.maybe_future(self._get_by_user_category(username, id_))
+        v = yield self.async_task(self._get_by_user_category, username, id_)
         if v:
-            yield gen.maybe_future(v.delete())
+            yield self.async_task(v.delete)
         else:
             raise exceptions.NoVoteCanBeCancel()
 
@@ -127,4 +127,4 @@ urls = [
     #  `DELETE /api/votes/comment/:comment_id/down`, cancel down vote
     #   of the comment.
     (r'/api/votes/comment/(\d+)/down', CommentDownVoteAPIHandler),
- ]
+]
