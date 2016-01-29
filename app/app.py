@@ -43,6 +43,11 @@ def run_server(host='127.0.0.1', port=8888):
     #  for sig in (signal.SIGINT, signal.SIGTERM):
     #      signal.signal(sig, signal_handler)
     atexit.register(exit_func)
+
     http_server = HTTPServer(App(), xheaders=True)
     http_server.listen(port, address=host)
-    IOLoop.instance().start()
+
+    ioloop = IOLoop.instance()
+    # For debuging.
+    ioloop.set_blocking_log_threshold(0.5)
+    ioloop.start()
