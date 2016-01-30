@@ -20,7 +20,7 @@ class LoginHandler(APIHandler):
     def post(self):
         username = self.get_argument('username', None)
         password = self.get_argument('password', None)
-        expire = self.get_argument('expire', 1)
+        expire = int(self.get_argument('expire', 1))
 
         if username is None or password is None:
             raise exceptions.EmptyFields()
@@ -32,7 +32,21 @@ class LoginHandler(APIHandler):
                 raise exceptions.PasswordWrong()
             token = gen_token()
             self.set_secure_cookie('token', token, expire)
-            self.session.set(username, token, expire)
+            self.session.set(token, username, expire)
+            raise gen.Return({'username': username})
+
+
+class LogoutHandler(APIHandler):
+
+    @as_json
+    @gen.coroutine
+    def post(self):
+        username = self.current_user
+        token = self.get_cookie('token')
+
+        if username == self.session.get(token):
+            self.clear_cookie('token')
+            self.session.delete(token)
 
 
 class RegisterHandler(APIHandler):
@@ -60,5 +74,6 @@ class RegisterHandler(APIHandler):
 
 urls = [
     (r'/api/login', LoginHandler),
+    (r'/api/logout', LogoutHandler),
     (r'/api/register', RegisterHandler),
 ]

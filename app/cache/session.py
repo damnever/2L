@@ -24,5 +24,5 @@ def get(key):
 def delete(key):
     conn.delete(key)
 
-def delete_all(key):
+def delete_all():
     conn.flushdb()

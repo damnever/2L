@@ -2,10 +2,12 @@
 
 from __future__ import print_function, division, absolute_import
 
-try:
-    from http.client import responses  # Py3
-except ImportError:
+try:  # Py2
     from httplib import responses
+    from urlparse import urlparse
+except ImportError:  # Py3
+    from http.client import responses  # Py3
+    from urllib.parse import urlparse
 from concurrent.futures import ThreadPoolExecutor
 
 from tornado.concurrent import run_on_executor
@@ -44,6 +46,59 @@ class BaseHandler(AsyncTaskMixIn, RequestHandler):
     @property
     def session(self):
         return session
+
+    @property
+    def allow_origin(self):
+        """Normal Access-Control-Allow-Origin"""
+        return self.settings.get('allow_origin', '')
+
+    @property
+    def allow_origin_pat(self):
+        """Regular expression version of allow_origin"""
+        return self.settings.get('allow_origin_pat', None)
+
+    # Reference:
+    #  - https://github.com/jupyter/notebook/blob/master/notebook/base/handlers.py#L251
+    # origin_to_satisfy_tornado is present because tornado requires
+    # check_origin to take an origin argument, but we don't use it
+    def check_origin(self, origin_to_satisfy_tornado=""):
+        """Check Origin for cross-site API requests, including websockets
+
+        Copied from WebSocket with changes:
+
+        - allow unspecified host/origin (e.g. scripts)
+        """
+        if self.allow_origin == '*':
+            return True
+
+        host = self.request.headers.get('Host')
+        origin = self.request.headers.get('Origin')
+
+        # If no header is is provided, assume it comes from a
+        # script, curl, httpie, etc.
+        # We are only concerned with cross-site browser stuff here.
+        if origin is None or host is None:
+            return True
+
+        origin = origin.lower()
+        origin_host = urlparse(origin).netloc
+
+        # OK if origin matches host
+        if origin_host == host:
+            return True
+
+        # Check CORS headers
+        if self.allow_origin:
+            allow = self.allow_origin == origin
+        elif self.allow_origin_pat:
+            allow = bool(self.allow_origin_pat.match(origin))
+        else:
+            # No CORS headers deny the request
+            allow = False
+            if not allow:
+                self.log.warn("Blocking Cross Origin API request.  Origin: %s, Host: %s",
+                              origin, host,)
+            return allow
 
     def get_current_user(self):
         token = self.get_secure_cookie('token')

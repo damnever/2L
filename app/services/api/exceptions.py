@@ -29,7 +29,7 @@ error_codes = {
 
 def _make_error_class(cls_name, code, reason):
     def __init__(self):
-        super(self.__classs__, self).__init__(code, reason)
+        super(self.__class__, self).__init__(code, reason)
     bases = (ValidationError,)
     attrs = {'__init__': __init__}
     return type(cls_name, bases, attrs)

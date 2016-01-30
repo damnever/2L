@@ -18,7 +18,7 @@ from app.settings import Level
 class User(Model):
     username = Column('username', String(10), index=True,
                       unique=True, nullable=False)
-    password = Column('password', String(20), nullable=False)
+    password = Column('password', String(40), nullable=False)
     email = Column('email', String(100), unique=True, default='')
     role = Column('role', Integer(), default=0)
     profile = relationship('Profile', uselist=False, backref='user')

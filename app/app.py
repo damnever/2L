@@ -15,6 +15,7 @@ from app.base.handlers import DefaultHandler
 from app.services import urls
 from app.libs.db import shutdown_session
 from app.settings import Tornado
+from app.cache import session
 
 
 class App(Application):
@@ -33,9 +34,10 @@ class App(Application):
     #  IOLoop.instance().stop()
 
 def exit_func():
-    shutdown_session()
     print(' Stoping...')
     IOLoop.instance().stop()
+    shutdown_session()
+    session.delete_all()
 
 
 def run_server(host='127.0.0.1', port=8888):

@@ -2,8 +2,6 @@
 
 from __future__ import print_function, division, absolute_import
 
-import sys
-import traceback
 import functools
 
 from tornado import gen
@@ -22,6 +20,7 @@ def as_json(method):
         try:
             result = yield gen.maybe_future(method(self, *args, **kwargs))
         except (HTTPError, ValidationError) as e:
+            self.log.error('Error: %s', e)
             self.write(json_encode({
                 'status': 0,
                 'code': e.status_code,
@@ -29,11 +28,10 @@ def as_json(method):
             }))
         except Exception:
             self.log.error('Unexpected error', exc_info=True)
-            tb_text = ''.join(traceback.format_exception(*sys.exc_info()))
             self.write({
                 'status': 0,
                 'code': 500,
-                'reason': 'Unknown server error.\n' + tb_text,
+                'reason': 'Unknown server error.',
             })
         else:
             if result is None:

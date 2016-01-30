@@ -55,6 +55,27 @@ Accounts = {
     },
 }
 
+Admins = [
+    {
+        'username': 'Damnever',
+        'password': 'you guess',
+        'email': 'dxc.wolf@gmail.com',
+        'role': 'GodFather',
+    },
+    {
+        'username': 'Root',
+        'password': 'Root',
+        'email': 'Root@2L.SB',
+        'role': 'Admin',
+    },
+    {
+        'username': 'Admin',
+        'password': 'Admin',
+        'email': 'Admin@2L.SB',
+        'role': 'Admin',
+    }
+]
+
 
 EMail = {
     'username': '',
@@ -65,6 +86,9 @@ EMail = {
         'port': 25,
     },
 }
+
+
+ThreadPoolMaxWorkers = 5
 
 
 Tornado = {

@@ -4,9 +4,6 @@ from __future__ import print_function, division, absolute_import
 
 import click
 
-from app.app import run_server
-from app.libs.db import init_db, drop_db
-
 
 @click.group()
 def main():
@@ -20,6 +17,8 @@ def main():
               help='run server on the given port.')
 def runserver(host, port):
     """Run 2L services."""
+    from app.app import run_server
+
     click.echo(('[2L] The services running at: '
                 'http://{0}:{1}/').format(host, port))
     run_server(host, port)
@@ -28,8 +27,11 @@ def runserver(host, port):
 @main.command()
 def initdb():
     """Initialize MySQL databse."""
-    from app.models import Permission
+    from app.libs.db import init_db
+    from app.models import Permission, User
     from app.base.roles import Roles
+    from app.settings import Admins
+    from app.libs.utils import encrypt_password
 
     click.echo('[2L] {0}..'.format(initdb.__doc__))
     init_db()
@@ -40,9 +42,17 @@ def initdb():
             click.echo(' -> {0}'.format(role))
             Permission.create(role)
 
+    click.echo('\n\n[2L] init master chief...')
+    for admin in Admins:
+        click.echo(' -> {0}'.format(admin))
+        admin['password'] = encrypt_password(admin['password'])
+        admin['role'] = Permission.get_by_role(admin['role']).bit
+        User.create(**admin)
+
 
 @main.command()
 def dropdb():
     """Drop MySQL database."""
+    from app.libs.db import drop_db
     click.echo('[2L] {0}..'.format(dropdb.__doc__))
     drop_db()
