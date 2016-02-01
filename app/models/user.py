@@ -61,16 +61,13 @@ class User(Model):
                     v += getattr(self.profile, k)
                 setattr(self.profile, k, v)
 
-        if (not self.has_permission('TopicCreation') and
-                self.profile.gold >= Level['Gold']['TopicCreation']):
-            self.role += Permission.get_by_role('TopicCreation')
-        if (not self.has_permission('Vote') and
-                self.profile.gold >= Level['Gold']['Vote']):
-            self.role += Permission.get_by_role('TopicCreation')
+        if self.profile.gold >= Level['Gold']['TopicCreation']:
+            self.role |= Permission.get_by_role('topic_creation')
+        if self.profile.gold >= Level['Gold']['Vote']:
+            self.role |= Permission.get_by_role('topic_creation')
         td = datetime.now(get_localzone()) - self.profile.join_date
-        if (not self.has_permission('Comment') and
-                td.total_seconds() >= Level['Time']['Comment']):
-            self.role += Permission.get_by_role('Comment')
+        if td.total_seconds() >= Level['Time']['Comment']:
+            self.role |= Permission.get_by_role('comment')
         db_session.add(self)
         db_session.commit()
 

@@ -38,15 +38,20 @@ def initdb():
 
     click.echo('\n\n[2L] init permisions...')
     for attr, role in Roles.__dict__.items():
-        if not attr.startswith('__') and '{0}' not in role:
+        if (not attr.startswith('__') and '{0}' not in role and
+                role != 'root'):
             click.echo(' -> {0}'.format(role))
             Permission.create(role)
 
     click.echo('\n\n[2L] init master chief...')
+    bit_sum = Permission.root_permission()
     for admin in Admins:
         click.echo(' -> {0}'.format(admin))
+        if admin['role'] == 'root':
+            admin['role'] = bit_sum
+        else:
+            admin['role'] = Permission.get_by_role(admin['role']).bit
         admin['password'] = encrypt_password(admin['password'])
-        admin['role'] = Permission.get_by_role(admin['role']).bit
         User.create(**admin)
 
 

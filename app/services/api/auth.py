@@ -71,6 +71,12 @@ class RegisterHandler(APIHandler):
             self.async_task(User.create, username=username,
                             password=password, email=email)
 
+            # Register success, then login.
+            token = gen_token()
+            self.set_secure_cookie('token', token, 1)
+            self.session.set(token, username, 1)
+            raise gen.Return({'username': username})
+
 
 urls = [
     (r'/api/login', LoginHandler),

@@ -5,10 +5,10 @@ from __future__ import print_function, division, absolute_import
 
 class Roles(object):
     # head of the site
-    GodFather = 'GodFather'
-    Admin = 'Admin'
-    TopicCreation = 'TopicCreation'
-    Vote = 'Vote'
-    Comment = 'Comment'
-    TopicEdit = 'Topic:{0}:Edit'
-    PostEdit = 'Post:{0}:Edit'
+    Root = 'root'
+    Admin = 'admin'
+    TopicCreation = 'topic_creation'
+    Vote = 'vote'
+    Comment = 'comment'
+    TopicEdit = 'topic:{0}:edit'
+    PostEdit = 'post:{0}:edit'

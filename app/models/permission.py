@@ -9,8 +9,13 @@ from app.models.base import Model, db_session
 
 
 class Permission(Model):
-    bit = Column('number', Integer, index=True)
+    bit = Column('number', Integer)
     role = Column('role', String(24), index=True, nullable=False)
+
+    @classmethod
+    def root_permission(cls):
+        r = cls.query.with_entities(functions.sum(Permission.bit).label('a'))
+        return r.first().a
 
     @classmethod
     def get_by_role(cls, role):
