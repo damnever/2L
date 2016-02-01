@@ -1,0 +1,284 @@
+html, body {
+	font-family: 'Helvetica Neue',Helvetica,Arial,sans-serif;
+	background-color: #fff;
+}
+
+/*** Footer align the bottom. ***/
+html, body, #container {
+    height: 100%; 
+    margin: 0; 
+    padding: 0;
+}
+
+body > #container {
+    height: auto;
+    min-height: 100%;
+}
+
+#content {
+    padding-bottom: 40px;
+}
+
+#footer {
+    clear: both;
+    position: relative;
+    z-index: 10;
+    height: 60px;
+    margin-top: -60px;
+}
+
+body {
+	padding-top: 70px;
+}
+
+/*** NAVBAR ***/
+.navbar {
+	background-color: rgba(255,255,255,0.4);
+	border-bottom: 1px solid rgba(220, 220, 220, 0.4);
+    box-shadow: 0 1px 5px rgba(0, 0, 0, 0.12);
+}
+
+.navbar-default .navbar-nav>.active>a,
+.navbar-default .navbar-nav>.active>a:focus,
+.navbar-default .navbar-nav>.active>a:hover {
+    color: #222;
+    background-color: rgba(220, 220, 220, 0.3);
+}
+.navbar-default .navbar-nav>li>a {
+    color: #555;
+}
+
+
+/*** POST LIST ***/
+.list-group-item {
+	border-top: 1px solid transparent;
+	border-left: 1px solid transparent;
+	border-right: 1px solid transparent;
+	border-bottom: 1px solid #e5e5e5;
+	margin-bottom: 1px;
+}
+.list-group-item:hover {
+	background-color: rgba(220, 220, 220, 0.1);
+}
+.list-group-item:first-child {
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+}
+.list-group-item:last-child {
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+.post {
+	height: 72px;
+}
+
+.post-avatar {
+	float: left;
+}
+
+.post-info {
+	margin-left: 64px;
+}
+
+.post-title {
+	font-size: 18px;
+	color: #222222;
+}
+.post-title:hover {
+	color: #1abc9c;
+}
+
+.post-other-info {
+	position: absolute;
+    bottom: 10px;
+}
+
+.label-default {
+	padding: 2px 5px 2px 5px;
+	color: #444444;
+    font-weight: normal;
+    background-color: #eeeeee;
+    border-radius: 0;
+}
+.label-default:hover {
+	color: #333333;
+	background-color: #999999;
+}
+
+.post-other-info .post-author,
+.post-other-info .post-user {
+	color: #444444;
+}
+.post-other-info .post-author:hover,
+.post-other-info .post-user:hover {
+	color: #111111;
+}
+.post-other-info .post-date,
+.post-other-info .comment-date {
+	color: #888888;
+}
+
+.post-comments {
+	margin-top: 16px;
+	color: #fff;
+	background-color: #aab0c6;
+}
+.post-comments:visited {
+	color: #fff;
+	background-color: #e5e5e5;
+}
+
+/*** SUBSCRIBED TOPICS ***/
+#subscribed-topics .panel {
+	border-radius: 0;
+	border-color: #e5e5e5;
+}
+#subscribed-topics .panel .panel-body {
+	padding: 0;
+}
+#subscribed-topics .list-group {
+	margin: 0;
+}
+#subscribed-topics .list-group-item {
+	border: 1px solid transparent;
+}
+#subscribed-topics .list-group-item:hover {
+	background-color: rgba(230, 230, 230, 0.3);
+}
+#subscribed-topics .list-group-item:first-child {
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+}
+#subscribed-topics .list-group-item:last-child {
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+}
+#subscribed-topics .list-group-item img {
+	float: left;
+}
+#subscribed-topics .list-group-item a {
+	margin-left: 10px;
+	color: #444444;
+}
+#subscribed-topics .list-group-item a:hover {
+	color: #222222;
+}
+
+/*** Topic ***/
+.topic {
+	padding: 10px 12px 10px 12px;
+	border: 1px solid rgba(240, 234, 240, 0.7);
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+.header img {
+	float: left;
+}
+.header .text {
+	margin-left: 72px;
+}
+.header .text .title {
+	color: #222;
+	font-size: 20px;
+	margin-bottom: 5px;
+}
+.header .text .title button {
+	float: right;
+	margin-right: 5px;
+}
+.header .text .admin {
+	color: #555;
+	font-size: 12px;
+}
+.header .text .admin:hover {
+	color: #333;
+}
+.description {
+	color: #444;
+	font-size: 15px;
+	margin-bottom: 14px;
+}
+.rules .rule {
+	color: #555;
+}
+
+/*** ANNOUNCEMENT ***/
+#announcement .panel-group .panel {
+    border-radius: 0;
+    border-color: #e5e5e5;
+}
+#subscribed-topics .panel-default>.panel-heading,
+#announcement .panel-default>.panel-heading {
+    color: #777777;
+    background-color: rgba(230, 230, 230, 0.1);
+}
+#announcement .panel-default>.panel-heading:hover {
+    color: #222222;
+    background-color: rgba(230, 230, 230, 0.1);
+}
+#announcement .panel-body {
+	color: #444444;
+}
+
+/*** Custom Button ***/
+.btn-default {
+    background-image: linear-gradient(#fdfdfd, #efefef);
+    border: 1px solid #eee;
+}
+
+.btn-default:hover,
+.btn-default:active {
+    color: #000;
+    background: #eee;
+    background-image: linear-gradient(#fcfcfc, #dfdfdf);
+    border-color: #cfcfcf;
+}
+
+/*** clear float ***/
+.clearfix:before,
+.clearfix:after {
+    display: table;
+    content: " ";
+}
+
+.clearfix:after {
+    clear: both;
+}
+
+/* footer */
+#footer {
+    padding-top: 18px;
+    padding-bottom: 32px;
+    color: #767676;
+    font-size: 12px;
+    border-top: 1px solid #e5e5e5;
+    zoom: 1;
+}
+
+.footer-link {
+    padding-left: 0;
+    margin-top: 5px;
+}
+
+.copyright {
+    padding-left: 96px;
+    float: left;
+}
+
+.right-link {
+    padding-right: 96px;
+    float: right;   
+}
+
+.footer-link li {
+    display: inline;
+    padding: 0 2px;
+}
+
+.footer-link a {
+    color: #767676;
+}
+
+.footer-link a:hover{
+    color: #222;
+}

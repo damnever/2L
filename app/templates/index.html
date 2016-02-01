@@ -1,0 +1,135 @@
+{% extends "_base.html" %}
+
+{% block head %}
+
+{% end %}
+
+{% block content %}
+<div class="row">
+	<ul id="posts" class="list-group col-md-5 col-md-offset-2">
+		<post-component :tag="tag" v-for="item in items"
+		 :post-id="item.post_id"
+		 :post-title="item.post_title"
+		 :post-date="item.post_date"
+		 :topic-id="item.topic_id"
+		 :topic-name="item.topic_name"
+		 :author-avatar="item.author_avatar"
+		 :author-name="item.author_name"
+		 :last-comment-name="item.last_name"
+		 :last-comment-date="item.last_date">
+		</post-component>
+	</ul>
+	<div id="right" class="col-md-3" style="background-color: #fff;padding:0 0 0 24px;">
+		<div id="announcement">
+			<accordion :one-at-atime="true">
+			    <panel header="公告 #1" :is-open="true">
+			    {!! one | toHTML !!}
+			    </panel>
+			    <panel header="公告 #2">
+			    {!! two | toHTML !!}
+			    </panel>
+			    <panel header="公告 #3">
+			    {!! three | toHTML !!}
+			    </panel>
+			    <panel header="公告 #4">
+			    {!! four | toHTML !!}
+			    </panel>
+			</accordion>
+		</div>
+		<div id="subscribed-topics">
+			<div class="panel panel-default">
+			    <div class="panel-heading">${ title }</div>
+			    <div class="panel-body" style="padding:0;">
+			    	<ul class="list-group col-md-6">
+					    <li class="list-group-item" v-for="item in leftItems">
+					    	<img src="${ item.avatar }" class="thumbnail" alt="${ item.name }" width="20" height="20">
+					    	<a href="/topic/${ item.id }">${ item.name }</a>
+					    </li>
+					</ul>
+					<ul class="list-group col-md-6">
+					    <li class="list-group-item" v-for="item in rightItems">
+					    	<img src="${ item.avatar }" class="thumbnail" alt="${ item.name }" width="20" height="20">
+					    	<a href="/topic/${ item.id }">${ item.name }</a>
+					    </li>
+					</ul>
+			    </div>
+			</div>
+		</div>
+	</div>
+</div>
+{% end %}
+
+{% block script %}
+<script type="text/javascript">
+	new Vue({
+		el: '#posts',
+		data: {
+			tag: true,
+			items: [
+				{
+					post_id: 1,
+					post_title: '古语有云，二楼煞笔',
+					topic_id: 1,
+					topic_name: '扯淡',
+					author_avatar: '/static/2L.png',
+					author_name: 'Damnever',
+					last_name: 'root',
+					post_date: '30 分钟',
+					last_date: '2 分钟',
+				},
+				{
+					post_id: 1,
+					post_title: '古语有云，二楼煞笔',
+					topic_id: 1,
+					topic_name: '扯淡',
+					author_avatar: '/static/2L.png',
+					author_name: 'Damnever',
+					last_name: 'root',
+					post_date: '30 分钟',
+					last_date: '2 分钟',
+				},
+				{
+					post_id: 1,
+					post_title: '古语有云，二楼煞笔',
+					topic_id: 1,
+					topic_name: '扯淡',
+					author_avatar: '/static/2L.png',
+					author_name: 'Damnever',
+					last_name: 'root',
+					post_date: '30 分钟',
+					last_date: '2 分钟',
+				},
+			]
+		}
+	})
+	new Vue({
+		el: '#announcement',
+		data: {
+			one: '## Move your big ass.',
+			two: 'Eat your dog food.',
+			three: 'Lie on your cold bed.',
+			four: 'You are a pile of shit.',
+		},
+	    components: {
+	        accordion: VueStrap.accordion,
+	        panel: VueStrap.panel
+	    }
+	})
+	new Vue({
+		el: '#subscribed-topics',
+		data: {
+			title: '订阅的主题',
+			leftItems: [
+				{'id': 1, 'avatar': '/static/2L.png', 'name': '扯淡'},
+				{'id': 1, 'avatar': '/static/2L.png', 'name': '扯淡'},
+				{'id': 1, 'avatar': '/static/2L.png', 'name': '扯淡'},
+			],
+			rightItems: [
+				{'id': 1, 'avatar': '/static/2L.png', 'name': '扯淡'},
+				{'id': 1, 'avatar': '/static/2L.png', 'name': '扯淡'},
+				{'id': 1, 'avatar': '/static/2L.png', 'name': '扯淡'},
+			],
+		}
+	})
+</script>
+{% end %}

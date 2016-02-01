@@ -1,0 +1,193 @@
+{% extends "_base.html" %}
+
+{% block head %}
+<link rel="stylesheet" type="text/css" href="{{ static_url("css/github-markdown.css") }}"/>
+<style type="text/css">
+	#post-info {
+		height: 70px;
+		border-bottom: 1px solid #e3e3e3;
+		padding: 10px 5px 10px 5px;
+	}
+	.info-left {
+		float: left;
+	}
+	.comment-up-votes,
+	.comment-down-votes,
+	.post-up-votes,
+	.post-down-votes {
+		color: #444444;
+		margin-right: 3px;
+	}
+	.comment-up-votes:hover,
+	.comment-down-votes:hover,
+	.post-up-votes:hover,
+	.post-down-votes:hover {
+		color: #111;
+		text-decoration: none;
+	}
+	.post-author:hover,
+	.comment-user:hover {
+		color: #111111;
+	}
+	.post-date,
+	.comment-date {
+		color: #888888;
+		font-size: 13px;
+	}
+	.post-author {
+		margin-left: 5px;
+		margin-right: 5px;
+	}
+	.post-author,
+	.comment-user {
+		color: #333333;
+		font-size: bold;
+	}
+	.info-right {
+		float: right;
+	}
+	.markdown-body {
+		color: #333333;
+		font-size: 14px;
+		padding: 5px 5px 8px 5px;
+		border-bottom: 1px solid #e5e5e5;
+	}
+	.markdown-body .highlight pre,
+	.markdown-body pre {
+		background-color: rgba(230, 230, 230, 0.3);
+	}
+	.markdown-body img {
+		max-height: 200px;
+	}
+	pre {
+		border: 1px solid #fafafa;
+	}
+	.comment-vote {
+		float: left;
+	}
+	.comment-info {
+		margin-left: 20px;
+	}
+	.comment-content {
+		margin-top: 3px;
+		color: #333333;
+		font-size: 14px;
+	}
+	.comment-reply {
+		color: #555555;
+		font-size: 13px;
+	}
+	.comment-reply:hover {
+		color: #333333;
+	}
+	#comments .list-group-item {
+		padding: 10px 5px 10px 5px;
+	}
+	.comment-submit {
+
+	}
+	.comment-submit button {
+	}
+	.comment-submit .comment-tip {
+		margin-top: 15px;
+		color: #555555;
+		font-size: 12px;
+		float: right;
+	}
+</style>
+{% end %}
+
+{% block content %}
+<div class="row">
+	<div class="col-md-5 col-md-offset-2">
+		<div id="post-info">
+			<div class="info-left">
+				<a class="post-title" href="/post/{{ post_id }}">{{ title }}</a>
+				<div style="margin-top:5px;">
+					<a class="post-up-votes" href="/api/vote/down"><span class="glyphicon glyphicon-thumbs-up" aria-hidden="true"></span> 14</a>
+					<a class="post-down-votes" href="/api/vote/up"><span class="glyphicon glyphicon-thumbs-down" aria-hidden="true"></span> 8</a>
+					<a class="post-author" href="/user/{{ author }}">{{ author }}</a>
+					<span class="post-date">发布于 {{ date }}</span>
+				</div>
+			</div>
+			<div class="info-right">
+				<img src="/static/2L.png" class="thumbnail" alt="{{ author }}" width="50" height="50">
+			</div>
+		</div>
+		<div class="clearfix"></div>
+		<article id="post-content" class="markdown-body"></article>
+		<ul id="comments" class="list-group">
+			<comment-component :tag="tag" v-for="item in items"
+			 :comment-id="item.comment_id"
+			 :comment-user="item.comment_user"
+			 :comment-date="item.comment_date"
+			 :comment-content="item.comment_content">
+			</comment-component>
+			<form id="comment" action="" method="" style="margin-top:10px;">
+				<textarea class="form-control" rows="3"></textarea>
+				<div class="comment-submit">
+					<button type="submit" class="btn btn-default btn-sm" style="margin-top:5px;">评&ensp;论</button>
+					<span class="comment-tip">回答会扣除一定的金币哦！</span>
+				</label>
+			</form>
+		</ul>
+	</div>
+	<div id="topic-info" class="col-md-3" style="background-color: #fff;padding:0 0 0 24px;">
+		<topic-component
+		 :id="id"
+		 :name="name"
+		 :admin="admin"
+		 :avatar="avatar"
+		 :description="description"
+		 :rules="rules">
+		</topic-component>
+	</div>
+</div>
+{% end %}
+
+{% block script %}
+<script type="text/javascript">
+	var content = (function () {/*
+	{% raw content %}
+*/}).toString().split('\n').slice(1,-1).join('\n')
+	$('#post-content').html(marked(content))
+
+	new Vue({
+		el: '#topic-info',
+		data: {
+			id: 1,
+			name: '扯淡',
+			avatar: '/static/2L.png',
+			admin: 'Damnever',
+			description: '扯淡，no how，no when，start now.',
+			rules: 'Fuck youself.|Good for everyone.',
+		}
+	})
+
+	new Vue({
+		el: '#comments',
+		data: {
+			items: [
+				{
+					comment_id: 1,
+					comment_user: 'Damnever',
+					comment_date: '2016-01-26 22:43:33',
+					comment_content: '哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈'
+				},
+				{
+					comment_id: 2,
+					comment_user: 'dbay',
+					comment_date: '2016-01-26 22:43:33',
+					comment_content: '@Damnever 傻逼啊，我'
+				},
+				{
+					comment_id: 3,
+					comment_user: 'D.r',
+					comment_date: '2016-01-26 22:43:33',
+					comment_content: '@dbay 的确傻逼'
+				},
+			]
+		}
+	})
+</script>
+{% end %}

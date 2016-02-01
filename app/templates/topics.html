@@ -1,0 +1,102 @@
+{% extends "_base.html" %}
+
+{% block head %}
+<style type="text/css">
+.topics {
+	margin-bottom: 3px;
+}
+.topics .topic-avatar {
+	float: left;
+}
+.topic-text {
+	margin-left: 72px;
+}
+.topic-text .header {
+	margin-bottom: 3px;
+}
+.topic-text .header a {
+	color: #444444;
+	font-size: 16px;
+}
+.topic-text .header a:hover {
+	color: #000000;
+}
+.topic-text .header button {
+	float: right;
+	margin-right: 20px;
+	font-size: 10px;
+}
+.topic-text .description {
+	color: #555555;
+	font-size: 13px;
+}
+</style>
+{% end %}
+
+{% block content %}
+<div class="row" id="topics">
+	<ul class="list-group col-md-4 col-md-offset-2" id="leftTopics">
+	    <li class="list-group-item" v-for="topic in leftTopics">
+		    <div class="topics">
+		    	<div class="topic-avatar">
+		    		<img src="${ topic.avatar }" class="thumbnail" alt="${ topic.name }" width="60" height="60">
+		    	</div>
+		    	<div class="topic-text">
+		    		<div class="header">
+			    		<a href="/topic/${ topic.id }" target="_blank">${ topic.name }</a>
+			    		<button type="button" class="btn btn-link btn-xs">订阅</button>
+			    	</div>
+			    	<div class="description">${ topic.description }</div>
+		    	</div>
+	    	</div>
+	    </li>
+	</ul>
+	<ul class="list-group col-md-4" id="">
+	    <li class="list-group-item" v-for="topic in rightTopics">
+		    <div class="topics">
+		    	<div class="topic-avatar">
+		    		<img src="${ topic.avatar }" class="thumbnail" alt="${ topic.name }" width="60" height="60">
+		    	</div>
+		    	<div class="topic-text">
+		    		<div class="header">
+			    		<a href="/topic/${ topic.id }" target="_blank">${ topic.name }</a>
+			    		<button type="button" class="btn btn-link btn-xs">订阅</button>
+			    	</div>
+			    	<div class="description">${ topic.description }</div>
+		    	</div>
+	    	</div>
+	    </li>
+	</ul>
+</div>
+{% end %}
+
+{% block script %}
+<script type="text/javascript">
+	new Vue({
+		el: '#topics',
+		data: {
+			leftTopics: [
+				{'id': 1, 'avatar': '/static/2L.png', 'name': '扯淡', 'description': '扯淡专区，谈理想、谈人生、谈操蛋的生活、年轻任性、2楼傻逼'},
+				{'id': 1, 'avatar': '/static/2L.png', 'name': '扯淡', 'description': '扯淡专区，谈理想、谈人生、谈操蛋的生活、年轻任性、2楼傻逼'},
+				{'id': 1, 'avatar': '/static/2L.png', 'name': '扯淡', 'description': '扯淡专区，谈理想、谈人生、谈操蛋的生活、年轻任性、2楼傻逼'},
+			],
+			rightTopics: [
+				{'id': 1, 'avatar': '/static/2L.png', 'name': '扯淡', 'description': '扯淡专区，谈理想、谈人生、谈操蛋的生活、年轻任性、2楼傻逼'},
+				{'id': 1, 'avatar': '/static/2L.png', 'name': '扯淡', 'description': '扯淡专区，谈理想、谈人生、谈操蛋的生活、年轻任性、2楼傻逼'},
+				{'id': 1, 'avatar': '/static/2L.png', 'name': '扯淡', 'description': '扯淡专区，谈理想、谈人生、谈操蛋的生活、年轻任性、2楼傻逼'},
+			],
+		},
+		computed: {
+			/* topics: function() {
+
+			},
+			leftTopics: function() {
+
+			},
+			rightTopics: function() {
+
+			}*/
+		}
+	})
+</script>
+{% end %}

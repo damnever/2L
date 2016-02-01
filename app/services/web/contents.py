@@ -60,6 +60,15 @@ print("Python is the best language!")
         )
 
 
+class TopicEditHandler(object):
+
+    def get(self):
+        self.render('newpost.html',
+                    title='',
+                    keywords='',
+                    description='')
+
+
 urls = [
     (r'/topics', TopicsHandler),
     (r'/topic/(\d+)', TopicHandler),

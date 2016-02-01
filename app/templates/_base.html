@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8"/>
+	<meta name="keywords" content="{% if keywords %}{{ keywords }}{% else %}2L, BBS, FORUM{% end %}"/>
+	<meta name="description" content="{% if description %}{{ description }}{% else %}2L by Damnever{% end %}"/>
+	<meta name="viewport" content="width=device-width, initial-scale=1"/>
+	<title>{% if title %}{{ title }} &laquo; 2L{% else %}2L{% end %}</title>
+	<link rel="icon" href="{{ static_url("favicon.ico") }}"/>
+    <link rel="shortcut icon" href="{{ static_url("favicon.ico") }}"/>
+    <link rel="Bookmark" href="{{ static_url("favicon.ico") }}"/>
+    <link rel="stylesheet" type="text/css" href="{{ static_url("css/bootstrap.min.css") }}"/>
+    <link rel="stylesheet" type="text/css" href="{{ static_url("css/base.css") }}"/>
+    {% block head %}{% end %}
+    <!--script type="text/javascript" src="{{ static_url("js/jquery-2.1.4.min.js") }}"></script-->
+    <script type="text/javascript" src="{{ static_url("js/jquery-2.1.4.min.js") }}"></script>
+    <script type="text/javascript" src="{{ static_url("js/marked.min.js") }}"></script>
+    <script type="text/javascript" src="{{ static_url("js/vue.min.js") }}"></script>
+    <script type="text/javascript">
+    	Vue.config.delimiters = ['${', '}']
+    	Vue.config.unsafeDelimiters = ['{!!', '!!}']
+    	Vue.config.debug = true
+	</script>
+	<script type="text/javascript" src="{{ static_url("js/base.js") }}"></script>
+	<script type="text/javascript" src="{{ static_url("js/vue-strap.min.js") }}"></script>
+</head>
+<body>
+	{% block nav %}
+	<nav id="nav" class="navbar navbar-default navbar-fixed-top" role="navigation">
+		<div class="container">
+			<div class="row col-md-10 col-md-offset-1">
+			<div class="navbar-header">
+		        <a href="/"><img alt="Brand" src="{{ static_url("imgs/icon-32x32.png") }}" style="margin-top:8px;margin-right:20px"></a>
+		    </div>
+			<span></span>
+			<ul class="nav navbar-nav navbar-left">
+				<li class="for-nav" :class="{'active': newest}"><a href="/">最新</a></li>
+				<li class="for-nav" :class="{'active': hot}"><a href="/hot">最热</a></li>
+				<li class="for-nav" :class="{'active': topics}"><a href="/topics">主题</a></li>
+			</ul>
+			<ul class="nav navbar-nav navbar-right" id="auth-area">
+				{% if current_user %}
+					<li id="register" class="for-nav">
+   						<a href="/notifications/{{ current_user }}">消息 <span class="badge"></span></a>
+   					</li>
+					<li id="register" class="for-nav">
+   						<a href="/user/{{ current_user }}">{{ current_user }}</a>
+   					</li>
+				{% else %}
+					{% include "auth.html" %}
+				{% end %}
+			</ul>
+			</div>
+		</div>
+	</nav>
+	{% end %}
+    <div id="container">
+        <div id="content">
+    	    <div class="container-fluid">
+                {% block content %}{% end %}
+                {% module xsrf_form_html() %}
+            </div>
+        </div>
+    </div>
+    <div id="footer">
+        {% include "footer.html" %}
+    </div>
+</body>
+<script type="text/javascript">
+    new Vue({
+    	el: '#nav',
+    	data: {
+    		url: window.location.href.toString().split(window.location.host)[1],
+    	},
+    	computed: {
+    		newest: function() {
+    			if (this.url === '/') {
+    				return true
+    			}
+    			return false
+    		},
+    		hot: function() {
+    			if (this.url === '/hot') {
+    				return true
+    			}
+    			return false
+    		},
+    		topics: function() {
+    			if (this.url === '/topics') {
+    				return true
+    			}
+    			return false
+    		}
+    	}
+    })
+</script>
+{% block script %}{% end %}
+</html>
