@@ -99,6 +99,7 @@
 	    		if (response.status == 1) {
 	    			this.showModal = false
    					$('#auth-area').html(String.format(template, response.username))
+   					vAlert.success(response.username + '，欢迎回来！')
 	    			this.username = ''
 	    			this.password = ''
 	    		} else {
@@ -160,12 +161,13 @@
 	    		if (response.status == 1) {
 	    			this.showModal = false
    					$('#auth-area').html(String.format(template, response.username))
+   					vAlert.success(response.username + '，您已注册成功并登录！')
 	    			this.username = ''
 		    		this.password = ''
 		    		this.email = ''
 	    		} else {
 	    			var errmsg = response.code.toString() + ' ' + response.reason
-	    			console.log("LOGIN ERROR: ", errmsg)
+	    			console.log("REGISTER ERROR: ", errmsg)
 	    			this.title = errorWrap(errmsg)
 	    		}
 	    	},

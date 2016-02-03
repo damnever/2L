@@ -135,11 +135,12 @@
 	<div id="topic-info" class="col-md-3" style="background-color: #fff;padding:0 0 0 24px;">
 		<topic-component
 		 :id="id"
-		 :name="name"
-		 :admin="admin"
-		 :avatar="avatar"
-		 :description="description"
-		 :rules="rules">
+		 :name="topic.name"
+		 :admin="topic.administer"
+		 :avatar="topic.avatar"
+		 :description="topic.description"
+		 :rules="topic.rules"
+		 :b-post="bPost">
 		</topic-component>
 	</div>
 </div>
@@ -155,12 +156,21 @@
 	new Vue({
 		el: '#topic-info',
 		data: {
-			id: 1,
-			name: '扯淡',
-			avatar: '/static/2L.png',
-			admin: 'Damnever',
-			description: '扯淡，no how，no when，start now.',
-			rules: 'Fuck youself.|Good for everyone.',
+			id: {{ topic_id }},
+			bPost: true,
+		},
+		computed: {
+			topic: function() {
+				var topic = {'name': '', 'administer': '', 'avatar': '', 'description': '', 'rules': ''}
+				getJSON('/api/topics/' + this.id.toString(), undefined, function(response) {
+					if (response.status === 1) {
+						topic = response	
+					} else {
+						console.log('GET TOPIC ' + this.id.toString() + ' ERROR: ' + response.code.toString() + response.reason)
+					}
+				}, false)
+				return topic;
+			}
 		}
 	})
 

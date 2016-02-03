@@ -28,9 +28,9 @@ def runserver(host, port):
 def initdb():
     """Initialize MySQL databse."""
     from app.libs.db import init_db
-    from app.models import Permission, User
+    from app.models import Permission, User, Topic
     from app.base.roles import Roles
-    from app.settings import Admins
+    from app.settings import Admins, Topics
     from app.libs.utils import encrypt_password
 
     click.echo('[2L] {0}..'.format(initdb.__doc__))
@@ -53,6 +53,11 @@ def initdb():
             admin['role'] = Permission.get_by_role(admin['role']).bit
         admin['password'] = encrypt_password(admin['password'])
         User.create(**admin)
+
+    click.echo('\n\n[2L] create default topics...')
+    for topic in Topics:
+        click.echo(' -> {0}'.format(topic))
+        Topic.create(**topic)
 
 
 @main.command()

@@ -5,7 +5,7 @@ from __future__ import print_function, division, absolute_import
 from tornado import gen
 
 from app.base.handlers import APIHandler
-from app.base.decorators import as_json, authenticated, need_permissions
+from app.base.decorators import as_json, need_permissions
 from app.base.roles import Roles
 from app.models import Comment, CommentUpVote, CommentDownVote
 from app.services.api import exceptions
@@ -47,7 +47,6 @@ class PostCommentsAPIHandler(APIHandler):
 
     @as_json
     @need_permissions(Roles.Comment)
-    @authenticated
     @gen.coroutine
     def post(self, post_id):
         content = self.get_argument('content', None)

@@ -4,13 +4,25 @@
 
 from __future__ import print_function, division, absolute_import
 
+from datetime import datetime, timedelta
+
 from tornado import gen
+from tzlocal import get_localzone
 
 from app.base.handlers import APIHandler
 from app.base.decorators import as_json
 from app.services.api import exceptions
 from app.models import User
 from app.libs.utils import encrypt_password, gen_token
+from app.tasks.tasks import update_permission
+from app.base.roles import Roles
+from app.settings import Level
+
+
+def set_cookie_session(self, username, expire):
+    token = gen_token()
+    self.set_secure_cookie('token', token, expire)
+    self.session.set(token, username, expire)
 
 
 class LoginHandler(APIHandler):
@@ -30,9 +42,8 @@ class LoginHandler(APIHandler):
                 raise exceptions.UsernameDoesNotExists()
             if encrypt_password(password) != user.password:
                 raise exceptions.PasswordWrong()
-            token = gen_token()
-            self.set_secure_cookie('token', token, expire)
-            self.session.set(token, username, expire)
+
+            set_cookie_session(self, username, expire)
             raise gen.Return({'username': username})
 
 
@@ -68,13 +79,16 @@ class RegisterHandler(APIHandler):
             if user is not None:
                 raise exceptions.EmailAlreadyExists()
             password = encrypt_password(password)
-            self.async_task(User.create, username=username,
-                            password=password, email=email)
+            user = yield self.async_task(User.create, username=username,
+                                         password=password, email=email)
+
+            # Update permission after xxx seconds.
+            seconds = Level['time'][Roles.Comment]
+            wait = datetime.now(get_localzone()) + timedelta(seconds=seconds)
+            update_permission.apply_async((user, Roles.Comment), eta=wait)
 
             # Register success, then login.
-            token = gen_token()
-            self.set_secure_cookie('token', token, 1)
-            self.session.set(token, username, 1)
+            set_cookie_session(self, username, 1)
             raise gen.Return({'username': username})
 
 

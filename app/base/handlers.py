@@ -96,12 +96,14 @@ class BaseHandler(AsyncTaskMixIn, RequestHandler):
             # No CORS headers deny the request
             allow = False
             if not allow:
-                self.log.warn("Blocking Cross Origin API request.  Origin: %s, Host: %s",
-                              origin, host,)
+                self.log.warn("Blocking Cross Origin API request."
+                              "  Origin: %s, Host: %s", origin, host,)
             return allow
 
     def get_current_user(self):
-        token = self.get_secure_cookie('token')
+        token = (self.get_secure_cookie('token') or
+                 self.get_argument('token', None))
+        print("--->>> TOKEN: ", token)
         if token:
             username = self.session.get(token)
             return username

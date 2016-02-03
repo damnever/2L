@@ -32,7 +32,6 @@ class TopicAPIHandler(APIHandler):
 
     @as_json
     @need_permissions(Roles.TopicCreation)
-    @authenticated
     @gen.coroutine
     def post(self):
         name = self.get_argument('name', None)

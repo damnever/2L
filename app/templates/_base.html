@@ -21,8 +21,8 @@
     	Vue.config.unsafeDelimiters = ['{!!', '!!}']
     	Vue.config.debug = true
 	</script>
+    <script type="text/javascript" src="{{ static_url("js/vue-strap.min.js") }}"></script>
 	<script type="text/javascript" src="{{ static_url("js/base.js") }}"></script>
-	<script type="text/javascript" src="{{ static_url("js/vue-strap.min.js") }}"></script>
 </head>
 <body>
 	{% block nav %}
@@ -62,6 +62,20 @@
             </div>
         </div>
     </div>
+    <div id="msg-alert">
+        <alert
+            :show.sync="showRight"
+            :duration="3000"
+            type="warning"
+            width="400px"
+            placement="top-right"
+            style="margin-top: 30px;"
+            dismissable>
+            <span class="alert-icon-float-left" :class="{'icon-info-circled': !ok, 'icon-ok-circled': ok}"></span>
+            <strong>${ level }</strong>
+            <p>${ msg }</p>
+        </alert>
+    </div>
     <div id="footer">
         {% include "footer.html" %}
     </div>
@@ -92,6 +106,49 @@
     			return false
     		}
     	}
+    })
+
+    var vAlert = new Vue({
+        el: '#msg-alert',
+        data: {
+            showRight: false,
+            level: '警告',
+            msg: '',
+            ok: false,
+        },
+        methods: {
+            danger: function(msg) {
+                this.type = 'danger'
+                this.level = '错误'
+                this.msg = msg
+                this.ok = false
+                this.showRight = true
+            },
+            warning: function(msg) {
+                this.type = 'warning'
+                this.level = '警告'
+                this.msg = msg
+                this.ok = false
+                this.showRight = true
+            },
+            info: function(msg) {
+                this.type = 'info'
+                this.level = '提示'
+                this.msg = msg
+                this.ok = false
+                this.showRight = true
+            },
+            success: function(msg) {
+                this.type = 'success'
+                this.level = '成功'
+                this.msg = msg
+                this.ok = true
+                this.showRight = true
+            },
+        },
+        components: {
+            'alert': VueStrap.alert,
+        }
     })
 </script>
 {% block script %}{% end %}

@@ -5,7 +5,7 @@ from __future__ import print_function, division, absolute_import
 from tornado import gen
 
 from app.base.handlers import APIHandler
-from app.base.decorators import as_json, authenticated, need_permissions
+from app.base.decorators import as_json, need_permissions
 from app.base.roles import Roles
 from app.models import PostUpVote, PostDownVote, CommentUpVote, CommentDownVote
 from app.services.api import exceptions
@@ -42,7 +42,6 @@ class BaseVoteAPIHandler(APIHandler):
 
     @as_json
     @need_permissions(Roles.Vote)
-    @authenticated
     @gen.coroutine
     def post(self, id_):
         username = self.current_user
@@ -57,7 +56,6 @@ class BaseVoteAPIHandler(APIHandler):
 
     @as_json
     @need_permissions(Roles.Vote)
-    @authenticated
     @gen.coroutine
     def delete(self, id_):
         username = self.current_user

@@ -24,7 +24,8 @@
 		 :admin="admin"
 		 :avatar="avatar"
 		 :description="description"
-		 :rules="rules">
+		 :rules="rules"
+		 :b-post="bPost">
 		</topic-component>
 	</div>
 </div>
@@ -41,6 +42,7 @@
 			admin: '{{ admin }}',
 			description: '{{ description }}',
 			rules: '{{ rules }}',
+			bPost: true,
 		}
 	})
 	new Vue({

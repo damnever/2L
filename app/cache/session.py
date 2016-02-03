@@ -7,11 +7,7 @@ import redis
 from app.settings import Redis
 
 
-conn = redis.StrictRedis(
-    host=Redis['host'],
-    port=Redis['port'],
-    db=Redis['session_db'],
-)
+conn = redis.StrictRedis(**Redis['session'])
 
 
 def set(key, value, expires_days=1):

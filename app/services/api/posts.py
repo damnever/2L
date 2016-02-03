@@ -5,7 +5,7 @@ from __future__ import print_function, division, absolute_import
 from tornado import gen
 
 from app.base.handlers import APIHandler
-from app.base.decorators import as_json, authenticated, need_permissions
+from app.base.decorators import as_json, need_permissions
 from app.base.roles import Roles
 from app.services.api import exceptions
 from app.models import Post, Comment, PostUpVote, PostDownVote, Favorite
@@ -78,13 +78,13 @@ class TopicPostsAPIHandler(APIHandler):
 
     @as_json
     @need_permissions(Roles.Comment)
-    @authenticated
     @gen.coroutine
     def post(self, topic_id):
         title = self.get_argument('title', None)
         keywords = self.get_argument('keywords', None)
         content = self.get_argument('content', '')
         keep_silent = self.get_argument('keep_silent', False)
+        is_draft = self.get_argument('is_draft', False)
 
         if title is None or keywords is None:
             raise exceptions.EmptyFields()
@@ -95,8 +95,8 @@ class TopicPostsAPIHandler(APIHandler):
             else:
                 username = self.current_user
                 yield self.async_task(
-                    Post.create, username, topic_id, title,
-                    keywords, content, keep_silent=keep_silent)
+                    Post.create, username, topic_id, title, keywords,
+                    content, keep_silent=keep_silent, is_draft=is_draft)
 
 
 class UserPostsAPIHandler(APIHandler):
@@ -134,22 +134,22 @@ class PostAPIHandler(APIHandler):
 
     @as_json
     @need_permissions(Roles.PostEdit)
-    @authenticated
     @gen.coroutine
     def patch(self, post_id):
         keywords = self.get_argument('keywords', None)
         content = self.get_argument('content', None)
         keep_silent = self.get_argument('keep_silent', None)
+        is_draft = self.get_argument('is_draft', None)
 
         if keywords is None and content is None and keep_silent is None:
             raise exceptions.EmptyFields()
         else:
             post = yield self.async_task(Post.get, post_id)
-            yield self.async_task(post.update, keywords, content, keep_silent)
+            yield self.async_task(post.update, keywords, content,
+                                  keep_silent, is_draft)
 
     @as_json
     @need_permissions(Roles.PostEdit)
-    @authenticated
     @gen.coroutine
     def delete(self, post_id):
         p = yield self.async_task(Post.get, post_id)

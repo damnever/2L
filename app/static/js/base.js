@@ -1,5 +1,12 @@
 console.log("2L by Damnever <dxc.wolf@gmail.com>")
 
+/***** clear border when the link clicked *****/
+$(document).ready(function() {
+	$("a,button").bind("focus",function() {
+	    if(this.blur) {this.blur()}
+	})
+})
+
 Vue.filter('toHTML', function(value) {
 	return marked(value)
 })
@@ -56,9 +63,7 @@ Vue.component('topicComponent', {
 				<div class="rule" v-for="rule in rules.split('|')">
 					<span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span> ${ rule }
 				</div>
-				<form action="/api/post/${ id }" method="POST">
-					<button class="btn btn-default" style="margin-top:10px;width:100%;">发&emsp;帖</button>
-				</form>
+				<a href="/topic/${ id }/new/post" v-show="bPost" class="btn btn-default" style="margin-top:10px;width:100%;" @click="newPost">发&emsp;帖</a>
 			</div>
 		</div>
 	*/}).toString().split('\n').slice(1,-1).join(''),
@@ -69,6 +74,7 @@ Vue.component('topicComponent', {
 		admin: String,
 		description: String,
 		rules: String,
+		bPost: Boolean,
 	},
 })
 
@@ -105,9 +111,30 @@ Vue.component('commentComponent', {
 	},
 })
 
+function getJSON(url, data, callback, async) {
+	if (typeof async === "undefined") {
+		async = true
+	}
+	return $.ajax({
+		url: url,
+		dataType: "json",
+		type: "GET",
+		data: data,
+		async: async,
+		success: function(response) {
+			if (callback) {
+				callback(response)
+			}
+		},
+		error: function(response) {
+			console.log("GET FROM " ,url, " GOT ERROR: ", response)
+		}
+	})
+}
+
 function postJSON(url, data, callback) {
 	data._xsrf = getXSRF()
-	$.ajax({
+	return $.ajax({
 		url: url,
 		data: $.param(data),
 		dataType: "json",
@@ -118,7 +145,7 @@ function postJSON(url, data, callback) {
 			}
 		},
 		error: function(response) {
-			console.log("POST TO " ,url, " GOT ERROR: ", response)
+			console.log("POST TO " , url, " GOT ERROR: ", response)
 		}
 	})
 }

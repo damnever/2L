@@ -75,27 +75,39 @@
 	new Vue({
 		el: '#topics',
 		data: {
-			leftTopics: [
-				{'id': 1, 'avatar': '/static/2L.png', 'name': '扯淡', 'description': '扯淡专区，谈理想、谈人生、谈操蛋的生活、年轻任性、2楼傻逼'},
-				{'id': 1, 'avatar': '/static/2L.png', 'name': '扯淡', 'description': '扯淡专区，谈理想、谈人生、谈操蛋的生活、年轻任性、2楼傻逼'},
-				{'id': 1, 'avatar': '/static/2L.png', 'name': '扯淡', 'description': '扯淡专区，谈理想、谈人生、谈操蛋的生活、年轻任性、2楼傻逼'},
-			],
-			rightTopics: [
-				{'id': 1, 'avatar': '/static/2L.png', 'name': '扯淡', 'description': '扯淡专区，谈理想、谈人生、谈操蛋的生活、年轻任性、2楼傻逼'},
-				{'id': 1, 'avatar': '/static/2L.png', 'name': '扯淡', 'description': '扯淡专区，谈理想、谈人生、谈操蛋的生活、年轻任性、2楼傻逼'},
-				{'id': 1, 'avatar': '/static/2L.png', 'name': '扯淡', 'description': '扯淡专区，谈理想、谈人生、谈操蛋的生活、年轻任性、2楼傻逼'},
-			],
+			data : {'total': 0, 'topics': []},
 		},
 		computed: {
-			/* topics: function() {
-
-			},
 			leftTopics: function() {
-
+				if (this.data.total === 0) {
+					this.getData()
+					if (this.data.total === 0) {
+						return []
+					}
+				}
+				return this.data.topics.slice(0, this.data.total/2)
 			},
-			rightTopics: function() {
-
-			}*/
+			rightTopics:  function() {
+				if (this.data.total === 0) {
+					this.getData()
+					if (this.data.total === 0) {
+						return []
+					}
+				}
+				return this.data.topics.slice(this.data.total/2)
+			},
+		},
+		methods: {
+			getData: function() {
+				getJSON('/api/topics', {}, this.setData)
+			},
+			setData: function(response) {
+				if (response.status === 1) {
+					this.data = response
+				} else {
+					console.log("GET ALL TOPICS ERROR: ", response.code.toString() + response.reason)
+				}
+			}
 		}
 	})
 </script>

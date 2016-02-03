@@ -2,7 +2,10 @@
 
 from __future__ import print_function, division, absolute_import
 
+from tornado import gen
+
 from app.base.handlers import BaseHandler
+from app.models import Topic, User
 
 
 class TopicsHandler(BaseHandler):
@@ -18,16 +21,19 @@ class TopicsHandler(BaseHandler):
 
 class TopicHandler(BaseHandler):
 
+    @gen.coroutine
     def get(self, topic_id):
+        topic = yield self.async_task(Topic.get, topic_id)
+        admin = yield self.async_task(User.get, topic.admin_id)
         self.render(
             'topic.html',
-            title='扯淡',
-            keywords='扯淡, 2L',
-            description='扯淡，no how，no when，start now.',
-            id=1,
-            admin='Damnever',
-            avatar='/static/2L.png',
-            rules='Fuck youself.|Good for everyone.',
+            title=topic.name,
+            keywords=topic.name + ', 2L',
+            description=topic.description,
+            id=topic_id,
+            admin=admin.username,
+            avatar=topic.avatar,
+            rules=topic.rules,
         )
 
 
@@ -39,6 +45,7 @@ class PostHandler(BaseHandler):
             title='古语有云，二楼煞笔',
             keywords='Damnever, 二楼, 煞笔',
             description='古语有云，二楼煞笔',
+            topic_id=1,
             post_id=post_id,
             author='Damnever',
             avatar='/static/2L.png',
@@ -60,17 +67,25 @@ print("Python is the best language!")
         )
 
 
-class TopicEditHandler(object):
+class TopicEditHandler(BaseHandler):
 
-    def get(self):
+    @gen.coroutine
+    def get(self, topic_id):
+        topic = yield self.async_task(Topic.get, topic_id)
+        admin = yield self.async_task(User.get, topic.admin_id)
         self.render('newpost.html',
-                    title='',
-                    keywords='',
-                    description='')
+                    title=topic.name,
+                    keywords=topic.name + ', 2L',
+                    description=topic.description,
+                    topic_id=topic_id,
+                    rules=topic.rules,
+                    admin=admin.username,
+                    avatar=topic.avatar)
 
 
 urls = [
     (r'/topics', TopicsHandler),
     (r'/topic/(\d+)', TopicHandler),
     (r'/post/(\d+)', PostHandler),
+    (r'/topic/(\d+)/new/post', TopicEditHandler),
 ]
