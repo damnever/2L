@@ -111,11 +111,12 @@ Vue.component('commentComponent', {
 	},
 })
 
+
 function getJSON(url, data, callback, async) {
 	if (typeof async === "undefined") {
 		async = true
 	}
-	return $.ajax({
+	$.ajax({
 		url: url,
 		dataType: "json",
 		type: "GET",
@@ -134,7 +135,7 @@ function getJSON(url, data, callback, async) {
 
 function postJSON(url, data, callback) {
 	data._xsrf = getXSRF()
-	return $.ajax({
+	$.ajax({
 		url: url,
 		data: $.param(data),
 		dataType: "json",

@@ -129,6 +129,7 @@
 						return []
 					}
 				}
+				console.log("FUCK")
 				return this.data.topics.slice(0, this.data.total/2)
 			},
 			rightItems: function() {
@@ -154,14 +155,13 @@
 						that.title = '推荐的主题'
 						getJSON('/api/topics', undefined, function(response) {
 							if (response.status === 1) {
-								console.log("RESP", response)
 								that.data = response
 							} else {
 								console.log("GET ALL TOPICS ERROR: ", response.code.toString() + response.reason)
 							}
 						})
 					}
-				})
+				}, true)
 			},
 		},
 	})

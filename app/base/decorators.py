@@ -34,7 +34,7 @@ def as_json(method):
                 'reason': 'Unknown server error.',
             })
         else:
-            if result is None:
+            if result is None or isinstance(result, gen.Future):
                 result = dict()
             result.update({'status': 1})
             self.write(json_encode(result))

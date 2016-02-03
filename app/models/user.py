@@ -67,7 +67,7 @@ class User(Model):
         db_session.commit()
 
     def has_permission(self, role):
-        return self.query.filter(self.role&Permission.get_by_role(role))
+        return self.query.filter(self.role&Permission.get_by_role(role).bit>0)
 
     def permissions(self):
         r = self.query.join(Permission).filter(

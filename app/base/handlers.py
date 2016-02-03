@@ -103,7 +103,6 @@ class BaseHandler(AsyncTaskMixIn, RequestHandler):
     def get_current_user(self):
         token = (self.get_secure_cookie('token') or
                  self.get_argument('token', None))
-        print("--->>> TOKEN: ", token)
         if token:
             username = self.session.get(token)
             return username

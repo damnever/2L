@@ -64,15 +64,51 @@
     </div>
     <div id="msg-alert">
         <alert
-            :show.sync="showRight"
+            :show.sync="showDanger"
+            :duration="3000"
+            type="danger"
+            width="400px"
+            placement="top-right"
+            style="margin-top: 30px;"
+            dismissable>
+            <span class="icon-cancel-circled alert-icon-float-left"></span>
+            <strong>DANGER</strong>
+            <p>${ msg }</p>
+        </alert>
+        <alert
+            :show.sync="showWarning"
             :duration="3000"
             type="warning"
             width="400px"
             placement="top-right"
             style="margin-top: 30px;"
             dismissable>
-            <span class="alert-icon-float-left" :class="{'icon-info-circled': !ok, 'icon-ok-circled': ok}"></span>
-            <strong>${ level }</strong>
+            <span class="icon-attention-circled alert-icon-float-left"></span>
+            <strong>WARNING</strong>
+            <p>${ msg }</p>
+        </alert>
+        <alert
+            :show.sync="showInfo"
+            :duration="3000"
+            type="info"
+            width="400px"
+            placement="top-right"
+            style="margin-top: 30px;"
+            dismissable>
+            <span class="icon-info-circled alert-icon-float-left"></span>
+            <strong>INFO</strong>
+            <p>${ msg }</p>
+        </alert>
+        <alert
+            :show.sync="showSuccess"
+            :duration="3000"
+            type="success"
+            width="400px"
+            placement="top-right"
+            style="margin-top: 30px;"
+            dismissable>
+            <span class="icon-ok-circled alert-icon-float-left"></span>
+            <strong>SUCCESS</strong>
             <p>${ msg }</p>
         </alert>
     </div>
@@ -111,39 +147,28 @@
     var vAlert = new Vue({
         el: '#msg-alert',
         data: {
-            showRight: false,
-            level: '警告',
+            showDanger: false,
+            showWarning: false,
+            showInfo: false,
+            showSuccess: false,
             msg: '',
-            ok: false,
         },
         methods: {
             danger: function(msg) {
-                this.type = 'danger'
-                this.level = '错误'
                 this.msg = msg
-                this.ok = false
-                this.showRight = true
+                this.showDanger = true
             },
             warning: function(msg) {
-                this.type = 'warning'
-                this.level = '警告'
                 this.msg = msg
-                this.ok = false
-                this.showRight = true
+                this.showWarning = true
             },
             info: function(msg) {
-                this.type = 'info'
-                this.level = '提示'
                 this.msg = msg
-                this.ok = false
-                this.showRight = true
+                this.showInfo = true
             },
             success: function(msg) {
-                this.type = 'success'
-                this.level = '成功'
                 this.msg = msg
-                this.ok = true
-                this.showRight = true
+                this.showSuccess = true
             },
         },
         components: {

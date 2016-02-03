@@ -89,7 +89,8 @@ class BaseQuery(Query):
         return Pagination(self, page, per_page, total, items)
 
 
-url = 'mysql://{username}:{password}@{host}:{port}/{db}'.format(**MySQL)
+url = ('mysql://{username}:{password}@{host}:{port}/{db}'
+       '?charset=utf8').format(**MySQL)
 engine = create_engine(url, echo=True)
 
 db_session = scoped_session(

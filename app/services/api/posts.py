@@ -83,7 +83,7 @@ class TopicPostsAPIHandler(APIHandler):
         title = self.get_argument('title', None)
         keywords = self.get_argument('keywords', None)
         content = self.get_argument('content', '')
-        keep_silent = self.get_argument('keep_silent', False)
+        keep_silent = bool(self.get_argument('keep_silent', False))
         is_draft = self.get_argument('is_draft', False)
 
         if title is None or keywords is None:
