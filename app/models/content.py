@@ -37,6 +37,7 @@ class Topic(Model):
                   description=description, rules=rules)
         db_session.add(t)
         db_session.commit()
+        return t
 
     def update(self, description=None, rules=None, avatar=None):
         if description:
@@ -74,6 +75,7 @@ class Post(Model):
     keywords = Column('keywords', String(120), nullable=False)
     content = Column('content', Text(), default='')
     keep_silent = Column('keep_silent', Boolean(), default=False)
+    is_draft = Column('is_draft', Boolean(), default=False)
 
     @classmethod
     def get_by_title(cls, title):
@@ -99,7 +101,7 @@ class Post(Model):
 
     @classmethod
     def create(cls, author_name, topic_id, title, keywords,
-               content='', keep_silent=False):
+               content='', keep_silent=False, is_draft=False):
         p = cls(
             topic_id=topic_id,
             author_id=User.get_by_name(author_name).id,
@@ -107,17 +109,22 @@ class Post(Model):
             keywords=keywords,
             content=content,
             keep_silent=keep_silent,
+            is_draft=is_draft,
         )
         db_session.add(p)
         db_session.commit()
+        return p
 
-    def update(self, keywords=None, content=None, keep_silent=None):
+    def update(self, keywords=None, content=None,
+               keep_silent=None, is_draft=None):
         if keywords:
             self.keywords = keywords
         if content:
             self.content = content
         if keep_silent:
             self.keep_silent = keep_silent
+        if is_draft:
+            self.is_draft = is_draft
         db_session.add(self)
         db_session.commit()
 
@@ -187,6 +194,7 @@ class Comment(Model):
         c = cls(author_id=user.id, post_id=post_id, content=content, date=now)
         db_session.add(c)
         db_session.commit()
+        return c
 
     def update(self, content):
         self.content = content

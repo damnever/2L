@@ -38,6 +38,7 @@ class Subscription(Model):
         s = cls(user_id=user.id, topic_id=topic_id)
         db_session.add(s)
         db_session.commit()
+        return s
 
     def to_dict(self):
         return {
@@ -82,6 +83,7 @@ class Favorite(Model):
         f = cls(user_id=user.id, post_id=post_id)
         db_session.add(f)
         db_session.commit()
+        return f
 
     def to_dict(self):
         return {
@@ -121,6 +123,7 @@ class PostUpVote(Model):
         pu = cls(user_id=user.id, post_id=post_id)
         db_session.add(pu)
         db_session.commit()
+        return pu
 
     def to_dict(self):
         return {
@@ -160,6 +163,7 @@ class PostDownVote(Model):
         pd = cls(user_id=user.id, post_id=post_id)
         db_session.add(pd)
         db_session.commit()
+        return pd
 
 
 class CommentUpVote(Model):
@@ -188,6 +192,7 @@ class CommentUpVote(Model):
         cu = cls(user_id=user.id, comment_id=comment_id)
         db_session.add(cu)
         db_session.commit()
+        return cu
 
 
 class CommentDownVote(Model):
@@ -216,3 +221,4 @@ class CommentDownVote(Model):
         cd = cls(user_id=user.id, comment_id=comment_id)
         db_session.add(cd)
         db_session.commit()
+        return cd

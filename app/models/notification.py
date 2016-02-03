@@ -41,6 +41,7 @@ class Notification(Model):
                 activity_type=activity_type, content_url=content_url)
         db_session.add(n)
         db_session.commit()
+        return n
 
     def mark_as_read(self):
         self.unread = False
@@ -86,6 +87,7 @@ class Announcement(Model):
         )
         db_session.add(a)
         db_session.commit()
+        return a
 
     def sender(self):
         return User.get(self.sender_id)
@@ -125,6 +127,7 @@ class PrivateMessage(Model):
                  message=message)
         db_session.add(pm)
         db_session.commit()
+        return pm
 
     def mark_as_read(self):
         self.unread = False

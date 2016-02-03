@@ -2,9 +2,6 @@
 
 from __future__ import print_function, division, absolute_import
 
-from datetime import datetime
-
-from tzlocal import get_localzone
 from sqlalchemy import Column, Integer, String, Text, ForeignKey, DateTime
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import functions, expression
@@ -46,6 +43,7 @@ class User(Model):
         db_session.add(user)
         db_session.add(profile)
         db_session.commit()
+        return user
 
     def delete(self):
         db_session.delete(self.profile)
@@ -61,13 +59,10 @@ class User(Model):
                     v += getattr(self.profile, k)
                 setattr(self.profile, k, v)
 
-        if self.profile.gold >= Level['Gold']['TopicCreation']:
+        if self.profile.gold >= Level['gold']['topic_creation']:
             self.role |= Permission.get_by_role('topic_creation')
-        if self.profile.gold >= Level['Gold']['Vote']:
-            self.role |= Permission.get_by_role('topic_creation')
-        td = datetime.now(get_localzone()) - self.profile.join_date
-        if td.total_seconds() >= Level['Time']['Comment']:
-            self.role |= Permission.get_by_role('comment')
+        if self.profile.gold >= Level['gold']['vote']:
+            self.role |= Permission.get_by_role('vote')
         db_session.add(self)
         db_session.commit()
 
@@ -108,7 +103,7 @@ class User(Model):
 class Profile(Model):
     user_id = Column('user_id', Integer(), ForeignKey('user.id'))
     gold = Column('gold', Integer(), nullable=False,
-                  default=Level['Gold']['Register'])
+                  default=Level['gold']['register'])
     join_date = Column('join_date', DateTime(timezone=True),
                        default=functions.now())
     introduce = Column('introduce', Text(300), default='You know, 2L~')
@@ -141,9 +136,10 @@ class Following(Model):
     def create(cls, username, following_name):
         user = User.get_by_name(username)
         following = User.get_by_name(following_name)
-        f = Following(user_id=user.id, following_id=following.id)
+        f = cls(user_id=user.id, following_id=following.id)
         db_session.add(f)
         db_session.commit()
+        return f
 
     @classmethod
     def get_by_user_following(cls, username, following_name):
@@ -173,9 +169,10 @@ class Blocked(Model):
     def create(cls, username, blocked_name):
         user = User.get_by_name(username)
         blocked = User.get_by_name(blocked_name)
-        f = Blocked(user_id=user.id, blocked_id=blocked.id)
-        db_session.add(f)
+        b = cls(user_id=user.id, blocked_id=blocked.id)
+        db_session.add(b)
         db_session.commit()
+        return b
 
     @classmethod
     def get_by_user_blocked(cls, username, blocked_name):

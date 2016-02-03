@@ -27,6 +27,7 @@ class Permission(Model):
         p = cls(role=role)
         db_session.add(p)
         db_session.commit()
+        return p
 
 
 @event.listens_for(Permission, 'before_insert')
