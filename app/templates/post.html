@@ -22,7 +22,7 @@
 	.comment-down-votes:hover,
 	.post-up-votes:hover,
 	.post-down-votes:hover {
-		color: #111;
+		color: #111111;
 		text-decoration: none;
 	}
 	.post-author:hover,
@@ -104,32 +104,33 @@
 			<div class="info-left">
 				<a class="post-title" href="/post/{{ post_id }}">{{ title }}</a>
 				<div style="margin-top:5px;">
-					<a class="post-up-votes" href="/api/vote/down"><span class="glyphicon glyphicon-thumbs-up" aria-hidden="true"></span> 14</a>
-					<a class="post-down-votes" href="/api/vote/up"><span class="glyphicon glyphicon-thumbs-down" aria-hidden="true"></span> 8</a>
+					<a class="post-up-votes" href="javascript:;"><span class="glyphicon glyphicon-thumbs-up" aria-hidden="true"></span> {{ up_votes }}</a>
+					<a class="post-down-votes" href="javascript:;"><span class="glyphicon glyphicon-thumbs-down" aria-hidden="true"></span> {{ down_votes }}</a>
 					<a class="post-author" href="/user/{{ author }}">{{ author }}</a>
 					<span class="post-date">发布于 {{ date }}</span>
 				</div>
 			</div>
 			<div class="info-right">
-				<img src="/static/2L.png" class="thumbnail" alt="{{ author }}" width="50" height="50">
+				<img src="{{ avatar }}" class="thumbnail" alt="{{ author }}" width="50" height="50">
 			</div>
 		</div>
 		<div class="clearfix"></div>
 		<article id="post-content" class="markdown-body"></article>
 		<ul id="comments" class="list-group">
-			<comment-component :tag="tag" v-for="item in items"
-			 :comment-id="item.comment_id"
-			 :comment-user="item.comment_user"
-			 :comment-date="item.comment_date"
-			 :comment-content="item.comment_content">
+			<comment-component :tag="tag" :at-users.sync="atUsers"
+			 v-for="item in items"
+			 :comment-id="item.id"
+			 :comment-user="item.author"
+			 :comment-date="item.date"
+			 :comment-content="item.content">
 			</comment-component>
-			<form id="comment" action="" method="" style="margin-top:10px;">
-				<textarea class="form-control" rows="3"></textarea>
+			<div id="comment" style="margin-top:10px;">
+				<textarea id="comment-area" class="form-control" rows="3" v-model="content">${ atUsers.join(" ") + " " }</textarea>
 				<div class="comment-submit">
-					<button type="submit" class="btn btn-default btn-sm" style="margin-top:5px;">评&ensp;论</button>
+					<button class="btn btn-default btn-sm" style="margin-top:5px;" @click="comment">评&ensp;论</button>
 					<span class="comment-tip">回答会扣除一定的金币哦！</span>
 				</label>
-			</form>
+			</div>
 		</ul>
 	</div>
 	<div id="topic-info" class="col-md-3" style="background-color: #fff;padding:0 0 0 24px;">
@@ -148,56 +149,96 @@
 
 {% block script %}
 <script type="text/javascript">
+	var topicID = {{ topic_id }}
+	var postID = {{ post_id }}
 	var content = (function () {/*
 	{% raw content %}
-*/}).toString().split('\n').slice(1,-1).join('\n')
+    */}).toString().split('\n').slice(1,-1).join('\n')
 	$('#post-content').html(marked(content))
 
 	new Vue({
-		el: '#topic-info',
-		data: {
-			id: {{ topic_id }},
-			bPost: true,
-		},
-		computed: {
-			topic: function() {
-				var topic = {'name': '', 'administer': '', 'avatar': '', 'description': '', 'rules': ''}
-				getJSON('/api/topics/' + this.id.toString(), undefined, function(response) {
-					if (response.status === 1) {
-						topic = response	
-					} else {
-						console.log('GET TOPIC ' + this.id.toString() + ' ERROR: ' + response.code.toString() + response.reason)
-					}
-				}, false)
-				return topic;
+		el: '#post-info',
+		data: {},
+		methods: {
+			upVote: function() {
+
+			},
+			downVote: function() {
+
 			}
 		}
 	})
 
-	new Vue({
-		el: '#comments',
+	///////////////////////////////////////////////////////////////////////////
+	var topicInfo = new Vue({
+		el: '#topic-info',
 		data: {
-			items: [
-				{
-					comment_id: 1,
-					comment_user: 'Damnever',
-					comment_date: '2016-01-26 22:43:33',
-					comment_content: '哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈'
-				},
-				{
-					comment_id: 2,
-					comment_user: 'dbay',
-					comment_date: '2016-01-26 22:43:33',
-					comment_content: '@Damnever 傻逼啊，我'
-				},
-				{
-					comment_id: 3,
-					comment_user: 'D.r',
-					comment_date: '2016-01-26 22:43:33',
-					comment_content: '@dbay 的确傻逼'
-				},
-			]
+			bPost: true,
+			topic: {'name': '', 'administer': '', 'avatar': '', 'description': '', 'rules': ''},
+		},
+	})
+	getJSON('/api/topics/' + topicID, undefined, function(response) {
+		if (response.status === 1) {
+			topicInfo.topic = response	
+		} else {
+			console.log('GET TOPIC ' + topicID + ' ERROR: ' + response.code, " ", response.reason)
 		}
 	})
+
+	///////////////////////////////////////////////////////////////////////////
+	var comments = new Vue({
+		el: '#comments',
+		data: {
+			tag: false,
+			items: [],
+			content: '',
+			atUsers: [],
+		},
+		methods: {
+			comment: function() {
+				if (this.content === "") {
+					vAlert.warning("内容不能为空")
+					return
+				}
+				postJSON('/api/comments/post/' + postID, {'content': this.content}, this.handleResp)
+			},
+			handleResp: function(response) {
+				if (response.status === 1) {
+					this.items.push({
+						'id': response.id,
+						'author': response.author,
+						'content': response.content,
+						'date': response.date,
+					})
+					this.content = ""
+					this.atUsers = []
+				} else {
+					console.log("COMMENT " + postID + " FAILED", response.code, " ", response.reason)
+				}
+			}
+		}
+	})
+	getJSON('/api/comments/post/' + postID, {'page': 1, 'per_page': 20}, function(response) {
+		if (response.status === 1) {
+			comments.items = response.comments
+		} else {
+			console.log('GET COMMENTS OF POST ' + postID + ' ERROR: ' + response.code, " ", response.reason)
+		}
+	})
+
+	///////////////////////////////////////////////////////////////////////////
+	$(document).ready(function() {
+		var input = $("#comment-area")
+		$('.comment-reply').each(function() {
+			var self = this
+			console.log("xxxx",$(self))
+			$(self).on("click", function() {
+				console.log("CLICKED ")
+				var username = $(this).attr("user")
+				input.text(input.text() + " @" + username)
+			})
+		});
+	})
+	
 </script>
 {% end %}

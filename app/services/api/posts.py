@@ -31,8 +31,9 @@ class PostsAPIHandler(APIHandler):
 
     @as_json
     @gen.coroutine
-    def get(self, hot):
-        if hot:
+    def get(self, what):
+        print('FUCK??')
+        if what == 'hot':
             pass
         else:
             page = self.get_argument('page', 1)
@@ -84,7 +85,7 @@ class TopicPostsAPIHandler(APIHandler):
         keywords = self.get_argument('keywords', None)
         content = self.get_argument('content', '')
         keep_silent = bool(self.get_argument('keep_silent', False))
-        is_draft = self.get_argument('is_draft', False)
+        is_draft = bool(self.get_argument('is_draft', False))
 
         if title is None or keywords is None:
             raise exceptions.EmptyFields()
@@ -159,7 +160,7 @@ class PostAPIHandler(APIHandler):
 urls = [
     # `GET /api/posts/all`, get all posts.
     # `GET /api/posts/hot`, get hot posts.
-    (r'/api/posts/(w+)', PostsAPIHandler),
+    (r'/api/posts/(all|hot)', PostsAPIHandler),
     # `GET /api/posts/topic/:topic_id`, get all posts of the topic.
     # For authenticated user:
     #  `POST /api/posts/topic/:topic_id`, create a new post for

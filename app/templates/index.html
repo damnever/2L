@@ -8,15 +8,16 @@
 <div class="row">
 	<ul id="posts" class="list-group col-md-5 col-md-offset-2">
 		<post-component :tag="tag" v-for="item in items"
-		 :post-id="item.post_id"
-		 :post-title="item.post_title"
-		 :post-date="item.post_date"
+		 :post-id="item.id"
+		 :post-title="item.title"
+		 :post-date="item.created_date"
 		 :topic-id="item.topic_id"
 		 :topic-name="item.topic_name"
 		 :author-avatar="item.author_avatar"
 		 :author-name="item.author_name"
-		 :last-comment-name="item.last_name"
-		 :last-comment-date="item.last_date">
+		 :last-comment-name="item.last_comment_user"
+		 :last-comment-date="item.last_comment_date"
+		 :comment-count="item.comment_count">
 		</post-component>
 	</ul>
 	<div id="right" class="col-md-3" style="background-color: #fff;padding:0 0 0 24px;">
@@ -61,47 +62,34 @@
 
 {% block script %}
 <script type="text/javascript">
-	new Vue({
+    
+	var pList = new Vue({
 		el: '#posts',
 		data: {
 			tag: true,
-			items: [
-				{
-					post_id: 1,
-					post_title: '古语有云，二楼煞笔',
-					topic_id: 1,
-					topic_name: '扯淡',
-					author_avatar: '/static/2L.png',
-					author_name: 'Damnever',
-					last_name: 'root',
-					post_date: '30 分钟',
-					last_date: '2 分钟',
-				},
-				{
-					post_id: 1,
-					post_title: '古语有云，二楼煞笔',
-					topic_id: 1,
-					topic_name: '扯淡',
-					author_avatar: '/static/2L.png',
-					author_name: 'Damnever',
-					last_name: 'root',
-					post_date: '30 分钟',
-					last_date: '2 分钟',
-				},
-				{
-					post_id: 1,
-					post_title: '古语有云，二楼煞笔',
-					topic_id: 1,
-					topic_name: '扯淡',
-					author_avatar: '/static/2L.png',
-					author_name: 'Damnever',
-					last_name: 'root',
-					post_date: '30 分钟',
-					last_date: '2 分钟',
-				},
-			]
+			total: 0,
+			items: [],
+			pages: 0,
+			page: 0,
+			has_prev: false,
+			has_next: false,
+		},
+	})
+
+	getJSON('/api/posts/all', undefined, function(response) {
+		if (response.status == 1) {
+			pList.total = response.total
+			pList.items = response.posts
+			pList.pages = response.pages
+			pList.page = response.page
+			pList.has_prev = response.has_prev
+			pList.has_next = response.has_next
+		} else {
+			console.log('GET ALL POSTS ERROR: ', response.code, response.reason)
 		}
 	})
+
+	///////////////////////////////////////////////////////////////////////////
 	new Vue({
 		el: '#announcement',
 		data: {
@@ -115,55 +103,38 @@
 	        panel: VueStrap.panel
 	    }
 	})
-	new Vue({
+
+	///////////////////////////////////////////////////////////////////////////
+	var tList = new Vue({
 		el: '#subscribed-topics',
 		data: {
 			title: '订阅的主题',
-			data: {'total': 0, 'topics': []},
+			leftItems: [],
+			rightItems: [],
 		},
-		computed: {
-			leftItems: function() {
-				if (this.data.total === 0) {
-					this.getData()
-					if (this.data.total === 0) {
-						return []
-					}
+	})
+	getJSON('/api/subscribed/topics', {'token': getCookieByName('token')}, function(response) {
+		var next = false
+		if (response.status == 1 && response.total != 0) {
+			var mid = response.total / 2
+			tList.leftItems = response.topics.slice(0, mid)
+			tList.rightItems = response.topics.slice(mid)
+		} else {
+			next = true
+			console.log("GET SUBSCRIBED TOPICS ERROR: ", response.code, " ", response.reason)
+		}
+		if (next) {
+			getJSON('/api/topics', undefined, function(response) {
+				tList.title = '推荐的主题'
+				if (response.status == 1 && response.total != 0) {
+					var mid = response.total / 2
+					tList.leftItems = response.topics.slice(0, mid)
+					tList.rightItems = response.topics.slice(mid)
+				} else {
+					console.log("GET ALL TOPICS ERROR: ", response.code, " ", response.reason)
 				}
-				console.log("FUCK")
-				return this.data.topics.slice(0, this.data.total/2)
-			},
-			rightItems: function() {
-				if (this.data.total === 0) {
-					this.getData()
-					if (this.data.total === 0) {
-						return []
-					}
-				}
-				return this.data.topics.slice(this.data.total/2)
-			},
-		},
-		methods: {
-			getData: function() {
-				var that = this
-				getJSON('/api/subscribed/topics', {'token': getCookieByName('token')}, function(response) {
-					if (response.status === 1) {
-						that.data = response
-					} else {
-						console.log("GET SUBSCRIBED TOPICS ERROR: ", response.code.toString() + response.reason)
-					}
-					if (that.data.total === 0) {
-						that.title = '推荐的主题'
-						getJSON('/api/topics', undefined, function(response) {
-							if (response.status === 1) {
-								that.data = response
-							} else {
-								console.log("GET ALL TOPICS ERROR: ", response.code.toString() + response.reason)
-							}
-						})
-					}
-				}, true)
-			},
-		},
+			})
+		}
 	})
 </script>
 {% end %}

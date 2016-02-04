@@ -9,6 +9,7 @@ from app.base.decorators import as_json, need_permissions
 from app.base.roles import Roles
 from app.models import Comment, CommentUpVote, CommentDownVote
 from app.services.api import exceptions
+from app.libs.utils import at_content
 
 
 def _comment_info(comment):
@@ -27,8 +28,8 @@ class PostCommentsAPIHandler(APIHandler):
     @as_json
     @gen.coroutine
     def get(self, post_id):
-        page = self.get_argument('page', 1)
-        per_page = self.get_argument('per_page', 20)
+        page = int(self.get_argument('page', 1))
+        per_page = int(self.get_argument('per_page', 20))
         pagination = yield self.async_task(Comment.page_list_by_post,
                                            post_id, page, per_page)
         comments = list()
@@ -54,8 +55,12 @@ class PostCommentsAPIHandler(APIHandler):
         if content is None:
             raise exceptions.EmptyFields()
         else:
+            users, content = at_content(content)
+            # TODO: Notify users: someone @you.
             username = self.current_user
-            yield self.async_task(Comment.create, username, post_id, content)
+            comment = yield self.async_task(Comment.create, username,
+                                            post_id, content)
+            raise gen.Return(comment.to_dict())
 
 
 class UserCommentsAPIHandler(APIHandler):

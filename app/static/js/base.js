@@ -11,21 +11,28 @@ Vue.filter('toHTML', function(value) {
 	return marked(value)
 })
 
+Vue.filter('toStr', function(value) {
+	return value ? value : ""
+})
+
 Vue.component('postComponent', {
 	template: (function () {/*
 		<li class="list-group-item post">
-		  	<a class="badge post-comments" href="/post/${ postId }#3">3</a>
+		  	<a class="badge post-comments" href="/post/${ postId }#${ commentCount }">${ commentCount }</a>
 		  	<div class="post-avatar">
 		  		<img src="${ authorAvatar }" class="thumbnail" alt="${ authorName }" width="50" height="50">
 		  	</div>
 		  	<div class="post-info">
-				<a class="post-title" href="/post/${ postId }#3">${ postTitle }</a>
+				<a class="post-title" href="/post/${ postId }#${ commentCount }">${ postTitle }</a>
 				<div class="post-other-info">
 					<a v-if="tag" class="label label-default" href="/topic/${ topicId }" style="margin-right: 10px;">${ topicName }</a>
 					<a class="post-author" href="/user/${ authorName }">${ authorName }</a>
 					<span class="post-date" style="margin-right: 10px;">发布于 ${ postDate }前</span>
-					<a class="post-user" href="/user/${ lastCommentName }">${ lastCommentName }</a>
-					<span class="comment-date">回复于 ${ lastCommentDate }前</span>
+					<span v-if="lastCommentName">
+						<a class="post-user" href="/user/${ lastCommentName }">${ lastCommentName }</a>
+						<span class="comment-date">回复于 ${ lastCommentDate }前</span>
+					</span>
+					<span class="comment-date" v-else>还没有人回复</span>
 				</div>
 			</div>
 	    </li>
@@ -41,6 +48,7 @@ Vue.component('postComponent', {
 		postDate: String,
 		lastCommentName: String,
 		lastCommentDate: String,
+		commentCount: Number,
 	},
 })
 
@@ -61,7 +69,7 @@ Vue.component('topicComponent', {
 			<div class="description">${ description }</div>
 			<div class="rules">
 				<div class="rule" v-for="rule in rules.split('|')">
-					<span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span> ${ rule }
+					<span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span> ${ rule | toStr }
 				</div>
 				<a href="/topic/${ id }/new/post" v-show="bPost" class="btn btn-default" style="margin-top:10px;width:100%;" @click="newPost">发&emsp;帖</a>
 			</div>
@@ -83,12 +91,12 @@ Vue.component('commentComponent', {
 		<li id="${ commentId }" class="list-group-item">
 			<div class="comment-vote">
 				<div>
-					<a href="/api/comments/up" class="comment-up-votes">
+					<a href="javascript:;" @click="upVote" class="comment-up-votes">
 						<span class="glyphicon glyphicon-chevron-up" aria-hidden="true"></span>
 					</a>
 				</div>
 				<div>
-					<a href="/api/comments/down" class="comment-down-votes">
+					<a href="javascript:;" @click="downVote" class="comment-down-votes">
 						<span class="glyphicon glyphicon-chevron-down" aria-hidden="true"></span>
 					</a>
 				</div>
@@ -96,9 +104,9 @@ Vue.component('commentComponent', {
 		  	<div class="comment-info">
 		  		<a href="/user/${ commentUser }" class="comment-user">${ commentUser }</a>
 		  		<span class="comment-date">评论于 ${ commentDate }</span>
-		  		<a class="comment-reply" href="javascript:;" user="${ commentUser }">#${ commentId }</a>
+		  		<a class="comment-reply" href="javascript:;" user="${ commentUser }" @click="at">#${ commentId }</a>
 		  		<div class="comment-content">
-		  			${ commentContent }
+		  			{!! commentContent | toHTML !!}
 		  		</div>
 		  	</div>
 	    </li>
@@ -108,20 +116,27 @@ Vue.component('commentComponent', {
 		commentUser: String,
 		commentDate: String,
 		commentContent: String,
+		atUsers: Array,
 	},
+	methods: {
+		at: function() {
+			for (var i=0; i < this.atUsers.length; i++) {
+				if (this.atUsers[i] === ("@" + this.commentUser)) {
+					return
+				}
+			}
+			this.atUsers.push("@" + this.commentUser)
+		}
+	}
 })
 
 
-function getJSON(url, data, callback, async) {
-	if (typeof async === "undefined") {
-		async = true
-	}
+function getJSON(url, data, callback) {
 	$.ajax({
 		url: url,
 		dataType: "json",
 		type: "GET",
 		data: data,
-		async: async,
 		success: function(response) {
 			if (callback) {
 				callback(response)

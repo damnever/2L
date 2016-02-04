@@ -3,14 +3,28 @@
 from __future__ import print_function, division, absolute_import
 
 import functools
+import json
+from datetime import datetime
 
 from tornado import gen
-from tornado.escape import json_encode
 from tornado.web import HTTPError
 
 from app.base.exceptions import ValidationError
 from app.models import User
 from app.base.roles import Roles
+
+
+class _DatetimeEncoder(json.JSONEncoder):
+
+    def default(self, obj):
+        if isinstance(obj, datetime):
+            return obj.strftime('%Y-%m-%d %H:%M:%S')
+        return json.JSONEncoder.default(self, obj)
+
+
+def json_encode(value):
+    # http://stackoverflow.com/questions/1580647/json-why-are-forward-slashes-escaped
+    return json.dumps(value, cls=_DatetimeEncoder).replace("</", "<\\/")
 
 
 def as_json(method):
@@ -21,24 +35,27 @@ def as_json(method):
             result = yield gen.maybe_future(method(self, *args, **kwargs))
         except (HTTPError, ValidationError) as e:
             self.log.error('Error: %s', e)
-            self.write(json_encode({
+            self.finish(json_encode({
                 'status': 0,
                 'code': e.status_code,
                 'reason': e.reason,
             }))
         except Exception:
             self.log.error('Unexpected error', exc_info=True)
-            self.write({
+            self.finish({
                 'status': 0,
                 'code': 500,
                 'reason': 'Unknown server error.',
             })
         else:
-            if result is None or isinstance(result, gen.Future):
+            # Wait future complete.
+            if isinstance(result, gen.Future):
+                yield result
+                result = result.result()
+            if result is None:
                 result = dict()
             result.update({'status': 1})
-            self.write(json_encode(result))
-        self.flush()
+            self.finish(json_encode(result))
     return wrapper
 
 

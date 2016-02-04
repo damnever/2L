@@ -96,7 +96,7 @@ engine = create_engine(url, echo=True)
 db_session = scoped_session(
     sessionmaker(
         autocommit=False,
-        autoflush=False,
+        autoflush=True,
         bind=engine,
         query_cls=BaseQuery
     )

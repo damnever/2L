@@ -129,15 +129,29 @@ class Post(Model):
         db_session.commit()
 
     def to_dict(self):
+        latest_comment = Comment.latest_by_post(self.id)
+        comment_count = Comment.count_by_post(self.id)
+        if latest_comment:
+            latest_comment_user = User.get(latest_comment.author_id).username
+            latest_comment_date = latest_comment.date
+        else:
+            latest_comment_user = None
+            latest_comment_date = None
         return {
             'id': self.id,
-            'author': self.author.username,
+            'author_name': self.author.username,
+            'author_avatar': self.author.profile.avatar,
+            'topic_id': self.topic_id,
+            'topic_name': self.topic.name,
             'title': self.title,
             'keywords': self.keywords,
             'content': self.content,
             'keep_silent': self.keep_silent,
             'created_date': self.created_date,
             'update_date': self.update_date,
+            'latest_comment_user': latest_comment_user,
+            'latest_comment_date': latest_comment_date,
+            'comment_count': comment_count,
         }
 
     def _new_comment(self, now):
@@ -160,8 +174,14 @@ class Comment(Model):
     content = Column('content', Text(), nullable=False)
 
     @classmethod
+    def latest_by_post(cls, post_id):
+        cs = cls.query.filter(cls.post_id==post_id).order_by(
+            expression.desc(cls.date)).limit(1)
+        return cs.first()
+
+    @classmethod
     def page_list(cls, page, per_page):
-        p = cls.query.order_by(expression.asc(cls.comment_date))
+        p = cls.query.order_by(expression.asc(cls.date))
         return p.paginate(page, per_page)
 
     @classmethod
@@ -177,13 +197,13 @@ class Comment(Model):
     def page_list_by_user(cls, username, page, per_page):
         user = User.get_by_name(username)
         p = cls.query.order_by(
-            expression.asc(cls.comment_date)).filter(cls.author_id==user.id)
+            expression.asc(cls.date)).filter(cls.author_id==user.id)
         return p.paginate(page, per_page)
 
     @classmethod
     def page_list_by_post(cls, post_id, page, per_page):
         p = cls.query.order_by(
-            expression.asc(cls.comment_date)).filter(cls.post_id==post_id)
+            expression.asc(cls.date)).filter(cls.post_id==post_id)
         return p.paginate(page, per_page)
 
     @classmethod
@@ -203,6 +223,7 @@ class Comment(Model):
 
     def to_dict(self):
         return {
+            'id': self.id,
             'author': self.author.username,
             'date': self.date,
             'content': self.content,

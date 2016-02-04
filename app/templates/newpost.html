@@ -9,7 +9,7 @@
 		<blockquote>
 			<p>正文支持 <a href="" target="_blank">Markdown</a> 语法，发贴会扣除相应的金币，内容一经发布就不可修改，发帖前务必过一遍 <abbr title="WHO, WHEN, WHERE, WHAT, WHY">5W</abbr> + <abbr title="HOW">1H</abbr>，不提倡恶意诽谤诋毁他人，不提倡发布违法乱纪的内容。</p>
 		</blockquote>
-		<form class="form-horizontal" role="form" id="new-post" v-on:submit.prevent="post">
+		<form class="form-horizontal" role="form" id="new-post" v-on:submit.prevent="ignore">
 			<input type="hidden" name="id" value="{{ topic_id }}" v-model="topicId">
 		    <div class="form-group">
 		        <label for="title" class="col-sm-2 control-label">标&emsp;题</label>
@@ -89,6 +89,8 @@
 			keepSilent: false,
 		},
 		methods: {
+			ignore: function() {
+			},
 			post: function() {
 				if (!this.check()) {
 					return false
