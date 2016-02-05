@@ -46,27 +46,11 @@
 	.info-right {
 		float: right;
 	}
-	.markdown-body {
-		color: #333333;
-		font-size: 14px;
-		padding: 5px 5px 8px 5px;
-		border-bottom: 1px solid #ccc;
-	}
-	.markdown-body .highlight pre,
-	.markdown-body pre {
-		background-color: rgba(230, 230, 230, 0.3);
-	}
-	.markdown-body img {
-		max-height: 200px;
-	}
-	pre {
-		border: 1px solid #fafafa;
-	}
-	.comment-vote {
+	.comment-left {
 		float: left;
 	}
 	.comment-info {
-		margin-left: 20px;
+		margin-left: 50px;
 	}
 	.comment-content {
 		margin-top: 3px;
@@ -118,8 +102,10 @@
 		<article id="post-content" class="markdown-body"></article>
 		<ul id="comments" class="list-group">
 			<comment-component :tag="tag" :at-users.sync="atUsers"
-			 v-for="item in items"
+			 v-for="(index, item) in items"
+			 :comment-index="index + 1"
 			 :comment-id="item.id"
+			 :comment-avatar="item.avatar"
 			 :comment-user="item.author"
 			 :comment-date="item.date"
 			 :comment-content="item.content">
@@ -216,14 +202,17 @@
 			},
 			handleResp: function(response) {
 				if (response.status === 1) {
-					this.items.push({
+					var item = {
 						'id': response.id,
 						'author': response.author,
 						'content': response.content,
 						'date': response.date,
-					})
+					}
+					this.items.push(item)
 					this.content = ""
 					this.atUsers = []
+				} else if (response.code === 403) {
+					vAlert.danger("您暂时还没有评论权限")
 				} else {
 					console.log("COMMENT POST #" + postID + " FAILED", response.code, " ", response.reason)
 				}

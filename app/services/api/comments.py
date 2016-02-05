@@ -7,7 +7,7 @@ from tornado import gen
 from app.base.handlers import APIHandler
 from app.base.decorators import as_json, need_permissions
 from app.base.roles import Roles
-from app.models import Comment, CommentUpVote, CommentDownVote
+from app.models import Comment, CommentUpVote, CommentDownVote, User
 from app.services.api import exceptions
 from app.libs.utils import at_content
 
@@ -16,7 +16,9 @@ def _comment_info(comment):
     info = comment.to_dict()
     up_votes = CommentUpVote.count_by_comment(comment.id)
     down_votes = CommentDownVote.count_by_comment(comment.id)
+    avatar = User.get(comment.author_id).profile.avatar
     info.update({
+        'avatar': avatar,
         'up_votes': up_votes,
         'down_votes': down_votes,
     })

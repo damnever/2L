@@ -6,20 +6,28 @@
 
 {% block content %}
 <div class="row">
-	<ul id="posts" class="list-group col-md-5 col-md-offset-2">
+	<div id="posts" class="list-group col-md-5 col-md-offset-2">
 		<post-component :tag="tag" v-for="item in items"
-		 :post-id="item.id"
-		 :post-title="item.title"
-		 :post-date="item.created_date"
-		 :topic-id="item.topic_id"
-		 :topic-name="item.topic_name"
-		 :author-avatar="item.author_avatar"
-		 :author-name="item.author_name"
-		 :last-comment-name="item.last_comment_user"
-		 :last-comment-date="item.last_comment_date"
-		 :comment-count="item.comment_count">
+			 :post-id="item.id"
+			 :post-title="item.title"
+			 :post-date="item.created_date"
+			 :topic-id="item.topic_id"
+			 :topic-name="item.topic_name"
+			 :author-avatar="item.author_avatar"
+			 :author-name="item.author_name"
+			 :last-comment-name="item.last_comment_user"
+			 :last-comment-date="item.last_comment_date"
+			 :comment-count="item.comment_count">
 		</post-component>
-	</ul>
+		<ul v-if="pages > 0" class="pagination pagination-sm">
+			<li :class="{'disabled': !hasPrev}"><a href="#">&laquo;</a></li>
+ 			<li v-for="idx in range(1, pages)" class="{'active': page == idx}"><a href="#">${ idx }</a></li>
+ 			<li class="{'disabled': !hasNext}"><a href="#">&raquo;</a></li>
+		</ul>
+		<div v-else>
+	 		赶紧来一发吧！还等什么？？？
+	 	</div>
+	</div>
 	<div id="right" class="col-md-3" style="background-color: #fff;padding:0 0 0 24px;">
 		<div id="announcement">
 			<accordion :one-at-atime="true">
@@ -62,7 +70,6 @@
 
 {% block script %}
 <script type="text/javascript">
-    
 	var pList = new Vue({
 		el: '#posts',
 		data: {
@@ -71,8 +78,8 @@
 			items: [],
 			pages: 0,
 			page: 0,
-			has_prev: false,
-			has_next: false,
+			hasPrev: false,
+			hasNext: false,
 		},
 	})
 
@@ -82,8 +89,8 @@
 			pList.items = response.posts
 			pList.pages = response.pages
 			pList.page = response.page
-			pList.has_prev = response.has_prev
-			pList.has_next = response.has_next
+			pList.hasPrev = response.has_prev
+			pList.hasNext = response.has_next
 		} else {
 			console.log('GET ALL POSTS ERROR: ', response.code, response.reason)
 		}

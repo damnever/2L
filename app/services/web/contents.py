@@ -80,9 +80,19 @@ class TopicEditHandler(BaseHandler):
                     avatar=topic.avatar)
 
 
+class NotificationsHandler(BaseHandler):
+
+    def get(self, username):
+        self.render('notifications.html',
+                    title='通知',
+                    description='通知',
+                    keywords='通知')
+
+
 urls = [
     (r'/topics', TopicsHandler),
     (r'/topic/(\d+)', TopicHandler),
     (r'/post/(\d+)', PostHandler),
     (r'/topic/(\d+)/new/post', TopicEditHandler),
+    (r'/notifications/(\w+)', NotificationsHandler),
 ]

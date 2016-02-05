@@ -2,7 +2,7 @@
 
 from __future__ import print_function, division, absolute_import
 
-from sqlalchemy import Column, Integer, DateTime, String, Boolean
+from sqlalchemy import Column, Integer, DateTime, String, Boolean, Text
 from sqlalchemy.sql import functions, expression
 
 from app.models.base import Model
@@ -14,7 +14,8 @@ class Notification(Model):
     sender_id = Column('sender_id', Integer(), index=True, nullable=False)
     recipient_id = Column('recipient_id', Integer(), index=True, nullable=False)
     activity_type = Column('activity_type', String(50), nullable=False)
-    content_url = Column('content_url', String(100), nullable=False)
+    header = Column('header', Text(), nullable=False)
+    content = Column('content', Text(), nullable=False)
     unread = Column('unread', Boolean(), nullable=True)
     date = Column('date', DateTime(timezone=True), default=functions.now())
 

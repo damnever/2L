@@ -8,21 +8,36 @@ from app.base.handlers import APIHandler
 from app.base.decorators import as_json, need_permissions
 from app.base.roles import Roles
 from app.services.api import exceptions
-from app.models import Post, Comment, PostUpVote, PostDownVote, Favorite
+from app.models import (
+    Post,
+    Comment,
+    PostUpVote,
+    PostDownVote,
+    Favorite,
+    User,
+)
 
 
 def _post_info(post):
     info = post.to_dict()
-    comments = Comment.count_by_post(post.id)
     favorites = Favorite.count_by_post(post.id)
     up_votes = PostUpVote.count_by_post(post.id)
     down_votes = PostDownVote.count_by_post(post.id)
+    latest_comment = Comment.latest_by_post(post.id)
+    comment_count = Comment.count_by_post(post.id)
+    if latest_comment:
+        latest_comment_user = User.get(latest_comment.author_id).username
+        latest_comment_date = latest_comment.date
+    else:
+        latest_comment_user = None
+        latest_comment_date = None
     info.update({
         'up_votes': up_votes,
         'down_votes': down_votes,
         'favorites': favorites,
-        'comments': comments,
-        'comments_url': '/api/comments/post/{0}'.format(post.id),
+        'latest_comment_user': latest_comment_user,
+        'latest_comment_date': latest_comment_date,
+        'comment_count': comment_count,
     })
     return info
 

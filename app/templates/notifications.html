@@ -1,0 +1,99 @@
+{% extends "_base.html" %}
+
+{% block head %}
+<style type="text/css">
+	.header {
+		color: #666666;
+		font-size: 14px;
+	}
+	.content {
+		border: 1px solid rgba(220, 220, 220, 0.1);
+		background-color: rgba(220, 220, 220, 0.1);
+		border-radius: 2px;
+		padding: 5px 5px;
+		color: #333333;
+		font-size: 12px;
+	}
+</style>
+{% end %}
+
+{% block content %}
+<div class="row">
+	<div id="notifications" class="col-md-5 col-md-offset-2">
+		<tabs>
+		    <tab header="所有" id="all">
+		    ...
+		    </tab>
+		    <!--tab header="私信" id="private"></tab-->
+		    <tab header="评论" id="comment">
+		    	<notify-component
+		    	 v-for="comment in comments"
+		    	 :id="comment.id"
+		    	 :header="comment.header"
+		    	 :content="comment.content">
+		    	</notify-component>
+		    </tab>
+		    <tab header="@" id="at">
+		    	<notify-component
+		    	 v-for="at in ats"
+		    	 :id="at.id"
+		    	 :header="at.header"
+		    	 :content="at.content">
+		    	</notify-component>
+		    </tab>
+		</tabs>
+	</div>
+</div>
+{% end %}
+
+{% block script %}
+<script type="text/javascript">
+	Vue.component('notifyComponent', {
+		template:  (function () {/*
+			<li class="list-group-item" id="${ id }">
+			  	<div class="header">{!! header !!}</div>
+			  	<div class="content">{!! content | toHTML !!}</div>
+		    </li>
+		*/}).toString().split('\n').slice(1,-1).join(''),
+		props: {
+			id: Number,
+			header: String,
+			content: String,
+		}
+	})
+
+	new Vue({
+		el: '#notifications',
+		data: {
+			comments: [
+				{
+					'id': 1,
+					'header': '<a href="/user/Damnever">Damnever</a>在回复 <a href="http://127.0.0.1:8888/post/1">又来测试</a> 时提到了你：',
+					'content': '@Damnever @Root 哈哈哈哈哈哈哈哈哈哈哈哈哈',
+				},
+				{
+					'id': 1,
+					'header': '<a href="/user/Damnever">Damnever</a>在回复 <a href="http://127.0.0.1:8888/post/1">又来测试</a> 时提到了你：',
+					'content': '@Damnever @Root 哈哈哈哈哈哈哈哈哈哈哈哈哈',
+				},
+			],
+			ats: [
+				{
+					'id': 1,
+					'header': '<a href="/user/Damnever">Damnever</a>在回复 <a href="http://127.0.0.1:8888/post/1">又来测试</a> 时提到了你：',
+					'content': '@Damnever @Root 哈哈哈哈哈哈哈哈哈哈哈哈哈',
+				},
+				{
+					'id': 1,
+					'header': '<a href="/user/Damnever">Damnever</a>在回复 <a href="http://127.0.0.1:8888/post/1">又来测试</a> 时提到了你：',
+					'content': '@Damnever @Root 哈哈哈哈哈哈哈哈哈哈哈哈哈',
+				},
+			],
+		},
+	    components: {
+	        tabs: VueStrap.tabset,
+	        tab: VueStrap.tab
+	    },
+	})
+</script>
+{% end %}

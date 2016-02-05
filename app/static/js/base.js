@@ -89,22 +89,21 @@ Vue.component('topicComponent', {
 Vue.component('commentComponent', {
 	template: (function () {/*
 		<li id="${ commentId }" class="list-group-item">
-			<div class="comment-vote">
-				<div>
-					<a href="javascript:;" @click="upVote" class="comment-up-votes">
-						<span class="glyphicon glyphicon-chevron-up" aria-hidden="true"></span>
-					</a>
-				</div>
-				<div>
-					<a href="javascript:;" @click="downVote" class="comment-down-votes">
-						<span class="glyphicon glyphicon-chevron-down" aria-hidden="true"></span>
-					</a>
-				</div>
+			<div class="comment-left">
+				<img src="${ commentAvatar }" class="thumbnail" alt="${ commentUser }" width="40" height="40">
 			</div>
 		  	<div class="comment-info">
 		  		<a href="/user/${ commentUser }" class="comment-user">${ commentUser }</a>
+		  		<span style="margin-left:5px;">
+			  		<a href="javascript:;" @click="upVote" class="comment-up-votes">
+						<span class="glyphicon glyphicon-thumbs-up" aria-hidden="true"></span>
+					</a>
+					<a href="javascript:;" @click="downVote" class="comment-down-votes">
+						<span class="glyphicon glyphicon-thumbs-down" aria-hidden="true"></span>
+					</a>
+				</span>
 		  		<span class="comment-date">评论于 ${ commentDate }</span>
-		  		<a class="comment-reply" href="javascript:;" user="${ commentUser }" @click="at">#${ commentId }</a>
+		  		<a class="comment-reply" href="javascript:;" @click="at">#${ commentIndex }</a>
 		  		<div class="comment-content">
 		  			{!! commentContent | toHTML !!}
 		  		</div>
@@ -112,10 +111,12 @@ Vue.component('commentComponent', {
 	    </li>
 	*/}).toString().split('\n').slice(1,-1).join(''),
 	props: {
+		commentIndex: Number,
 		commentId: Number,
 		commentUser: String,
 		commentDate: String,
 		commentContent: String,
+		commentAvatar: String,
 		atUsers: Array,
 	},
 	methods: {
@@ -211,3 +212,12 @@ String.format = function(src){
         return args[i];
     });
 };
+
+// Range function:
+// http://stackoverflow.com/questions/3895478/does-javascript-have-a-method-like-range-to-generate-an-array-based-on-suppl
+function range(start, count) {
+    return Array.apply(0, Array(count))
+                .map(function (element, index) { 
+                         return index + start;  
+                     });
+}

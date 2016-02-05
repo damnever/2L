@@ -258,6 +258,24 @@ blockquote {
 	padding-right: 0;
 }
 
+/* Markdown */
+.markdown-body {
+	color: #333333;
+	font-size: 14px;
+	padding: 5px 5px 8px 5px;
+	border-bottom: 1px solid #ccc;
+}
+.markdown-body .highlight pre,
+.markdown-body pre {
+	background-color: rgba(230, 230, 230, 0.3);
+}
+.markdown-body img {
+	max-height: 200px;
+}
+pre {
+	border: 1px solid #fafafa;
+}
+
 /* footer */
 #footer {
     padding-top: 18px;

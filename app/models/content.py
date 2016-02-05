@@ -129,14 +129,6 @@ class Post(Model):
         db_session.commit()
 
     def to_dict(self):
-        latest_comment = Comment.latest_by_post(self.id)
-        comment_count = Comment.count_by_post(self.id)
-        if latest_comment:
-            latest_comment_user = User.get(latest_comment.author_id).username
-            latest_comment_date = latest_comment.date
-        else:
-            latest_comment_user = None
-            latest_comment_date = None
         return {
             'id': self.id,
             'author_name': self.author.username,
@@ -149,9 +141,6 @@ class Post(Model):
             'keep_silent': self.keep_silent,
             'created_date': self.created_date,
             'update_date': self.update_date,
-            'latest_comment_user': latest_comment_user,
-            'latest_comment_date': latest_comment_date,
-            'comment_count': comment_count,
         }
 
     def _new_comment(self, now):
