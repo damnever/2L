@@ -32,7 +32,6 @@ class PostsAPIHandler(APIHandler):
     @as_json
     @gen.coroutine
     def get(self, what):
-        print('FUCK??')
         if what == 'hot':
             pass
         else:
@@ -66,7 +65,7 @@ class TopicPostsAPIHandler(APIHandler):
         posts = list()
         for post in pagination.items:
             info = yield self.async_task(_post_info, post)
-            pagination.append(info)
+            posts.append(info)
         result = {
             'page': page,
             'pages': pagination.pages,

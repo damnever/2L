@@ -6,15 +6,16 @@
 <div class="row">
 	<ul id="posts" class="list-group col-md-5 col-md-offset-2">
 		<post-component :tag="tag" v-for="item in items"
-		 :post-id="item.post_id"
-		 :post-title="item.post_title"
-		 :post-date="item.post_date"
+		 :post-id="item.id"
+		 :post-title="item.title"
+		 :post-date="item.created_date"
 		 :topic-id="item.topic_id"
 		 :topic-name="item.topic_name"
 		 :author-avatar="item.author_avatar"
 		 :author-name="item.author_name"
-		 :last-comment-name="item.last_name"
-		 :last-comment-date="item.last_date">
+		 :last-comment-name="item.last_comment_user"
+		 :last-comment-date="item.last_comment_date"
+		 :comment-count="item.comment_count">
 		</post-component>
 	</ul>
 	<div id="topic-info" class="col-md-3" style="background-color: #fff;padding:0 0 0 24px;">
@@ -33,10 +34,11 @@
 
 {% block script %}
 <script type="text/javascript">
+	var topicID = {{ topic_id }}
 	new Vue({
 		el: '#topic-info',
 		data: {
-			id: {{ id }},
+			id: {{ topic_id }},
 			name: '{{ title }}',
 			avatar: '{{ avatar }}',
 			admin: '{{ admin }}',
@@ -45,45 +47,21 @@
 			bPost: true,
 		}
 	})
-	new Vue({
+
+	///////////////////////////////////////////////////////////////////////////
+	var pList = new Vue({
 		el: '#posts',
 		data: {
 			tag: false,
-			items: [
-				{
-					post_id: 1,
-					post_title: '古语有云，二楼煞笔',
-					topic_id: 1,
-					topic_name: '扯淡',
-					author_avatar: '/static/2L.png',
-					author_name: 'Damnever',
-					last_name: 'root',
-					post_date: '30 分钟',
-					last_date: '2 分钟',
-				},
-				{
-					post_id: 1,
-					post_title: '古语有云，二楼煞笔',
-					topic_id: 1,
-					topic_name: '扯淡',
-					author_avatar: '/static/2L.png',
-					author_name: 'Damnever',
-					last_name: 'root',
-					post_date: '30 分钟',
-					last_date: '2 分钟',
-				},
-				{
-					post_id: 1,
-					post_title: '古语有云，二楼煞笔',
-					topic_id: 1,
-					topic_name: '扯淡',
-					author_avatar: '/static/2L.png',
-					author_name: 'Damnever',
-					last_name: 'root',
-					post_date: '30 分钟',
-					last_date: '2 分钟',
-				},
-			]
+			items: []
+		}
+	})
+
+	getJSON('/api/posts/topic/' + topicID, undefined, function(response) {
+		if (response.status == 1) {
+			pList.items = response.posts
+		} else {
+			console.log('GET #' +  + ' POSTS ERROR: ', response.code, response.reason)
 		}
 	})
 </script>

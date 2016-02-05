@@ -165,7 +165,7 @@
 					if (response.status === 1) {
 						$(".up-votes").text(response.count)
 					} else {
-						console.log("VOTES " + postID + " UP GOT ERROR: ", response.code, " ", response.reason)
+						console.log("VOTES POST #" + postID + " UP GOT ERROR: ", response.code, " ", response.reason)
 					}
 				})
 			},
@@ -174,7 +174,7 @@
 					if (response.status === 1) {
 						$(".down-votes").text(response.count)
 					} else {
-						console.log("VOTES " + postID + " DOWN GOT ERROR: ", response.code, " ", response.reason)
+						console.log("VOTES POST #" + postID + " DOWN GOT ERROR: ", response.code, " ", response.reason)
 					}
 				})
 			}
@@ -193,7 +193,7 @@
 		if (response.status === 1) {
 			topicInfo.topic = response	
 		} else {
-			console.log('GET TOPIC ' + topicID + ' ERROR: ' + response.code, " ", response.reason)
+			console.log('GET TOPIC #' + topicID + ' ERROR: ' + response.code, " ", response.reason)
 		}
 	})
 
@@ -225,7 +225,7 @@
 					this.content = ""
 					this.atUsers = []
 				} else {
-					console.log("COMMENT " + postID + " FAILED", response.code, " ", response.reason)
+					console.log("COMMENT POST #" + postID + " FAILED", response.code, " ", response.reason)
 				}
 			}
 		}
@@ -234,7 +234,7 @@
 		if (response.status === 1) {
 			comments.items = response.comments
 		} else {
-			console.log('GET COMMENTS OF POST ' + postID + ' ERROR: ' + response.code, " ", response.reason)
+			console.log('GET COMMENTS OF POST #' + postID + ' ERROR: ' + response.code, " ", response.reason)
 		}
 	})
 

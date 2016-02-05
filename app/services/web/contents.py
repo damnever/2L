@@ -31,7 +31,7 @@ class TopicHandler(BaseHandler):
             title=topic.name,
             keywords=topic.name + ', 2L',
             description=topic.description,
-            id=topic_id,
+            topic_id=topic_id,
             admin=admin.username,
             avatar=topic.avatar,
             rules=topic.rules,
