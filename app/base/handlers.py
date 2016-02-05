@@ -6,14 +6,15 @@ try:  # Py2
     from httplib import responses
     from urlparse import urlparse
 except ImportError:  # Py3
-    from http.client import responses  # Py3
+    from http.client import responses
     from urllib.parse import urlparse
 from concurrent.futures import ThreadPoolExecutor
 
 from tornado.concurrent import run_on_executor
-from tornado.web import RequestHandler, HTTPError
+from tornado.web import RequestHandler
 from tornado.log import app_log
 
+from app.base.exceptions import HTTPError
 from app.base.decorators import as_json
 from app.libs.db import db_session
 from app.cache import session

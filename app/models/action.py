@@ -114,7 +114,7 @@ class PostUpVote(Model):
     def get_by_user_post(cls, username, post_id):
         user = User.get_by_name(username)
         r = cls.query.filter(expression.and_(cls.post_id==post_id,
-                                             cls.user_id==user.id)).all()
+                                             cls.user_id==user.id))
         return r.first()
 
     @classmethod
@@ -154,7 +154,7 @@ class PostDownVote(Model):
     def get_by_user_post(cls, username, post_id):
         user = User.get_by_name(username)
         r = cls.query.filter(expression.and_(cls.post_id==post_id,
-                                             cls.user_id==user.id)).all()
+                                             cls.user_id==user.id))
         return r.first()
 
     @classmethod
@@ -183,7 +183,7 @@ class CommentUpVote(Model):
     def get_by_user_comment(cls, username, comment_id):
         user = User.get_by_name(username)
         r = cls.query.filter(expression.and_(cls.comment_id==comment_id,
-                                             cls.user_id==user.id)).all()
+                                             cls.user_id==user.id))
         return r.first()
 
     @classmethod
@@ -212,7 +212,7 @@ class CommentDownVote(Model):
     def get_by_user_comment(cls, username, comment_id):
         user = User.get_by_name(username)
         r = cls.query.filter(expression.adn_(cls.comment_id==comment_id,
-                                             cls.user_id==user.id)).all()
+                                             cls.user_id==user.id))
         return r.first()
 
     @classmethod

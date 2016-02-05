@@ -3,8 +3,8 @@
 from __future__ import print_function, division, absolute_import
 
 from tornado import gen
-from tornado.web import HTTPError
 
+from app.base.exceptions import HTTPError
 from app.base.handlers import BaseHandler
 from app.models import Topic, Post, User, PostUpVote, PostDownVote
 

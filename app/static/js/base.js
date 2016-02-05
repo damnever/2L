@@ -126,6 +126,24 @@ Vue.component('commentComponent', {
 				}
 			}
 			this.atUsers.push("@" + this.commentUser)
+		},
+		upVote: function() {
+			postJSON('/api/votes/comment/'+ this.commentId +'/up', {}, function(response) {
+				if (response.status === 1) {
+					console.log("UP VOTES: ", response.count)
+				} else {
+					console.log("VOTES " + this.commentId + " UP GOT ERROR: ", response.code, " ", response.reason)
+				}
+			})
+		},
+		downVote: function() {
+			postJSON('/api/votes/comment/'+ this.commentId +'/down', {}, function(response) {
+				if (response.status === 1) {
+					console.log("DOWN VOTES: ", response.count)
+				} else {
+					console.log("VOTES " + this.commentId + " DOWN GOT ERROR: ", response.code, " ", response.reason)
+				}
+			})
 		}
 	}
 })

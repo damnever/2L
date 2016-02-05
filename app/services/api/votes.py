@@ -20,14 +20,17 @@ class BaseVoteAPIHandler(APIHandler):
     """
 
     def _list_by_category(self, id_):
-        category = self.category.lower()
-        clsmethod = getattr(self.table, 'list_by_{0}'.format(category))
-        return clsmethod(self.table, id_)
+        return self._cls_method('list_by_')(id_)
 
     def _get_by_user_category(self, username, id_):
+        return self._cls_method('get_by_user_')(username, id_)
+
+    def _count_by_category(self, id_):
+        return self._cls_method('count_by_')(id_)
+
+    def _cls_method(self, prefix):
         category = self.category.lower()
-        clsmethod = getattr(self.table, 'get_by_user_{0}'.format(category))
-        return clsmethod(self.table, username, id_)
+        return getattr(self.table, prefix + category)
 
     @as_json
     @gen.coroutine
@@ -53,6 +56,8 @@ class BaseVoteAPIHandler(APIHandler):
             raise exception()
         else:
             yield self.async_task(self.table.create, username, id_)
+            count = yield self.async_task(self._count_by_category, id_)
+            raise gen.Return({'count': count})
 
     @as_json
     @need_permissions(Roles.Vote)
@@ -62,6 +67,8 @@ class BaseVoteAPIHandler(APIHandler):
         v = yield self.async_task(self._get_by_user_category, username, id_)
         if v:
             yield self.async_task(v.delete)
+            count = yield self.async_task(self._count_by_category, id_)
+            raise gen.Return({'count': count})
         else:
             raise exceptions.NoVoteCanBeCancel()
 

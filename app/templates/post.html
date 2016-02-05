@@ -5,7 +5,7 @@
 <style type="text/css">
 	#post-info {
 		height: 70px;
-		border-bottom: 1px solid #e3e3e3;
+		border-bottom: 1px solid #d8d8d8;
 		padding: 10px 5px 10px 5px;
 	}
 	.info-left {
@@ -15,14 +15,14 @@
 	.comment-down-votes,
 	.post-up-votes,
 	.post-down-votes {
-		color: #444444;
+		color: #555555;
 		margin-right: 3px;
 	}
 	.comment-up-votes:hover,
 	.comment-down-votes:hover,
 	.post-up-votes:hover,
 	.post-down-votes:hover {
-		color: #111111;
+		color: #000000;
 		text-decoration: none;
 	}
 	.post-author:hover,
@@ -50,7 +50,7 @@
 		color: #333333;
 		font-size: 14px;
 		padding: 5px 5px 8px 5px;
-		border-bottom: 1px solid #e5e5e5;
+		border-bottom: 1px solid #ccc;
 	}
 	.markdown-body .highlight pre,
 	.markdown-body pre {
@@ -104,8 +104,8 @@
 			<div class="info-left">
 				<a class="post-title" href="/post/{{ post_id }}">{{ title }}</a>
 				<div style="margin-top:5px;">
-					<a class="post-up-votes" href="javascript:;"><span class="glyphicon glyphicon-thumbs-up" aria-hidden="true"></span> {{ up_votes }}</a>
-					<a class="post-down-votes" href="javascript:;"><span class="glyphicon glyphicon-thumbs-down" aria-hidden="true"></span> {{ down_votes }}</a>
+					<a class="post-up-votes" href="javascript:;" @click="upVote"><span class="glyphicon glyphicon-thumbs-up" aria-hidden="true"></span> <span class="up-votes">{{ up_votes }}</span></a>
+					<a class="post-down-votes" href="javascript:;" @click="downVote"><span class="glyphicon glyphicon-thumbs-down" aria-hidden="true"></span> <span class="down-votes">{{ down_votes }}</span></a>
 					<a class="post-author" href="/user/{{ author }}">{{ author }}</a>
 					<span class="post-date">发布于 {{ date }}</span>
 				</div>
@@ -161,10 +161,22 @@
 		data: {},
 		methods: {
 			upVote: function() {
-
+				postJSON('/api/votes/post/'+ postID +'/up', {}, function(response) {
+					if (response.status === 1) {
+						$(".up-votes").text(response.count)
+					} else {
+						console.log("VOTES " + postID + " UP GOT ERROR: ", response.code, " ", response.reason)
+					}
+				})
 			},
 			downVote: function() {
-
+				postJSON('/api/votes/post/'+ postID +'/down', {}, function(response) {
+					if (response.status === 1) {
+						$(".down-votes").text(response.count)
+					} else {
+						console.log("VOTES " + postID + " DOWN GOT ERROR: ", response.code, " ", response.reason)
+					}
+				})
 			}
 		}
 	})

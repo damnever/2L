@@ -7,8 +7,8 @@ import json
 from datetime import datetime
 
 from tornado import gen
-from tornado.web import HTTPError
 
+from app.base.exceptions import HTTPError
 from app.base.exceptions import ValidationError
 from app.models import User
 from app.base.roles import Roles
@@ -33,6 +33,10 @@ def as_json(method):
     def wrapper(self, *args, **kwargs):
         try:
             result = yield gen.maybe_future(method(self, *args, **kwargs))
+            # Wait future complete.
+            if isinstance(result, gen.Future):
+                result = yield result
+                # result = result.result()
         except (HTTPError, ValidationError) as e:
             self.log.error('Error: %s', e)
             self.finish(json_encode({
@@ -48,10 +52,6 @@ def as_json(method):
                 'reason': 'Unknown server error.',
             })
         else:
-            # Wait future complete.
-            if isinstance(result, gen.Future):
-                yield result
-                result = result.result()
             if result is None:
                 result = dict()
             result.update({'status': 1})
