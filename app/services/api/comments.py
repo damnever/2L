@@ -70,8 +70,8 @@ class UserCommentsAPIHandler(APIHandler):
     @as_json
     @gen.coroutine
     def get(self, username):
-        page = self.get_argument('page', 1)
-        per_page = self.get_argument('per_page', 20)
+        page = int(self.get_argument('page', 1))
+        per_page = int(self.get_argument('per_page', 20))
         pagination = yield self.async_task(Comment.page_list_by_user,
                                            username, page, per_page)
         comments = list()

@@ -11,26 +11,20 @@
 	.info-left {
 		float: left;
 	}
-	.comment-up-votes,
-	.comment-down-votes,
 	.post-up-votes,
 	.post-down-votes {
 		color: #555555;
 		margin-right: 3px;
 	}
-	.comment-up-votes:hover,
-	.comment-down-votes:hover,
 	.post-up-votes:hover,
 	.post-down-votes:hover {
 		color: #000000;
 		text-decoration: none;
 	}
-	.post-author:hover,
-	.comment-user:hover {
+	.post-author:hover {
 		color: #111111;
 	}
-	.post-date,
-	.comment-date {
+	.post-date {
 		color: #888888;
 		font-size: 13px;
 	}
@@ -38,44 +32,11 @@
 		margin-left: 5px;
 		margin-right: 5px;
 	}
-	.post-author,
-	.comment-user {
+	.post-author {
 		color: #333333;
 		font-size: bold;
 	}
 	.info-right {
-		float: right;
-	}
-	.comment-left {
-		float: left;
-	}
-	.comment-info {
-		margin-left: 50px;
-	}
-	.comment-content {
-		margin-top: 3px;
-		color: #333333;
-		font-size: 14px;
-	}
-	.comment-reply {
-		color: #555555;
-		font-size: 13px;
-	}
-	.comment-reply:hover {
-		color: #333333;
-	}
-	#comments .list-group-item {
-		padding: 10px 5px 10px 5px;
-	}
-	.comment-submit {
-
-	}
-	.comment-submit button {
-	}
-	.comment-submit .comment-tip {
-		margin-top: 15px;
-		color: #555555;
-		font-size: 12px;
 		float: right;
 	}
 </style>
@@ -101,7 +62,7 @@
 		<div class="clearfix"></div>
 		<article id="post-content" class="markdown-body"></article>
 		<ul id="comments" class="list-group">
-			<comment-component :tag="tag" :at-users.sync="atUsers"
+			<comment-component :at-users.sync="atUsers"
 			 v-for="(index, item) in items"
 			 :comment-index="index + 1"
 			 :comment-id="item.id"
@@ -147,7 +108,7 @@
 		data: {},
 		methods: {
 			upVote: function() {
-				postJSON('/api/votes/post/'+ postID +'/up', {}, function(response) {
+				postJSON('/api/votes/post/'+ postID +'/up', {'token': getCookieByName('token')}, function(response) {
 					if (response.status === 1) {
 						$(".up-votes").text(response.count)
 					} else {
@@ -156,7 +117,7 @@
 				})
 			},
 			downVote: function() {
-				postJSON('/api/votes/post/'+ postID +'/down', {}, function(response) {
+				postJSON('/api/votes/post/'+ postID +'/down', {'token': getCookieByName('token')}, function(response) {
 					if (response.status === 1) {
 						$(".down-votes").text(response.count)
 					} else {
@@ -198,7 +159,11 @@
 					vAlert.warning("内容不能为空")
 					return
 				}
-				postJSON('/api/comments/post/' + postID, {'content': this.content}, this.handleResp)
+				var data = {
+					'token': getCookieByName('token'),
+					'content': this.content,
+				}
+				postJSON('/api/comments/post/' + postID, data, this.handleResp)
 			},
 			handleResp: function(response) {
 				if (response.status === 1) {
@@ -225,20 +190,6 @@
 		} else {
 			console.log('GET COMMENTS OF POST #' + postID + ' ERROR: ' + response.code, " ", response.reason)
 		}
-	})
-
-	///////////////////////////////////////////////////////////////////////////
-	$(document).ready(function() {
-		var input = $("#comment-area")
-		$('.comment-reply').each(function() {
-			var self = this
-			console.log("xxxx",$(self))
-			$(self).on("click", function() {
-				console.log("CLICKED ")
-				var username = $(this).attr("user")
-				input.text(input.text() + " @" + username)
-			})
-		});
 	})
 	
 </script>

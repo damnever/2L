@@ -23,6 +23,7 @@ def set_cookie_session(self, username, expire):
     token = gen_token()
     self.set_secure_cookie('token', token, expire)
     self.session.set(token, username, expire)
+    return token
 
 
 class LoginHandler(APIHandler):
@@ -43,8 +44,8 @@ class LoginHandler(APIHandler):
             if encrypt_password(password) != user.password:
                 raise exceptions.PasswordWrong()
 
-            set_cookie_session(self, username, expire)
-            raise gen.Return({'username': username})
+            token = set_cookie_session(self, username, expire)
+            raise gen.Return({'username': username, 'token': token})
 
 
 class LogoutHandler(APIHandler):
@@ -88,8 +89,8 @@ class RegisterHandler(APIHandler):
             update_permission.apply_async((user, Roles.Comment), eta=wait)
 
             # Register success, then login.
-            set_cookie_session(self, username, 1)
-            raise gen.Return({'username': username})
+            token = set_cookie_session(self, username, 1)
+            raise gen.Return({'username': username, 'token': token})
 
 
 urls = [

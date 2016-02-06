@@ -15,6 +15,8 @@ Vue.filter('toStr', function(value) {
 	return value ? value : ""
 })
 
+
+///////////////////////////////////////////////////////////////////////////////
 Vue.component('postComponent', {
 	template: (function () {/*
 		<li class="list-group-item post">
@@ -86,6 +88,31 @@ Vue.component('topicComponent', {
 	},
 })
 
+Vue.component('topicThumbnailComponent', {
+	template: (function () {/*
+		<li class="list-group-item">
+		    <div class="topics">
+		    	<div class="topic-avatar">
+		    		<img src="${ avatar }" class="thumbnail" alt="${ name }" width="60" height="60">
+		    	</div>
+		    	<div class="topic-text">
+		    		<div class="header">
+			    		<a href="/topic/${ id }" target="_blank">${ name }</a>
+			    		<button type="button" class="btn btn-link btn-xs">订阅</button>
+			    	</div>
+			    	<div class="description">${ description }</div>
+		    	</div>
+	    	</div>
+	    </li>
+	*/}).toString().split('\n').slice(1,-1).join(''),
+	props: {
+		id: Number,
+		name: String,
+		avatar: String,
+		description: String,
+	},
+})
+
 Vue.component('commentComponent', {
 	template: (function () {/*
 		<li id="${ commentId }" class="list-group-item">
@@ -152,6 +179,7 @@ Vue.component('commentComponent', {
 })
 
 
+///////////////////////////////////////////////////////////////////////////////
 function getJSON(url, data, callback) {
 	$.ajax({
 		url: url,

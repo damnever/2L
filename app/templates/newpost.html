@@ -96,6 +96,7 @@
 					return false
 				}
 				data = {
+					'token': getCookieByName('token'),
 					'title': this.title,
 					'content': this.content,
 					'keywords': this.keywords,
@@ -109,6 +110,7 @@
 					return
 				}
 				data = {
+					'token': getCookieByName('token'),
 					'title': this.title,
 					'content': this.content,
 					'keywords': this.keywords,

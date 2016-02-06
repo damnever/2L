@@ -208,6 +208,61 @@ label {
 	color: #555;
 }
 
+/*** COMMENTS ***/
+.comment-up-votes,
+.comment-down-votes {
+	color: #555555;
+	margin-right: 3px;
+}
+.comment-up-votes:hover,
+.comment-down-votes:hover {
+	color: #000000;
+	text-decoration: none;
+}
+.comment-user:hover {
+	color: #111111;
+}
+.comment-date {
+	color: #888888;
+	font-size: 13px;
+}
+.comment-user {
+	color: #333333;
+	font-size: bold;
+}
+.comment-left {
+	float: left;
+}
+.comment-info {
+	margin-left: 50px;
+}
+.comment-content {
+	margin-top: 3px;
+	color: #333333;
+	font-size: 14px;
+}
+.comment-reply {
+	color: #555555;
+	font-size: 13px;
+}
+.comment-reply:hover {
+	color: #333333;
+}
+#comments .list-group-item {
+	padding: 10px 5px 10px 5px;
+}
+.comment-submit {
+
+}
+.comment-submit button {
+}
+.comment-submit .comment-tip {
+	margin-top: 15px;
+	color: #555555;
+	font-size: 12px;
+	float: right;
+}
+
 /*** ANNOUNCEMENT ***/
 #announcement .panel-group .panel {
     border-radius: 0;

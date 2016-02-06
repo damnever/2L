@@ -119,10 +119,10 @@ class UserPostsAPIHandler(APIHandler):
     @as_json
     @gen.coroutine
     def get(self, username):
-        page = self.get_argument('page', 1)
-        per_page = self.get_argument('per_page', 20)
-        pagination = yield gen.async_task(Post.page_list_by_user,
-                                          username, page, per_page)
+        page = int(self.get_argument('page', 1))
+        per_page = int(self.get_argument('per_page', 20))
+        pagination = yield self.async_task(Post.page_list_by_user,
+                                           username, page, per_page)
         posts = list()
         for post in pagination.items:
             info = yield self.async_task(_post_info, post)

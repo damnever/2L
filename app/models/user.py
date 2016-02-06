@@ -70,21 +70,15 @@ class User(Model):
         r = self.query.filter(self.role&Permission.get_by_role(role).bit>0)
         return r.first()
 
-    def permissions(self):
-        r = self.query.join(Permission).filter(
-            self.role&Permission.bit).filter(self.__class__.id==self.id)
-        return r.all()
-
     def information(self):
         info = {
             'id': self.id,
             'username': self.username,
-            'role': self.permissions(),
             'gold': self.profile.gold,
             'join_date': self.profile.join_date,
             'introduce': self.profile.introduce,
             'avatar': self.profile.avatar,
-            'location': self.profile.avatar,
+            'location': self.profile.location,
             'wiki': self.profile.wiki,
             'blog': self.profile.blog,
             'github': self.profile.github,

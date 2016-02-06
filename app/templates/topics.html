@@ -36,78 +36,45 @@
 {% block content %}
 <div class="row" id="topics">
 	<ul class="list-group col-md-4 col-md-offset-2" id="leftTopics">
-	    <li class="list-group-item" v-for="topic in leftTopics">
-		    <div class="topics">
-		    	<div class="topic-avatar">
-		    		<img src="${ topic.avatar }" class="thumbnail" alt="${ topic.name }" width="60" height="60">
-		    	</div>
-		    	<div class="topic-text">
-		    		<div class="header">
-			    		<a href="/topic/${ topic.id }" target="_blank">${ topic.name }</a>
-			    		<button type="button" class="btn btn-link btn-xs">订阅</button>
-			    	</div>
-			    	<div class="description">${ topic.description }</div>
-		    	</div>
-	    	</div>
-	    </li>
+	    <topic-thumbnail-component
+    	 v-for="topic in leftTopics"
+    	 :id="topic.id"
+    	 :name="topic.name"
+    	 :avatar="topic.avatar"
+    	 :description="topic.description">
+    	</topic-thumbnail-component>
 	</ul>
-	<ul class="list-group col-md-4" id="">
-	    <li class="list-group-item" v-for="topic in rightTopics">
-		    <div class="topics">
-		    	<div class="topic-avatar">
-		    		<img src="${ topic.avatar }" class="thumbnail" alt="${ topic.name }" width="60" height="60">
-		    	</div>
-		    	<div class="topic-text">
-		    		<div class="header">
-			    		<a href="/topic/${ topic.id }" target="_blank">${ topic.name }</a>
-			    		<button type="button" class="btn btn-link btn-xs">订阅</button>
-			    	</div>
-			    	<div class="description">${ topic.description }</div>
-		    	</div>
-	    	</div>
-	    </li>
+	<ul class="list-group col-md-4" id="rightTopics">
+		<topic-thumbnail-component
+    	 v-for="topic in rightTopics"
+    	 :id="topic.id"
+    	 :name="topic.name"
+    	 :avatar="topic.avatar"
+    	 :description="topic.description">
+    	</topic-thumbnail-component>
 	</ul>
 </div>
 {% end %}
 
 {% block script %}
 <script type="text/javascript">
-	new Vue({
+	var topics = new Vue({
 		el: '#topics',
 		data: {
-			data : {'total': 0, 'topics': []},
+			leftTopics: [],
+			rightTopics: []
 		},
-		computed: {
-			leftTopics: function() {
-				if (this.data.total === 0) {
-					this.getData()
-					if (this.data.total === 0) {
-						return []
-					}
-				}
-				return this.data.topics.slice(0, this.data.total/2)
-			},
-			rightTopics:  function() {
-				if (this.data.total === 0) {
-					this.getData()
-					if (this.data.total === 0) {
-						return []
-					}
-				}
-				return this.data.topics.slice(this.data.total/2)
-			},
-		},
-		methods: {
-			getData: function() {
-				getJSON('/api/topics', {}, this.setData)
-			},
-			setData: function(response) {
-				if (response.status === 1) {
-					this.data = response
-				} else {
-					console.log("GET ALL TOPICS ERROR: ", response.code.toString() + response.reason)
-				}
+	})
+	
+	getJSON('/api/topics', {}, function(response) {
+		if (response.status === 1) {
+			if (response.total === 0) {
+				return
 			}
+			topics.rightTopics = response.topics.slice(response.total/2)
+			topics.leftTopics = response.topics.slice(0, response.total/2)
+		} else {
+			console.log("GET ALL TOPICS ERROR: ", response.code.toString() + response.reason)
 		}
 	})
 </script>
