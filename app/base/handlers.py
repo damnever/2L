@@ -18,6 +18,7 @@ from app.base.exceptions import HTTPError
 from app.base.decorators import as_json
 from app.cache import session
 from app.settings import ThreadPoolMaxWorkers, DefaultAvatarURL
+from app.libs.db import db_session
 
 
 class AsyncTaskMixIn(object):
@@ -51,7 +52,7 @@ class BaseHandler(AsyncTaskMixIn, RequestHandler):
         pass
 
     def on_finish(self):
-        pass
+        db_session.remove()
 
     @property
     def allow_origin(self):

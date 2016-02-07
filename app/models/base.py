@@ -44,4 +44,4 @@ class Model(MixIn, Base):
 
     __abstract__ = True
     session = db_session
-    query = db_session.query_property()
+    query = session.query_property()

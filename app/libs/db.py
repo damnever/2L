@@ -4,6 +4,7 @@ from __future__ import print_function, division, absolute_import
 
 import math
 import functools
+import logging
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker, Query
@@ -91,24 +92,31 @@ class BaseQuery(Query):
         return Pagination(self, page, per_page, total, items)
 
 
-class Scope(object):
-
-    pass
+# Config logging.
+logging.basicConfig()
+orm_logger = logging.getLogger('sqlalchemy.orm')
+orm_logger.setLevel(logging.DEBUG)
 
 
 url = ('mysql://{username}:{password}@{host}:{port}/{db}'
        '?charset=utf8').format(**MySQL)
 engine = create_engine(url, pool_size=ThreadPoolMaxWorkers,
-                       pool_recycle=3600, echo=True)
+                       pool_recycle=3600, echo=False)
 
-db_session = scoped_session(
-    sessionmaker(
-        autocommit=False,
-        autoflush=False,
-        bind=engine,
-        query_cls=BaseQuery
+
+def create_session():
+    _db_session = scoped_session(
+        sessionmaker(
+            autocommit=False,
+            autoflush=False,
+            bind=engine,
+            query_cls=BaseQuery
+        )
     )
-)
+    return _db_session
+
+
+db_session = create_session()
 
 Base = declarative_base()
 
@@ -121,13 +129,13 @@ def init_db():
     # import all modules here that might define models so that
     # they will be registered properly on the metadata.
     # from app.models import *
-    _engine = create_engine(url.rsplit('/', 1)[0], echo=True)
+    _engine = create_engine(url.rsplit('/', 1)[0], echo=False)
     _engine.execute('CREATE DATABASE IF NOT EXISTS {0}'.format(MySQL['db']))
     Base.metadata.create_all(bind=engine)
 
 
 def drop_db():
-    _engine = create_engine(url.rsplit('/', 1)[0], echo=True)
+    _engine = create_engine(url.rsplit('/', 1)[0], echo=False)
     _engine.execute('DROP DATABASE IF EXISTS {0}'.format(MySQL['db']))
 
 
@@ -135,13 +143,12 @@ def shutdown_session():
     db_session.remove()
 
 
-def catch_integrity_errors(session):
-    def _decorator(func):
-        @functools.wraps(func)
-        def _wrapper(self, *args, **kwargs):
-            try:
-                return func(*args, **kwargs)
-            except (DataError, IntegrityError, ProgrammingError) as e:
-                print(e)
-                session.rollback()
-        return _wrapper
+def transaction(func):
+    @functools.wraps(func)
+    def _wrapper(cls_self, *args, **kwargs):
+        try:
+            return func(cls_self, *args, **kwargs)
+        except (DataError, IntegrityError, ProgrammingError) as e:
+            orm_logger.error("SESSION OPERATION ERROR :%s\n", e)
+            cls_self.session.rollback()
+    return _wrapper

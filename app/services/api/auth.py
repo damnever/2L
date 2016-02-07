@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 
-# TODO: sth.?? I have no idea... limit API access rate, OAuth???
-
 from __future__ import print_function, division, absolute_import
 
 from datetime import datetime, timedelta
