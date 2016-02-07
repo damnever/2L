@@ -8,7 +8,6 @@ from sqlalchemy.sql import functions, expression
 from app.models.base import Model
 from app.models.user import User
 from app.models.content import Topic, Post
-from app.libs.db import db_session
 
 
 class Subscription(Model):
@@ -36,8 +35,8 @@ class Subscription(Model):
     def create(cls, username, topic_id):
         user = User.get_by_name(username)
         s = cls(user_id=user.id, topic_id=topic_id)
-        db_session.add(s)
-        db_session.commit()
+        cls.session.add(s)
+        cls.session.commit()
         return s
 
     def to_dict(self):
@@ -81,8 +80,8 @@ class Favorite(Model):
     def create(cls, username, post_id):
         user = User.get_by_name(username)
         f = cls(user_id=user.id, post_id=post_id)
-        db_session.add(f)
-        db_session.commit()
+        cls.session.add(f)
+        cls.session.commit()
         return f
 
     def to_dict(self):
@@ -121,8 +120,8 @@ class PostUpVote(Model):
     def create(cls, username, post_id):
         user = User.get_by_name(username)
         pu = cls(user_id=user.id, post_id=post_id)
-        db_session.add(pu)
-        db_session.commit()
+        cls.session.add(pu)
+        cls.session.commit()
         return pu
 
     def to_dict(self):
@@ -161,8 +160,8 @@ class PostDownVote(Model):
     def create(cls, username, post_id):
         user = User.get_by_name(username)
         pd = cls(user_id=user.id, post_id=post_id)
-        db_session.add(pd)
-        db_session.commit()
+        cls.session.add(pd)
+        cls.session.commit()
         return pd
 
 
@@ -190,8 +189,8 @@ class CommentUpVote(Model):
     def create(cls, username, comment_id):
         user = User.get_by_name(username)
         cu = cls(user_id=user.id, comment_id=comment_id)
-        db_session.add(cu)
-        db_session.commit()
+        cls.session.add(cu)
+        cls.session.commit()
         return cu
 
 
@@ -219,6 +218,6 @@ class CommentDownVote(Model):
     def create(cls, username, comment_id):
         user = User.get_by_name(username)
         cd = cls(user_id=user.id, comment_id=comment_id)
-        db_session.add(cd)
-        db_session.commit()
+        cls.session.add(cd)
+        cls.session.commit()
         return cd

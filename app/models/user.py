@@ -8,7 +8,6 @@ from sqlalchemy.sql import functions, expression
 
 from app.models.base import Model
 from app.models.permission import Permission
-from app.libs.db import db_session
 from app.settings import Level
 
 
@@ -40,15 +39,15 @@ class User(Model):
         profile = Profile(**profile_attrs)
         user_attrs.update({'profile': profile})
         user = cls(**user_attrs)
-        db_session.add(user)
-        db_session.add(profile)
-        db_session.commit()
+        cls.session.add(user)
+        cls.session.add(profile)
+        cls.session.commit()
         return user
 
     def delete(self):
-        db_session.delete(self.profile)
-        db_session.delete(self)
-        db_session.commit()
+        self.session.delete(self.profile)
+        self.session.delete(self)
+        self.session.commit()
 
     def update(self, **kwargs):
         for k, v in kwargs.items():
@@ -63,8 +62,8 @@ class User(Model):
             self.role |= Permission.get_by_role('topic_creation')
         if self.profile.gold >= Level['gold']['vote']:
             self.role |= Permission.get_by_role('vote')
-        db_session.add(self)
-        db_session.commit()
+        self.session.add(self)
+        self.session.commit()
 
     def has_permission(self, role):
         r = self.query.filter(self.role&Permission.get_by_role(role).bit>0)
@@ -132,8 +131,8 @@ class Following(Model):
         user = User.get_by_name(username)
         following = User.get_by_name(following_name)
         f = cls(user_id=user.id, following_id=following.id)
-        db_session.add(f)
-        db_session.commit()
+        cls.session.add(f)
+        cls.session.commit()
         return f
 
     @classmethod
@@ -165,8 +164,8 @@ class Blocked(Model):
         user = User.get_by_name(username)
         blocked = User.get_by_name(blocked_name)
         b = cls(user_id=user.id, blocked_id=blocked.id)
-        db_session.add(b)
-        db_session.commit()
+        cls.session.add(b)
+        cls.session.commit()
         return b
 
     @classmethod

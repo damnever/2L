@@ -3,12 +3,14 @@
 from __future__ import print_function, division, absolute_import
 
 import math
+import functools
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker, Query
 from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.exc import DataError, IntegrityError, ProgrammingError
 
-from app.settings import MySQL
+from app.settings import MySQL, ThreadPoolMaxWorkers
 
 
 class Pagination(object):
@@ -89,9 +91,15 @@ class BaseQuery(Query):
         return Pagination(self, page, per_page, total, items)
 
 
+class Scope(object):
+
+    pass
+
+
 url = ('mysql://{username}:{password}@{host}:{port}/{db}'
        '?charset=utf8').format(**MySQL)
-engine = create_engine(url, echo=True)
+engine = create_engine(url, pool_size=ThreadPoolMaxWorkers,
+                       pool_recycle=3600, echo=True)
 
 db_session = scoped_session(
     sessionmaker(
@@ -103,6 +111,10 @@ db_session = scoped_session(
 )
 
 Base = declarative_base()
+
+
+def ping_db():
+    db_session.excute('show variables')
 
 
 def init_db():
@@ -121,3 +133,15 @@ def drop_db():
 
 def shutdown_session():
     db_session.remove()
+
+
+def catch_integrity_errors(session):
+    def _decorator(func):
+        @functools.wraps(func)
+        def _wrapper(self, *args, **kwargs):
+            try:
+                return func(*args, **kwargs)
+            except (DataError, IntegrityError, ProgrammingError) as e:
+                print(e)
+                session.rollback()
+        return _wrapper

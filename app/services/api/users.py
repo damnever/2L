@@ -72,13 +72,14 @@ class FollowingAPIHandler(APIHandler):
     def get(self):
         username = self.current_user
         ids = yield self.async_task(Following.list_following, username)
+        followings = list()
         if ids:
             users = yield self.async_task(User.get_multi, sorted(ids))
             followings = [user.information() for user in users]
-            raise gen.Return({
-                'followings': followings,
-                'total': len(followings),
-            })
+        raise gen.Return({
+            'followings': followings,
+            'total': len(followings),
+        })
 
 
 class FollowOneAPIHandler(APIHandler):
@@ -110,13 +111,14 @@ class BlockedAPIHandler(APIHandler):
     def get(self):
         username = self.current_user
         ids = yield self.async_task(Blocked.list_blocked, username)
+        blockeds = list()
         if ids:
             users = yield self.async_task(User.get_multi, sorted(ids))
             blockeds = [user.information() for user in users]
-            raise gen.Return({
-                'blockeds': blockeds,
-                'total': len(blockeds),
-            })
+        raise gen.Return({
+            'blockeds': blockeds,
+            'total': len(blockeds),
+        })
 
 
 class BlockOneAPIHandler(APIHandler):

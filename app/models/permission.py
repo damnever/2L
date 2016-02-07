@@ -5,7 +5,7 @@ from __future__ import print_function, division, absolute_import
 from sqlalchemy import Column, Integer, String, event
 from sqlalchemy.sql import select, functions
 
-from app.models.base import Model, db_session
+from app.models.base import Model
 
 
 class Permission(Model):
@@ -25,8 +25,8 @@ class Permission(Model):
     @classmethod
     def create(cls, role):
         p = cls(role=role)
-        db_session.add(p)
-        db_session.commit()
+        cls.session.add(p)
+        cls.session.commit()
         return p
 
 

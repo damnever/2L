@@ -16,9 +16,8 @@ from tornado.log import app_log
 
 from app.base.exceptions import HTTPError
 from app.base.decorators import as_json
-from app.libs.db import db_session
 from app.cache import session
-from app.settings import ThreadPoolMaxWorkers
+from app.settings import ThreadPoolMaxWorkers, DefaultAvatarURL
 
 
 class AsyncTaskMixIn(object):
@@ -41,12 +40,18 @@ class BaseHandler(AsyncTaskMixIn, RequestHandler):
         return self.settings.get('log', app_log)
 
     @property
-    def db_session(self):
-        return db_session
-
-    @property
     def session(self):
         return session
+
+    @property
+    def default_avatar_url(self):
+        return DefaultAvatarURL
+
+    def prepare(self):
+        pass
+
+    def on_finish(self):
+        pass
 
     @property
     def allow_origin(self):
@@ -101,9 +106,17 @@ class BaseHandler(AsyncTaskMixIn, RequestHandler):
                               "  Origin: %s, Host: %s", origin, host,)
             return allow
 
+    def _decode_user_token(self, value):
+        return self._decode_xsrf_token(value)
+
     def get_current_user(self):
-        token = (self.get_secure_cookie('token') or
-                 self.get_argument('token', None))
+        token = self.get_secure_cookie('token')
+        if token is None:
+            value = self.get_argument('token', None)
+            if value is None:
+                return None
+            _, token, _ = self._decode_user_token(value)
+
         if token:
             username = self.session.get(token)
             return username

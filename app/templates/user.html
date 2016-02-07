@@ -7,6 +7,36 @@
 		color: #555;
 		font-size: 14px;
 	}
+	#user-thumbnail {
+		min-height: 50px;
+	}
+	#user-thumbnail .avatar {
+		float: left;
+	}
+	#user-thumbnail .avatar img {
+		width: 40px;
+		height: 40px;
+	}
+	#user-thumbnail .info {
+		margin-left: 50px;
+	}
+	#user-thumbnail .info .header a {
+		color: #444444;
+		font-size: 13px;
+	}
+	#user-thumbnail .info .header a:hover {
+		color: #000000;
+	}
+	#user-thumbnail .info .header button {
+		float: right;
+		margin-right: 5px;
+		font-size: 10px;
+	}
+	#user-thumbnail .info .intro {
+		margin-top: 3px;
+		color: #555;
+		font-size: 12px;
+	}
 </style>
 {% end %}
 
@@ -19,8 +49,12 @@
 					<span class="username">${ username }</span>&ensp;•&ensp;<span class="intro">${ introduce }</span>
 				</div>
 				<div class="right">
-					<button class="btn btn-default btn-xs">关注</button>
-					<button class="btn btn-default btn-xs">拉黑</button>
+					{% if current_user != title %}
+						<button class="btn btn-default btn-xs" @click="followOne">关注</button>
+						<button class="btn btn-default btn-xs" @click="blockOne">拉黑</button>
+					{% else %}
+						<a href="/edit/profile" class="btn btn-default btn-xs">编辑</a>
+					{% end %}
 				</div>
 			</div>
 			<div class="clearfix"></div>
@@ -47,7 +81,7 @@
 				    {!! wiki | toHTML !!}
 				</tab>
 			    <tab header="帖子">
-				    <post-component  v-if="posts" :tag="tag" v-for="post in posts"
+				    <post-component :tag="tag" v-for="post in posts"
 					 :post-id="post.id"
 					 :post-title="post.title"
 					 :post-date="post.created_date"
@@ -59,10 +93,10 @@
 					 :last-comment-date="post.last_comment_date"
 					 :comment-count="post.comment_count">
 					</post-component>
-					<span v-else>你还没有发布过任何帖子</span>
+					<span v-show="myPostsCount <= 0">你还没有发布过任何帖子</span>
 			    </tab>
 			    <tab header="评论">
-			    	<comment-component v-if="comments"
+			    	<comment-component
 					 v-for="(index, comment) in comments"
 					 :comment-index="index + 1"
 					 :comment-id="comment.id"
@@ -71,23 +105,39 @@
 					 :comment-date="comment.date"
 					 :comment-content="comment.content">
 					</comment-component>
-					<span v-else>你还没有发表过任何评论</span>
+					<span v-show="myCommentsCount <= 0">你还没有发表过任何评论</span>
 			    </tab>
 			    <tab header="主题" {% if current_user != title %}disabled{% end %}>
-			    	<topic-thumbnail-component v-if="topics"
+			    	<topic-thumbnail-component
 			    	 v-for="topic in topics"
 			    	 :id="topic.id"
 			    	 :name="topic.name"
 			    	 :avatar="topic.avatar"
 			    	 :description="topic.description">
 			    	</topic-thumbnail-component>
-				    <span v-else>你还没有关注任何主题</span>
+				    <span v-show="myTopicsCount <= 0">你还没有关注任何主题</span>
 				</tab>
 			    <tab header="关注" {% if current_user != title %}disabled{% end %}>
-			    	你还没有关注任何人
+			    	<user-component
+			    	 v-for="follower in followings"
+			    	 :id="follower.id"
+			    	 :username="follower.username"
+			    	 :avatar="follower.avatar"
+			    	 :introduce="follower.introduce"
+			    	 >
+			    	</user-component>
+			    	<span v-show="myFollowingCount <= 0">你还没有关注任何人</span>
 			    </tab>
 			    <tab header="拉黑" {% if current_user != title %}disabled{% end %}>
-			    	你还没有拉黑任何人
+			    	<user-component
+			    	 v-for="blocked in blockeds"
+			    	 :id="blocked.id"
+			    	 :username="blocked.username"
+			    	 :avatar="blocked.avatar"
+			    	 :introduce="blocked.introduce"
+			    	 >
+			    	</user-component>
+			    	<span v-show="myBlockedCount <= 0">你还没有拉黑任何人</span>
 			    </tab>
 			</tabs>
 		</div>
@@ -95,36 +145,26 @@
 	<div id="progress" class="col-md-3" style="background-color: #fff;padding-left: 50px; padding-right: 10px;">
 		<span class="raquo"><span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span></span> 订阅的主题数： ${ myTopicsCount }
 		<div class="progress">
-		  <div class="progress-bar progress-bar-info" role="progressbar" aria-valuenow="34" aria-valuemin="0" aria-valuemax="100" style="width: 34%">
-		    34%
-		  </div>
+		    <progressbar :now="Math.round(myTopicsCount / topicsCount * 100)" label type="success" striped animated></progressbar>
 		</div>
 		<span class="raquo"><span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span></span> 发布的帖子数：  ${ myPostsCount }
 		<div class="progress">
-		  <div class="progress-bar progress-bar-info" role="progressbar" aria-valuenow="30" aria-valuemin="0" aria-valuemax="100" style="width: 30%">
-		    30%
-		  </div>
+		    <progressbar :now="Math.round(myPostsCount / postsCount * 100)" label type="success" striped animated></progressbar>
 		</div>
 		<span class="raquo"><span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span></span> 写下的评论数： ${ myCommentsCount }
 		<div class="progress">
-		  <div class="progress-bar progress-bar-info" role="progressbar" aria-valuenow="68" aria-valuemin="0" aria-valuemax="100" style="width: 68%">
-		    68%
-		  </div>
+		    <progressbar :now="Math.round(myCommentsCount / commentsCount * 100)" label type="success" striped animated></progressbar>
 		</div>
 		<div {% if current_user != title %}style="display:none;"{% end %}>
 			<span class="raquo"><span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span></span> 关注的人数： ${ myFollowingCount }
 			<div class="progress">
-			  <div class="progress-bar progress-bar-info" role="progressbar" aria-valuenow="20" aria-valuemin="0" aria-valuemax="100" style="width: 20%">
-			    20%
-			  </div>
+			    <progressbar :now="Math.round(myFollowingCount / usersCount * 100)" label type="success" striped animated></progressbar>
 			</div>
 		</div>
 		<div {% if current_user != title %}style="display:none;"{% end %}>
 			<span class="raquo"><span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span></span> 拉黑的人数： ${ myBlockedCount }
 			<div class="progress">
-			  <div class="progress-bar progress-bar-info" role="progressbar" aria-valuenow="6" aria-valuemin="0" aria-valuemax="100" style="width: 6%">
-			    6%
-			  </div>
+			    <progressbar :now="Math.round(myBlockedCount / usersCount * 100)" label type="success" striped animated></progressbar>
 			</div>
 		</div>
 	</div>
@@ -139,6 +179,7 @@
 	var profileURL = "/api/users/" + otherName
 	var postsURL = "/api/posts/user/" + otherName
 	var commentsURL = "/api/comments/user/" + otherName
+	var countURL = "/api/status/count"
 	var subscribedURL = ""
 	var followingURL = ""
 	var blockedURL = ""
@@ -148,6 +189,29 @@
 		followingURL = "/api/user/following"
 		blockedURL = "/api/user/blocked"
 	}
+
+	Vue.component('userComponent', {
+		template: (function () {/*
+			<li id="user-thumbnail" class="list-group-item">
+	    		<div class="avatar">
+	    			<img src="${ avatar }" class="thumbnail" alt="${ username }">
+	    		</div>
+	    		<div class="info">
+	    			<div class="header">
+		    			<a href="/user/${ username }">${ username }</a>
+		    			<button type="button" class="btn btn-link btn-xs">${ buttonText }</button>
+		    		</div>
+	    			<div class="intro">${ introduce }</div>
+	    		</div>
+	    	</li>
+		*/}).toString().split('\n').slice(1,-1).join(''),
+		props: {
+			id: Number,
+			username: String,
+			avatar: String,
+			introduce: String,
+		},
+	})
 
 	var userProfile = new Vue({
 		el: '#user-profile',
@@ -179,14 +243,33 @@
 			myCommentsCount: 0,
 			commentsCount: 0,
 			myFollowingCount: 0,
-			followingCount: 0,
 			myBlockedCount: 0,
-			blockedCount: 0,
+			usersCount: 0,
+		},
+		methods: {
+			followOne: function() {
+
+			},
+			blockOne: function() {
+
+			}
 		},
 	    components: {
 	        tabs: VueStrap.tabset,
-	        tab: VueStrap.tab
+	        tab: VueStrap.tab,
+	        progressbar: VueStrap.progressbar,
 	    }
+	})
+
+	getJSON(countURL, {'page': 1, 'pages': 20}, function(response) {
+		if (response.status === 1) {
+			userProfile.usersCount = response.users_count
+			userProfile.topcisCount = response.topics_count
+			userProfile.postsCount = response.posts_count
+			userProfile.commentsCount = response.comments_count
+		} else {
+			console.log("GET FROM", postsURL, "ERROR:", response.code, response.reason)	
+		}
 	})
 
 	getJSON(profileURL, {'token': getCookieByName('token')}, function(response) {
@@ -209,15 +292,15 @@
 		}
 	})
 
-	getJSON(postsURL, {'page': 1, 'pages': 20}, function(response) {
+	getJSON(postsURL, undefined, function(response) {
 		if (response.status === 1) {
 			userProfile.posts = response.posts
 			userProfile.myPostsCount = response.total
 		} else {
-			console.log("GET FROM", postsURL, "ERROR:", response.code, response.reason)	
+			console.log("GET FROM", countURL, "ERROR:", response.code, response.reason)	
 		}
 	})
-
+	
 	getJSON(commentsURL, {'page': 1, 'pages': 20}, function(response) {
 		if (response.status === 1) {
 			userProfile.comments = response.comments

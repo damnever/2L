@@ -7,7 +7,6 @@ from sqlalchemy.sql import functions, expression
 
 from app.models.base import Model
 from app.models.user import User
-from app.libs.db import db_session
 
 
 class Topic(Model):
@@ -35,8 +34,8 @@ class Topic(Model):
         user = User.get_by_name(created_name)
         t = Topic(name=name, admin_id=user.id, avatar=avatar,
                   description=description, rules=rules)
-        db_session.add(t)
-        db_session.commit()
+        cls.session.add(t)
+        cls.session.commit()
         return t
 
     def update(self, description=None, rules=None, avatar=None):
@@ -44,8 +43,8 @@ class Topic(Model):
             self.description = description
         if rules:
             self.rules = rules
-        db_session.add(self)
-        db_session.commit()
+        self.session.add(self)
+        self.session.commit()
 
     def to_dict(self):
         return {
@@ -111,8 +110,8 @@ class Post(Model):
             keep_silent=keep_silent,
             is_draft=is_draft,
         )
-        db_session.add(p)
-        db_session.commit()
+        cls.session.add(p)
+        cls.session.commit()
         return p
 
     def update(self, keywords=None, content=None,
@@ -125,8 +124,8 @@ class Post(Model):
             self.keep_silent = keep_silent
         if is_draft:
             self.is_draft = is_draft
-        db_session.add(self)
-        db_session.commit()
+        self.session.add(self)
+        self.session.commit()
 
     def to_dict(self):
         return {
@@ -145,7 +144,7 @@ class Post(Model):
 
     def _new_comment(self, now):
         self.comment_date = now
-        db_session.add(self)
+        self.session.add(self)
 
     @property
     def author(self):
@@ -201,14 +200,14 @@ class Comment(Model):
         now = functions.now()
         Post.get(post_id)._new_comment(now)
         c = cls(author_id=user.id, post_id=post_id, content=content, date=now)
-        db_session.add(c)
-        db_session.commit()
+        cls.session.add(c)
+        cls.session.commit()
         return c
 
     def update(self, content):
         self.content = content
-        db_session.add(self)
-        db_session.commit()
+        self.session.add(self)
+        self.session.commit()
 
     def to_dict(self):
         return {

@@ -7,7 +7,6 @@ from sqlalchemy.sql import functions, expression
 
 from app.models.base import Model
 from app.models.user import User
-from app.libs.db import db_session
 
 
 class Notification(Model):
@@ -40,14 +39,14 @@ class Notification(Model):
         recipient = User.get_by_name(recipient_name)
         n = cls(sender_id=sender.id, recipient_id=recipient.id,
                 activity_type=activity_type, content_url=content_url)
-        db_session.add(n)
-        db_session.commit()
+        cls.session.add(n)
+        cls.session.commit()
         return n
 
     def mark_as_read(self):
         self.unread = False
-        db_session.add(self)
-        db_session.commit()
+        self.session.add(self)
+        self.session.commit()
 
     def sender(self):
         return User.get(self.sender_id)
@@ -86,8 +85,8 @@ class Announcement(Model):
             content_url=content_url,
             expire=expire
         )
-        db_session.add(a)
-        db_session.commit()
+        cls.session.add(a)
+        cls.session.commit()
         return a
 
     def sender(self):
@@ -126,13 +125,13 @@ class PrivateMessage(Model):
         recipient = User.get_by_name(recipient_name)
         pm = cls(sender_id=sender.id, recipient_id=recipient.id,
                  message=message)
-        db_session.add(pm)
-        db_session.commit()
+        cls.session.add(pm)
+        cls.session.commit()
         return pm
 
     def mark_as_read(self):
         self.unread = False
-        db_session.add(self)
+        self.session.add(self)
 
     def sender(self):
         return User.get(self.sender_id)

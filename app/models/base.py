@@ -24,6 +24,10 @@ class MixIn(object):
         return Column('id', Integer(), primary_key=True, autoincrement=True)
 
     @classmethod
+    def count(cls):
+        return cls.query.count()
+
+    @classmethod
     def get(cls, id_):
         return cls.query.filter(cls.id==id_).first()
 
@@ -32,11 +36,12 @@ class MixIn(object):
         return [cls.get(id_) for id_ in ids]
 
     def delete(self):
-        db_session.delete(self)
-        db_session.commit()
+        self.session.delete(self)
+        self.session.commit()
 
 
 class Model(MixIn, Base):
 
     __abstract__ = True
+    session = db_session
     query = db_session.query_property()

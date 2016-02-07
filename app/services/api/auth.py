@@ -69,6 +69,7 @@ class RegisterHandler(APIHandler):
         username = self.get_argument('username', None)
         password = self.get_argument('password', None)
         email = self.get_argument('email', None)
+        avatar = self.default_avatar_url
 
         if username is None or password is None or email is None:
             raise exceptions.EmptyFields()
@@ -80,8 +81,11 @@ class RegisterHandler(APIHandler):
             if user is not None:
                 raise exceptions.EmailAlreadyExists()
             password = encrypt_password(password)
-            user = yield self.async_task(User.create, username=username,
-                                         password=password, email=email)
+            user = yield self.async_task(User.create,
+                                         username=username,
+                                         password=password,
+                                         email=email,
+                                         avatar=avatar)
 
             # Update permission after xxx seconds.
             seconds = Level['time'][Roles.Comment]

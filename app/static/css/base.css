@@ -135,6 +135,36 @@ label {
 	background-color: #e5e5e5;
 }
 
+/*** Topics ***/
+.topics {
+	margin-bottom: 3px;
+}
+.topics .topic-avatar {
+	float: left;
+}
+.topic-text {
+	margin-left: 72px;
+}
+.topic-text .header {
+	margin-bottom: 3px;
+}
+.topic-text .header a {
+	color: #444444;
+	font-size: 16px;
+}
+.topic-text .header a:hover {
+	color: #000000;
+}
+.topic-text .header button {
+	float: right;
+	margin-right: 20px;
+	font-size: 10px;
+}
+.topic-text .description {
+	color: #555555;
+	font-size: 13px;
+}
+
 /*** SUBSCRIBED TOPICS ***/
 #subscribed-topics .panel {
 	border-radius: 0;
