@@ -14,10 +14,10 @@ class CountStatusAPIHandler(APIHandler):
     @as_json
     @gen.coroutine
     def get(self):
-        users = yield self.async_task(User.count)
-        topics = yield self.async_task(Topic.count)
-        posts = yield self.async_task(Post.count)
-        comments = yield self.async_task(Comment.count)
+        users = yield gen.maybe_future(User.count())
+        topics = yield gen.maybe_future(Topic.count())
+        posts = yield gen.maybe_future(Post.count())
+        comments = yield gen.maybe_future(Comment.count())
         raise gen.Return({
             'users_count': users,
             'topics_count': topics,

@@ -2,15 +2,22 @@
 
 from __future__ import print_function, division, absolute_import
 
-from sqlalchemy import Column, Integer, DateTime
+from sqlalchemy import Column, Integer, DateTime, UniqueConstraint
 from sqlalchemy.sql import functions, expression
+from sqlalchemy.exc import DataError, IntegrityError, ProgrammingError
 
 from app.models.base import Model
 from app.models.user import User
 from app.models.content import Topic, Post
+from app.libs.db import db_session
 
 
 class Subscription(Model):
+
+    __table_args__ = (
+        UniqueConstraint('user_id', 'topic_id', name='s_usr_tpc'),
+    )
+
     user_id = Column('user_id', Integer(), index=True, nullable=False)
     topic_id = Column('topic_id', Integer(), index=True, nullable=False)
     date = Column('date', DateTime(timezone=True), default=functions.now())
@@ -35,8 +42,12 @@ class Subscription(Model):
     def create(cls, username, topic_id):
         user = User.get_by_name(username)
         s = cls(user_id=user.id, topic_id=topic_id)
-        cls.session.add(s)
-        cls.session.commit()
+        try:
+            db_session.add(s)
+            db_session.commit()
+        except (DataError, IntegrityError, ProgrammingError):
+            db_session.rollback()
+            raise
         return s
 
     def to_dict(self):
@@ -52,6 +63,11 @@ class Subscription(Model):
 
 
 class Favorite(Model):
+
+    __table_args__ = (
+        UniqueConstraint('user_id', 'post_id', name='f_usr_pst'),
+    )
+
     user_id = Column('user_id', Integer(), index=True, nullable=False)
     post_id = Column('post_id', Integer(), index=True, nullable=False)
     date = Column('date', DateTime(timezone=True), default=functions.now())
@@ -80,8 +96,12 @@ class Favorite(Model):
     def create(cls, username, post_id):
         user = User.get_by_name(username)
         f = cls(user_id=user.id, post_id=post_id)
-        cls.session.add(f)
-        cls.session.commit()
+        try:
+            db_session.add(f)
+            db_session.commit()
+        except (DataError, IntegrityError, ProgrammingError):
+            db_session.rollback()
+            raise
         return f
 
     def to_dict(self):
@@ -97,6 +117,11 @@ class Favorite(Model):
 
 
 class PostUpVote(Model):
+
+    __table_args__ = (
+        UniqueConstraint('user_id', 'post_id', name='up_usr_pst'),
+    )
+
     post_id = Column('post_id', Integer(), index=True, nullable=False)
     user_id = Column('user_id', Integer(), index=True, nullable=False)
     date = Column('date', DateTime(timezone=True), default=functions.now())
@@ -120,8 +145,12 @@ class PostUpVote(Model):
     def create(cls, username, post_id):
         user = User.get_by_name(username)
         pu = cls(user_id=user.id, post_id=post_id)
-        cls.session.add(pu)
-        cls.session.commit()
+        try:
+            db_session.add(pu)
+            db_session.commit()
+        except (DataError, IntegrityError, ProgrammingError):
+            db_session.rollback()
+            raise
         return pu
 
     def to_dict(self):
@@ -137,6 +166,11 @@ class PostUpVote(Model):
 
 
 class PostDownVote(Model):
+
+    __table_args__ = (
+        UniqueConstraint('user_id', 'post_id', name='dn_usr_pst'),
+    )
+
     post_id = Column('post_id', Integer(), index=True, nullable=False)
     user_id = Column('user_id', Integer(), index=True, nullable=False)
     date = Column('date', DateTime(timezone=True), default=functions.now())
@@ -160,12 +194,21 @@ class PostDownVote(Model):
     def create(cls, username, post_id):
         user = User.get_by_name(username)
         pd = cls(user_id=user.id, post_id=post_id)
-        cls.session.add(pd)
-        cls.session.commit()
+        try:
+            db_session.add(pd)
+            db_session.commit()
+        except (DataError, IntegrityError, ProgrammingError):
+            db_session.rollback()
+            raise
         return pd
 
 
 class CommentUpVote(Model):
+
+    __table_args__ = (
+        UniqueConstraint('user_id', 'comment_id', name='up_usr_cmt'),
+    )
+
     comment_id = Column('comment_id', Integer(), index=True, nullable=False)
     user_id = Column('user_id', Integer(), index=True, nullable=False)
     date = Column('date', DateTime(timezone=True), default=functions.now())
@@ -189,12 +232,21 @@ class CommentUpVote(Model):
     def create(cls, username, comment_id):
         user = User.get_by_name(username)
         cu = cls(user_id=user.id, comment_id=comment_id)
-        cls.session.add(cu)
-        cls.session.commit()
+        try:
+            db_session.add(cu)
+            db_session.commit()
+        except (DataError, IntegrityError, ProgrammingError):
+            cls.rollback()
+            raise
         return cu
 
 
 class CommentDownVote(Model):
+
+    __table_args__ = (
+        UniqueConstraint('user_id', 'comment_id', name='dn_usr_cmt'),
+    )
+
     comment_id = Column('comment_id', Integer(), index=True, nullable=False)
     user_id = Column('user_id', Integer(), index=True, nullable=False)
     date = Column('date', DateTime(timezone=True), default=functions.now())
@@ -218,6 +270,10 @@ class CommentDownVote(Model):
     def create(cls, username, comment_id):
         user = User.get_by_name(username)
         cd = cls(user_id=user.id, comment_id=comment_id)
-        cls.session.add(cd)
-        cls.session.commit()
+        try:
+            db_session.add(cd)
+            db_session.commit()
+        except (DataError, IntegrityError, ProgrammingError):
+            db_session.rollback()
+            raise
         return cd

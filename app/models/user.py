@@ -5,10 +5,12 @@ from __future__ import print_function, division, absolute_import
 from sqlalchemy import Column, Integer, String, Text, ForeignKey, DateTime
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import functions, expression
+from sqlalchemy.exc import DataError, IntegrityError, ProgrammingError
 
 from app.models.base import Model
 from app.models.permission import Permission
 from app.settings import Level
+from app.libs.db import db_session
 
 
 class User(Model):
@@ -39,15 +41,23 @@ class User(Model):
         profile = Profile(**profile_attrs)
         user_attrs.update({'profile': profile})
         user = cls(**user_attrs)
-        cls.session.add(user)
-        cls.session.add(profile)
-        cls.session.commit()
+        try:
+            db_session.add(user)
+            db_session.add(profile)
+            db_session.commit()
+        except (DataError, IntegrityError, ProgrammingError):
+            db_session.rollback()
+            raise
         return user
 
     def delete(self):
-        self.session.delete(self.profile)
-        self.session.delete(self)
-        self.session.commit()
+        try:
+            db_session.delete(self.profile)
+            db_session.delete(self)
+            db_session.commit()
+        except (DataError, IntegrityError, ProgrammingError):
+            db_session.rollback()
+            raise
 
     def update(self, **kwargs):
         for k, v in kwargs.items():
@@ -62,8 +72,12 @@ class User(Model):
             self.role |= Permission.get_by_role('topic_creation')
         if self.profile.gold >= Level['gold']['vote']:
             self.role |= Permission.get_by_role('vote')
-        self.session.add(self)
-        self.session.commit()
+        try:
+            db_session.add(self)
+            db_session.commit()
+        except (DataError, IntegrityError, ProgrammingError):
+            db_session.rollback()
+            raise
 
     def has_permission(self, role):
         r = self.query.filter(self.role&Permission.get_by_role(role).bit>0)
@@ -131,8 +145,12 @@ class Following(Model):
         user = User.get_by_name(username)
         following = User.get_by_name(following_name)
         f = cls(user_id=user.id, following_id=following.id)
-        cls.session.add(f)
-        cls.session.commit()
+        try:
+            db_session.add(f)
+            db_session.commit()
+        except (DataError, IntegrityError, ProgrammingError):
+            db_session.rollback()
+            raise
         return f
 
     @classmethod
@@ -164,8 +182,12 @@ class Blocked(Model):
         user = User.get_by_name(username)
         blocked = User.get_by_name(blocked_name)
         b = cls(user_id=user.id, blocked_id=blocked.id)
-        cls.session.add(b)
-        cls.session.commit()
+        try:
+            db_session.add(b)
+            db_session.commit()
+        except (DataError, IntegrityError, ProgrammingError):
+            db_session.rollback()
+            raise
         return b
 
     @classmethod

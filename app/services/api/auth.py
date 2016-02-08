@@ -36,7 +36,7 @@ class LoginHandler(APIHandler):
         if username is None or password is None:
             raise exceptions.EmptyFields()
         else:
-            user = yield self.async_task(User.get_by_name, username)
+            user = yield gen.maybe_future(User.get_by_name(username))
             if user is None:
                 raise exceptions.UsernameDoesNotExists()
             if encrypt_password(password) != user.password:
@@ -72,18 +72,16 @@ class RegisterHandler(APIHandler):
         if username is None or password is None or email is None:
             raise exceptions.EmptyFields()
         else:
-            user = yield self.async_task(User.get_by_name, username)
+            user = yield gen.maybe_future(User.get_by_name(username))
             if user is not None:
                 raise exceptions.UsernameAlreadyExists()
-            user = yield self.async_task(User.get_by_email, email)
+            user = yield gen.maybe_future(User.get_by_email(email))
             if user is not None:
                 raise exceptions.EmailAlreadyExists()
             password = encrypt_password(password)
-            user = yield self.async_task(User.create,
-                                         username=username,
-                                         password=password,
-                                         email=email,
-                                         avatar=avatar)
+            user = yield gen.maybe_future(
+                User.create(username=username, password=password,
+                            email=email, avatar=avatar))
 
             # Update permission after xxx seconds.
             seconds = Level['time'][Roles.Comment]

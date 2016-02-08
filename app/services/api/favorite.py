@@ -17,7 +17,7 @@ class FavoritePostsAPIHandler(APIHandler):
     @gen.coroutine
     def get(self):
         username = self.current_user
-        fs = yield self.async_task(Favorite.list_by_user, username)
+        fs = yield gen.maybe_future(Favorite.list_by_user(username))
         result = {
             'total': len(fs),
             'posts': [f.to_dict() for f in fs],
@@ -32,11 +32,11 @@ class FavoritePostAPIHandler(APIHandler):
     @gen.coroutine
     def post(self, post_id):
         username = self.current_user
-        f = yield self.async_task(Favorite.get_by_user_post, username, post_id)
+        f = yield gen.maybe_future(Favorite.get_by_user_post(username, post_id))
         if f:
             raise exceptions.PostAlreadyFavorited()
         else:
-            yield self.async_task(Favorite.create, username, post_id)
+            yield gen.maybe_future(Favorite.create(username, post_id))
 
 
 class UnfavoritePostAPIHandler(APIHandler):
@@ -44,9 +44,9 @@ class UnfavoritePostAPIHandler(APIHandler):
     @as_json
     def delete(self, post_id):
         username = self.current_user
-        f = yield self.async_task(Favorite.get_by_user_post, username, post_id)
+        f = yield gen.maybe_future(Favorite.get_by_user_post(username, post_id))
         if f:
-            yield self.async_task(f.delete)
+            yield gen.maybe_future(f.delete())
         else:
             raise exceptions.PostHasNotBeenFavorited()
 

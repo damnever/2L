@@ -4,8 +4,10 @@ from __future__ import print_function, division, absolute_import
 
 from sqlalchemy import Column, Integer, String, event
 from sqlalchemy.sql import select, functions
+from sqlalchemy.exc import DataError, IntegrityError, ProgrammingError
 
 from app.models.base import Model
+from app.libs.db import db_session
 
 
 class Permission(Model):
@@ -25,8 +27,12 @@ class Permission(Model):
     @classmethod
     def create(cls, role):
         p = cls(role=role)
-        cls.session.add(p)
-        cls.session.commit()
+        try:
+            db_session.add(p)
+            db_session.commit()
+        except (DataError, IntegrityError, ProgrammingError):
+            db_session.rollback()
+            raise
         return p
 
 

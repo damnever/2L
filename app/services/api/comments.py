@@ -32,11 +32,11 @@ class PostCommentsAPIHandler(APIHandler):
     def get(self, post_id):
         page = int(self.get_argument('page', 1))
         per_page = int(self.get_argument('per_page', 20))
-        pagination = yield self.async_task(Comment.page_list_by_post,
-                                           post_id, page, per_page)
+        pagination = yield gen.maybe_future(
+            Comment.page_list_by_post(post_id, page, per_page))
         comments = list()
         for comment in pagination.items:
-            info = yield self.async_task(_comment_info, comment)
+            info = yield gen.maybe_future(_comment_info(comment))
             comments.append(info)
         result = {
             'page': page,
@@ -60,8 +60,8 @@ class PostCommentsAPIHandler(APIHandler):
             users, content = at_content(content)
             # TODO: Notify users: someone @you.
             username = self.current_user
-            comment = yield self.async_task(Comment.create, username,
-                                            post_id, content)
+            comment = yield gen.maybe_future(
+                Comment.create(username, post_id, content))
             raise gen.Return(comment.to_dict())
 
 
@@ -72,11 +72,11 @@ class UserCommentsAPIHandler(APIHandler):
     def get(self, username):
         page = int(self.get_argument('page', 1))
         per_page = int(self.get_argument('per_page', 20))
-        pagination = yield self.async_task(Comment.page_list_by_user,
-                                           username, page, per_page)
+        pagination = yield gen.maybe_future(
+            Comment.page_list_by_user(username, page, per_page))
         comments = list()
         for comment in pagination.items:
-            info = yield self.async_task(_comment_info, comment)
+            info = yield gen.maybe_future(_comment_info(comment))
             comments.append(info)
         result = {
             'page': page,

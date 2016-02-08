@@ -83,11 +83,12 @@
 	<div id="topic-info" class="col-md-3" style="background-color: #fff;padding:0 0 0 24px;">
 		<topic-component
 		 :id="id"
-		 :name="topic.name"
-		 :admin="topic.administer"
-		 :avatar="topic.avatar"
-		 :description="topic.description"
-		 :rules="topic.rules"
+		 :name="name"
+		 :admin="administer"
+		 :avatar="avatar"
+		 :description="description"
+		 :rules="rules"
+		 :is-subscribed.sync="isSubscribed"
 		 :b-post="bPost">
 		</topic-component>
 	</div>
@@ -133,12 +134,25 @@
 		el: '#topic-info',
 		data: {
 			bPost: true,
-			topic: {'name': '', 'administer': '', 'avatar': '', 'description': '', 'rules': ''},
+			id: 0,
+			name: '',
+			administer: '',
+			avatar: '',
+			description: '',
+			rules: '',
+			isSubscribed: false,
 		},
 	})
 	getJSON('/api/topics/' + topicID, undefined, function(response) {
 		if (response.status === 1) {
-			topicInfo.topic = response	
+			topicInfo.id = response.id
+			topicInfo.name = response.name
+			topicInfo.administer = response.administer
+			topicInfo.avatar = response.avatar
+			topicInfo.description = response.description
+			topicInfo.rules = response.rules
+			console.log(":: ", response.is_subscribed)
+			topicInfo.isSubscribed = response.is_subscribed
 		} else {
 			console.log('GET TOPIC #' + topicID + ' ERROR: ' + response.code, " ", response.reason)
 		}
@@ -170,6 +184,7 @@
 					var item = {
 						'id': response.id,
 						'author': response.author,
+						'avatar': response.avatar,
 						'content': response.content,
 						'date': response.date,
 					}

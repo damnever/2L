@@ -4,9 +4,11 @@ from __future__ import print_function, division, absolute_import
 
 from sqlalchemy import Column, Integer, String, Text, DateTime, Boolean
 from sqlalchemy.sql import functions, expression
+from sqlalchemy.exc import DataError, IntegrityError, ProgrammingError
 
 from app.models.base import Model
 from app.models.user import User
+from app.libs.db import db_session
 
 
 class Topic(Model):
@@ -34,8 +36,12 @@ class Topic(Model):
         user = User.get_by_name(created_name)
         t = Topic(name=name, admin_id=user.id, avatar=avatar,
                   description=description, rules=rules)
-        cls.session.add(t)
-        cls.session.commit()
+        try:
+            db_session.add(t)
+            db_session.commit()
+        except (DataError, IntegrityError, ProgrammingError):
+            cls.rollback()
+            raise
         return t
 
     def update(self, description=None, rules=None, avatar=None):
@@ -43,8 +49,12 @@ class Topic(Model):
             self.description = description
         if rules:
             self.rules = rules
-        self.session.add(self)
-        self.session.commit()
+        try:
+            db_session.add(self)
+            db_session.commit()
+        except (DataError, IntegrityError, ProgrammingError):
+            db_session.roolback()
+            raise
 
     def to_dict(self):
         return {
@@ -64,7 +74,7 @@ class Topic(Model):
 class Post(Model):
     topic_id = Column('topic_id', Integer(), index=True, nullable=False)
     author_id = Column('author_id', Integer(), index=True, nullable=False)
-    title = Column('title', String(120), unique=True, nullable=False)
+    title = Column('title', String(120), unique=True, index=True, nullable=False)
     created_date = Column('created_date', DateTime(timezone=True),
                           default=functions.now())
     update_date = Column('update_date', DateTime(timezone=True),
@@ -110,8 +120,12 @@ class Post(Model):
             keep_silent=keep_silent,
             is_draft=is_draft,
         )
-        cls.session.add(p)
-        cls.session.commit()
+        try:
+            db_session.add(p)
+            db_session.commit()
+        except (DataError, IntegrityError, ProgrammingError):
+            db_session.rollback()
+            raise
         return p
 
     def update(self, keywords=None, content=None,
@@ -124,8 +138,12 @@ class Post(Model):
             self.keep_silent = keep_silent
         if is_draft:
             self.is_draft = is_draft
-        self.session.add(self)
-        self.session.commit()
+        try:
+            db_session.add(self)
+            db_session.commit()
+        except (DataError, IntegrityError, ProgrammingError):
+            db_session.rollback()
+            raise
 
     def to_dict(self):
         return {
@@ -144,7 +162,7 @@ class Post(Model):
 
     def _new_comment(self, now):
         self.comment_date = now
-        self.session.add(self)
+        db_session.add(self)
 
     @property
     def author(self):
@@ -200,26 +218,37 @@ class Comment(Model):
         now = functions.now()
         Post.get(post_id)._new_comment(now)
         c = cls(author_id=user.id, post_id=post_id, content=content, date=now)
-        cls.session.add(c)
-        cls.session.commit()
+        try:
+            db_session.add(c)
+            db_session.commit()
+        except (DataError, IntegrityError, ProgrammingError):
+            db_session.rollback()
+            raise
         return c
 
     def update(self, content):
         self.content = content
-        self.session.add(self)
-        self.session.commit()
+        try:
+            db_session.add(self)
+            db_session.commit()
+        except (DataError, IntegrityError, ProgrammingError):
+            db_session.rollback()
+            raise
 
     def to_dict(self):
         return {
             'id': self.id,
             'author': self.author.username,
+            'avatar': self.author.profile.avatar,
             'date': self.date,
             'content': self.content,
         }
 
     @property
     def author(self):
-        return User.get(self.author_id)
+        if not hasattr(self, '_author'):
+            self._author = User.get(self.author_id)
+        return self._author
 
     @property
     def post(self):

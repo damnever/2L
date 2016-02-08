@@ -4,9 +4,11 @@ from __future__ import print_function, division, absolute_import
 
 from sqlalchemy import Column, Integer, DateTime, String, Boolean, Text
 from sqlalchemy.sql import functions, expression
+from sqlalchemy.exc import DataError, IntegrityError, ProgrammingError
 
 from app.models.base import Model
 from app.models.user import User
+from app.libs.db import db_session
 
 
 class Notification(Model):
@@ -39,14 +41,22 @@ class Notification(Model):
         recipient = User.get_by_name(recipient_name)
         n = cls(sender_id=sender.id, recipient_id=recipient.id,
                 activity_type=activity_type, content_url=content_url)
-        cls.session.add(n)
-        cls.session.commit()
+        try:
+            db_session.add(n)
+            db_session.commit()
+        except (DataError, IntegrityError, ProgrammingError):
+            db_session.rollback()
+            raise
         return n
 
     def mark_as_read(self):
         self.unread = False
-        self.session.add(self)
-        self.session.commit()
+        try:
+            db_session.add(self)
+            db_session.commit()
+        except (DataError, IntegrityError, ProgrammingError):
+            db_session.rollback()
+            raise
 
     def sender(self):
         return User.get(self.sender_id)
@@ -85,8 +95,12 @@ class Announcement(Model):
             content_url=content_url,
             expire=expire
         )
-        cls.session.add(a)
-        cls.session.commit()
+        try:
+            db_session.add(a)
+            db_session.commit()
+        except (DataError, IntegrityError, ProgrammingError):
+            db_session.rollback()
+            raise
         return a
 
     def sender(self):
@@ -125,13 +139,22 @@ class PrivateMessage(Model):
         recipient = User.get_by_name(recipient_name)
         pm = cls(sender_id=sender.id, recipient_id=recipient.id,
                  message=message)
-        cls.session.add(pm)
-        cls.session.commit()
+        try:
+            db_session.add(pm)
+            db_session.commit()
+        except (DataError, IntegrityError, ProgrammingError):
+            db_session.rollback()
+            raise
         return pm
 
     def mark_as_read(self):
         self.unread = False
-        self.session.add(self)
+        try:
+            db_session.add(self)
+            db_session.commit()
+        except (DataError, IntegrityError, ProgrammingError):
+            db_session.rollback()
+            raise
 
     def sender(self):
         return User.get(self.sender_id)

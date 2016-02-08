@@ -8,7 +8,7 @@ from app.base.handlers import APIHandler
 from app.base.decorators import as_json, authenticated, need_permissions
 from app.base.roles import Roles
 from app.services.api import exceptions
-from app.models import Topic
+from app.models import Topic, Subscription
 
 
 class TopicsAPIHandler(APIHandler):
@@ -17,10 +17,21 @@ class TopicsAPIHandler(APIHandler):
     @gen.coroutine
     def get(self, topic_id):
         if topic_id:
-            topic = yield self.async_task(Topic.get, topic_id)
-            raise gen.Return(topic.to_dict())
+            username = self.current_user
+            topic = yield gen.maybe_future(Topic.get(topic_id))
+
+            is_subed = False
+            if username is not None:
+                exists = yield gen.maybe_future(
+                    Subscription.get_by_user_topic(username, topic_id))
+                if exists:
+                    is_subed = True
+
+            info = topic.to_dict()
+            info.update({'is_subscribed': is_subed})
+            raise gen.Return(info)
         else:
-            topics = yield self.async_task(Topic.list_all)
+            topics = yield gen.maybe_future(Topic.list_all())
             result = {
                 'total': len(topics),
                 'topics': [topic.to_dict() for topic in topics],
@@ -42,13 +53,14 @@ class TopicAPIHandler(APIHandler):
         if name is None or description is None or rules is None:
             raise exceptions.EmptyFields()
         else:
-            exists = yield self.async_task(Topic.get_by_name, name)
+            exists = yield gen.maybe_future(Topic.get_by_name(name))
             if exists:
                 raise exceptions.TopicNameAlreadyExists()
             else:
                 created_user = self.current_user
-                yield self.async_task(Topic.create, name, created_user,
-                                      avatar, description, rules)
+                yield gen.maybe_future(
+                    Topic.create(name, created_user, avatar,
+                                 description, rules))
 
     @as_json
     @need_permissions(Roles.TopicEdit)
@@ -64,8 +76,8 @@ class TopicAPIHandler(APIHandler):
         if not fields:
             raise exceptions.EmptyFields()
         else:
-            topic = yield self.async_task(Topic.get, topic_id)
-            yield self.async_task(topic.update, **fields)
+            topic = yield gen.maybe_future(Topic.get(topic_id))
+            yield gen.maybe_future(topic.update(**fields))
 
 
 urls = [

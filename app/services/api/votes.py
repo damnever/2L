@@ -35,7 +35,7 @@ class BaseVoteAPIHandler(APIHandler):
     @as_json
     @gen.coroutine
     def get(self, id_):
-        votes = yield self.async_task(self._list_by_category, id_)
+        votes = yield gen.maybe_future(self._list_by_category(id_))
         sk = '{0}_votes'.format(self.vote_type.lower())
         result = {
             'total': len(votes),
@@ -48,15 +48,15 @@ class BaseVoteAPIHandler(APIHandler):
     @gen.coroutine
     def post(self, id_):
         username = self.current_user
-        v = yield self.async_task(self._get_by_user_category, username, id_)
+        v = yield gen.maybe_future(self._get_by_user_category(username, id_))
         if v:
             vote_type = self.vote_type.capitalize()
             exception = getattr(exceptions,
                                 'CanNotVote{0}Again'.format(vote_type))
             raise exception()
         else:
-            yield self.async_task(self.table.create, username, id_)
-            count = yield self.async_task(self._count_by_category, id_)
+            yield gen.maybe_future(self.table.create(username, id_))
+            count = yield gen.maybe_future(self._count_by_category(id_))
             raise gen.Return({'count': count})
 
     @as_json
@@ -64,10 +64,10 @@ class BaseVoteAPIHandler(APIHandler):
     @gen.coroutine
     def delete(self, id_):
         username = self.current_user
-        v = yield self.async_task(self._get_by_user_category, username, id_)
+        v = yield gen.maybe_future(self._get_by_user_category(username, id_))
         if v:
-            yield self.async_task(v.delete)
-            count = yield self.async_task(self._count_by_category, id_)
+            yield gen.maybe_future(v.delete())
+            count = yield gen.maybe_future(self._count_by_category(id_))
             raise gen.Return({'count': count})
         else:
             raise exceptions.NoVoteCanBeCancel()

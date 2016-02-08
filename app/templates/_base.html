@@ -22,7 +22,6 @@
     	Vue.config.debug = true
 	</script>
     <script type="text/javascript" src="{{ static_url("js/vue-strap.min.js") }}"></script>
-	<script type="text/javascript" src="{{ static_url("js/base.js") }}"></script>
 </head>
 <body>
 	{% block nav %}
@@ -175,6 +174,14 @@
             'alert': VueStrap.alert,
         }
     })
+
+    /***** clear border when the link clicked *****/
+    $(document).ready(function() {
+        $("a,button").bind("focus",function() {
+            if(this.blur) {this.blur()}
+        })
+    })
 </script>
+<script type="text/javascript" src="{{ static_url("js/base.js") }}"></script>
 {% block script %}{% end %}
 </html>

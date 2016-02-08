@@ -8,12 +8,9 @@ from sqlalchemy.ext.declarative import declared_attr
 from app.libs.db import Base, db_session
 
 
-class MixIn(object):
+class Model(Base):
 
-    __table_args__ = {
-        'mysql_engine': 'InnoDB',
-        'mysql_charset': 'utf8',
-    }
+    __abstract__ = True
 
     @declared_attr
     def __tablename__(cls):
@@ -36,12 +33,6 @@ class MixIn(object):
         return [cls.get(id_) for id_ in ids]
 
     def delete(self):
-        self.session.delete(self)
-        self.session.commit()
-
-
-class Model(MixIn, Base):
-
-    __abstract__ = True
-    session = db_session
-    query = session.query_property()
+        session = db_session.object_session(self)
+        session.delete(self)
+        session.commit()

@@ -50,7 +50,8 @@ def initdb():
         if admin['role'] == 'root':
             admin['role'] = bit_sum
         else:
-            admin['role'] = Permission.get_by_role(admin['role']).bit
+            admin['role'] = (Permission.get_by_role(admin['role']).bit +
+                             Permission.get_by_role('comment').bit)
         admin['password'] = encrypt_password(admin['password'])
         User.create(**admin)
 

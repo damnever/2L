@@ -110,10 +110,11 @@
 			    <tab header="主题" {% if current_user != title %}disabled{% end %}>
 			    	<topic-thumbnail-component
 			    	 v-for="topic in topics"
-			    	 :id="topic.id"
-			    	 :name="topic.name"
-			    	 :avatar="topic.avatar"
-			    	 :description="topic.description">
+			    	 :id="topic.topic.id"
+			    	 :name="topic.topic.name"
+			    	 :avatar="topic.topic.avatar"
+			    	 :description="topic.topic.description"
+			    	 :is-subscribed="true">
 			    	</topic-thumbnail-component>
 				    <span v-show="myTopicsCount <= 0">你还没有关注任何主题</span>
 				</tab>

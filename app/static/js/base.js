@@ -1,12 +1,5 @@
 console.log("2L by Damnever <dxc.wolf@gmail.com>")
 
-/***** clear border when the link clicked *****/
-$(document).ready(function() {
-	$("a,button").bind("focus",function() {
-	    if(this.blur) {this.blur()}
-	})
-})
-
 Vue.filter('toHTML', function(value) {
 	return marked(value)
 })
@@ -62,7 +55,10 @@ Vue.component('topicComponent', {
 				<div class="text">
 					<div class="title">
 						${ name }
-						<button type="button" class="btn btn-link btn-xs">订阅</button>
+						<button type="button" class="btn btn-link btn-xs" @click="subscribe">
+							<span v-if="isSubscribed">取消订阅</span>
+							<span v-else>订阅</sapn>
+						</button>
 					</div>
 					<a class="admin" href="/user/${ admin }">@${ admin }</a>
 				</div>
@@ -85,7 +81,13 @@ Vue.component('topicComponent', {
 		description: String,
 		rules: String,
 		bPost: Boolean,
+		isSubscribed: Boolean,
 	},
+	methods: {
+		subscribe: function() {
+			subUnsub(this)
+		},
+	}
 })
 
 Vue.component('topicThumbnailComponent', {
@@ -98,7 +100,10 @@ Vue.component('topicThumbnailComponent', {
 		    	<div class="topic-text">
 		    		<div class="header">
 			    		<a href="/topic/${ id }" target="_blank">${ name }</a>
-			    		<button type="button" class="btn btn-link btn-xs">订阅</button>
+			    		<button type="button" class="btn btn-link btn-xs" @click="unsubscribe">
+			    			<span v-if="isSubscribed">取消订阅</span>
+			    			<span v-else>订阅</span>
+			    		</button>
 			    	</div>
 			    	<div class="description">${ description }</div>
 		    	</div>
@@ -110,7 +115,13 @@ Vue.component('topicThumbnailComponent', {
 		name: String,
 		avatar: String,
 		description: String,
+		isSubscribed: Boolean,
 	},
+	methods: {
+		unsubscribe: function() {
+			subUnsub(this)
+		}
+	}
 })
 
 Vue.component('commentComponent', {
@@ -178,6 +189,30 @@ Vue.component('commentComponent', {
 	}
 })
 
+///////////////////////////////////////////////////////////////////////////////
+function subUnsub(obj) {
+	var token = getCookieByName("token")
+	if (obj.isSubscribed) {
+		var url = "/api/unsubscribe/topic/" + obj.id
+		DELETE(url, {"token": token}, function(response) {
+			if (response.status === 1) {
+				obj.isSubscribed = false
+			} else {
+				console.log("UNSUBSCRIBE TOPIC ", url, ", ERROR", response.code, response.reason)
+			}
+		})
+	} else {
+		var url = "/api/subscribe/topic/" + obj.id
+		postJSON(url, {"token": token}, function(response) {
+			if (response.status === 1) {
+				obj.isSubscribed = true
+			} else {
+				console.log("SUBSCRIBE TOPIC ", url, ", ERROR", response.code, response.reason)
+			}
+		})
+	}
+}
+
 
 ///////////////////////////////////////////////////////////////////////////////
 function getJSON(url, data, callback) {
@@ -211,6 +246,24 @@ function postJSON(url, data, callback) {
 		},
 		error: function(response) {
 			console.log("POST TO " , url, " GOT ERROR: ", response)
+		}
+	})
+}
+
+function DELETE(url, data, callback) {
+	data._xsrf = getXSRF()
+	$.ajax({
+		url: url,
+		data: $.param(data),
+		dataType: "json",
+		type: "DELETE",
+		success: function(response) {
+			if (callback) {
+				callback(response)
+			}
+		},
+		error: function(response) {
+			console.log("DELETE TO " , url, " GOT ERROR: ", response)
 		}
 	})
 }
