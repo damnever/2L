@@ -17,26 +17,29 @@ class TopicsAPIHandler(APIHandler):
     @gen.coroutine
     def get(self, topic_id):
         if topic_id:
-            username = self.current_user
             topic = yield gen.maybe_future(Topic.get(topic_id))
-
-            is_subed = False
-            if username is not None:
-                exists = yield gen.maybe_future(
-                    Subscription.get_by_user_topic(username, topic_id))
-                if exists:
-                    is_subed = True
-
-            info = topic.to_dict()
-            info.update({'is_subscribed': is_subed})
+            info = yield gen.maybe_future(self.topic_info(topic))
             raise gen.Return(info)
         else:
             topics = yield gen.maybe_future(Topic.list_all())
             result = {
                 'total': len(topics),
-                'topics': [topic.to_dict() for topic in topics],
+                'topics': [(yield gen.maybe_future(self.topic_info(topic)))
+                           for topic in topics],
             }
             raise gen.Return(result)
+
+    def topic_info(self, topic):
+        username = self.current_user
+        is_subed = False
+        if username is not None:
+            exists = Subscription.get_by_user_topic(username, topic.id)
+            if exists:
+                is_subed = True
+
+        info = topic.to_dict()
+        info.update({'is_subscribed': is_subed})
+        return info
 
 
 class TopicAPIHandler(APIHandler):

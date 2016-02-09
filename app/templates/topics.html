@@ -11,7 +11,8 @@
     	 :id="topic.id"
     	 :name="topic.name"
     	 :avatar="topic.avatar"
-    	 :description="topic.description">
+    	 :description="topic.description"
+    	 :is-subscribed="topic.is_subscribed">
     	</topic-thumbnail-component>
 	</ul>
 	<ul class="list-group col-md-4" id="rightTopics">
@@ -20,7 +21,8 @@
     	 :id="topic.id"
     	 :name="topic.name"
     	 :avatar="topic.avatar"
-    	 :description="topic.description">
+    	 :description="topic.description"
+    	 :is-subscribed="topic.is_subscribed">
     	</topic-thumbnail-component>
 	</ul>
 </div>
@@ -41,8 +43,9 @@
 			if (response.total === 0) {
 				return
 			}
-			topics.rightTopics = response.topics.slice(response.total/2)
-			topics.leftTopics = response.topics.slice(0, response.total/2)
+			var mid = Math.round(response.total/2)
+			topics.rightTopics = response.topics.slice(mid)
+			topics.leftTopics = response.topics.slice(0, mid)
 		} else {
 			console.log("GET ALL TOPICS ERROR: ", response.code.toString() + response.reason)
 		}
