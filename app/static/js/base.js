@@ -22,10 +22,10 @@ Vue.component('postComponent', {
 				<div class="post-other-info">
 					<a v-if="tag" class="label label-default" href="/topic/${ topicId }" style="margin-right: 10px;">${ topicName }</a>
 					<a class="post-author" href="/user/${ authorName }">${ authorName }</a>
-					<span class="post-date" style="margin-right: 10px;">发布于 ${ postDate }前</span>
-					<span v-if="lastCommentName">
+					<span class="post-date" style="margin-right: 10px;">发布于 ${ postDate }</span>
+					<span v-if="commentCount > 0">
 						<a class="post-user" href="/user/${ lastCommentName }">${ lastCommentName }</a>
-						<span class="comment-date">回复于 ${ lastCommentDate }前</span>
+						<span class="comment-date">回复于 ${ lastCommentDate }</span>
 					</span>
 					<span class="comment-date" v-else>还没有人回复</span>
 				</div>

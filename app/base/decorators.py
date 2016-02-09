@@ -82,8 +82,12 @@ def need_permissions(*permissions):
             for permission in permissions:
                 if id_ and permission == Roles.TopicEdit:
                     permission = permission.format(id_)
-                if not user.has_permission(permission):
+
+                has_permission = yield gen.maybe_future(
+                    user.has_permission(permission))
+                if not has_permission:
                     raise HTTPError(403)
+
             raise gen.Return(method(self, id_))
 
         return wrapper

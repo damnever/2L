@@ -76,7 +76,7 @@ label {
 }
 
 .post {
-	height: 72px;
+	min-height: 72px;
 }
 
 .post-avatar {
@@ -96,7 +96,6 @@ label {
 }
 
 .post-other-info {
-	position: absolute;
     bottom: 10px;
 }
 

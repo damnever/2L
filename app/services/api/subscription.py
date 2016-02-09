@@ -20,7 +20,7 @@ class SubscribedTopicAPIHandler(APIHandler):
         subs = yield gen.maybe_future(Subscription.list_by_user(username))
         result = {
             'total': len(subs),
-            'topics': [s.to_dict() for s in subs],
+            'topics': [(yield gen.maybe_future(s.to_dict())) for s in subs],
         }
         raise gen.Return(result)
 

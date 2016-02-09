@@ -50,8 +50,14 @@
 				</div>
 				<div class="right">
 					{% if current_user != title %}
-						<button class="btn btn-default btn-xs" @click="followOne">关注</button>
-						<button class="btn btn-default btn-xs" @click="blockOne">拉黑</button>
+						<button class="btn btn-default btn-xs" @click="followOne">
+							<span v-if="followed">取消关注</span>
+							<span v-else>关注</span>
+						</button>
+						<button class="btn btn-default btn-xs" @click="blockOne">
+							<span v-if="blocked">取消拉黑</span>
+							<span v-else>拉黑</span>
+						</button>
 					{% else %}
 						<a href="/edit/profile" class="btn btn-default btn-xs">编辑</a>
 					{% end %}
@@ -191,6 +197,8 @@
 		blockedURL = "/api/user/blocked"
 	}
 
+	var token = getCookieByName('token')
+
 	Vue.component('userComponent', {
 		template: (function () {/*
 			<li id="user-thumbnail" class="list-group-item">
@@ -200,7 +208,7 @@
 	    		<div class="info">
 	    			<div class="header">
 		    			<a href="/user/${ username }">${ username }</a>
-		    			<button type="button" class="btn btn-link btn-xs">${ buttonText }</button>
+		    			<button type="button" class="btn btn-link btn-xs">取消</button>
 		    		</div>
 	    			<div class="intro">${ introduce }</div>
 	    		</div>
@@ -231,6 +239,9 @@
 			weibo: '',
 			twitter: '',
 			////////////////
+			followed: false,
+			blocked: false,
+			////////////////
 			tag: true,
 			posts: [],
 			comments: [],
@@ -249,10 +260,44 @@
 		},
 		methods: {
 			followOne: function() {
-
+				var that = this
+				if (that.followed) {
+					DELETE("/api/user/unfollow/" + otherName, {'token': token}, function(response) {
+						if (response.status == 1) {
+							that.followed = false
+						} else {
+							console.log("UNFOLLOW ", otherName, "ERROR:", response.code, response.reason)
+						}
+					})
+				} else {
+					postJSON("/api/user/follow/" + otherName, {'token': token}, function(response) {
+						if (response.status == 1) {
+							that.followed = true
+						} else {
+							console.log("FOLLOW ", otherName, "ERROR:", response.code, response.reason)
+						}
+					})
+				}
 			},
 			blockOne: function() {
-
+				var that = this
+				if (that.blocked) {
+					DELETE("/api/user/unblock/" + otherName, {'token': token}, function(response) {
+						if (response.status == 1) {
+							that.blocked = false
+						} else {
+							console.log("UNBLOCK ", otherName, "ERROR:", response.code, response.reason)
+						}
+					})
+				} else {
+					postJSON("/api/user/block/" + otherName, {'token': token}, function(response) {
+						if (response.status == 1) {
+							that.blocked = true
+						} else {
+							console.log("BLOCK ", otherName, "ERROR:", response.code, response.reason)
+						}
+					})
+				}
 			}
 		},
 	    components: {
@@ -288,6 +333,8 @@
 			userProfile.google = (response.google ? response.blog : window.location.href)
 			userProfile.weibo = (response.weibo ? response.blog : window.location.href)
 			userProfile.twitter = (response.twitter ? response.blog : window.location.href)
+			userProfile.followed = response.followed
+			userProfile.blocked = response.blocked
 		} else {
 			console.log("GET FROM", profileURL, "ERROR:", response.code, response.reason)
 		}

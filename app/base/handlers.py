@@ -26,6 +26,8 @@ class AsyncTaskMixIn(object):
 
     The ``IOLoop`` and executor to be used are determined by the
     ``io_loop`` and ``executor`` attributes of ``self``.
+
+    TODO: MAKE IT WORK WITH SCOPED SQLALCHEMY SESSION!!!
     """
     executor = ThreadPoolExecutor(max_workers=ThreadPoolMaxWorkers)
 

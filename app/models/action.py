@@ -53,13 +53,9 @@ class Subscription(Model):
     def to_dict(self):
         return {
             'id': self.id,
-            'topic': self.topic.to_dict(),
+            'topic': Topic.get(self.topic_id).to_dict(),
             'date': self.date,
         }
-
-    @property
-    def topic(self):
-        return Topic.get(self.topic_id)
 
 
 class Favorite(Model):

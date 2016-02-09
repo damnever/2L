@@ -20,7 +20,18 @@ class UsersAPIHandler(APIHandler):
         if user is None:
             raise exceptions.UsernameDoesNotExists()
         else:
-            raise gen.Return(user.information())
+            info = user.information()
+            followed, blocked = False, False
+
+            if self.current_user != username:
+                me = yield gen.maybe_future(User.get_by_name(self.current_user))
+                followed = yield gen.maybe_future(
+                    Following.followed(me.id, user.id))
+                blocked = yield gen.maybe_future(
+                    Blocked.blocked(me.id, user.id))
+
+            info.update({'followed': followed, 'blocked': blocked})
+            raise gen.Return(info)
 
 
 class UserAPIHandler(APIHandler):
@@ -71,10 +82,11 @@ class FollowingAPIHandler(APIHandler):
     @gen.coroutine
     def get(self):
         username = self.current_user
-        ids = yield gen.maybe_future(Following.list_following(username))
+        users = yield gen.maybe_future(Following.list_following(username))
         followings = list()
-        if ids:
-            users = yield gen.maybe_future(User.get_multi(sorted(ids)))
+        if users:
+            ids = [user.following_id for user in users]
+            users = yield gen.maybe_future(User.get_multi(*ids))
             followings = [user.information() for user in users]
         raise gen.Return({
             'followings': followings,
@@ -110,10 +122,11 @@ class BlockedAPIHandler(APIHandler):
     @gen.coroutine
     def get(self):
         username = self.current_user
-        ids = yield gen.maybe_future(Blocked.list_blocked(username))
+        users = yield gen.maybe_future(Blocked.list_blocked(username))
         blockeds = list()
-        if ids:
-            users = yield gen.maybe_future(User.get_multi(sorted(ids)))
+        if users:
+            ids = [user.blocked_id for user in users]
+            users = yield gen.maybe_future(User.get_multi(*ids))
             blockeds = [user.information() for user in users]
         raise gen.Return({
             'blockeds': blockeds,
@@ -138,7 +151,7 @@ class UnblockOneAPIHandler(APIHandler):
     @gen.coroutine
     def delete(self, username):
         me = self.current_user
-        r = yield gen.maybe_future(Blocked.get_by_user_following(me, username))
+        r = yield gen.maybe_future(Blocked.get_by_user_blocked(me, username))
         yield gen.maybe_future(r.delete())
 
 

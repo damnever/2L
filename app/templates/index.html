@@ -15,8 +15,8 @@
 			 :topic-name="item.topic_name"
 			 :author-avatar="item.author_avatar"
 			 :author-name="item.author_name"
-			 :last-comment-name="item.last_comment_user"
-			 :last-comment-date="item.last_comment_date"
+			 :last-comment-name="item.latest_comment_user"
+			 :last-comment-date="item.latest_comment_date"
 			 :comment-count="item.comment_count">
 		</post-component>
 		<ul v-if="pages > 0" class="pagination pagination-sm">
@@ -123,9 +123,14 @@
 	getJSON('/api/subscribed/topics', {'token': getCookieByName('token')}, function(response) {
 		var next = false
 		if (response.status == 1 && response.total != 0) {
-			var mid = response.total / 2
-			tList.leftItems = response.topics.slice(0, mid)
-			tList.rightItems = response.topics.slice(mid)
+			var mid = Math.round(response.total / 2)
+			for (var i = 0; i < response.total; i++) {
+				if (i < mid) {
+					tList.leftItems.push(response.topics[i].topic)
+				} else {
+					tList.rightItems.push(response.topics[i].topic)
+				}
+			}
 		} else {
 			next = true
 			console.log("GET SUBSCRIBED TOPICS ERROR: ", response.code, " ", response.reason)
@@ -134,7 +139,7 @@
 			getJSON('/api/topics', undefined, function(response) {
 				tList.title = '推荐的主题'
 				if (response.status == 1 && response.total != 0) {
-					var mid = response.total / 2
+					var mid = Math.round(response.total / 2)
 					tList.leftItems = response.topics.slice(0, mid)
 					tList.rightItems = response.topics.slice(mid)
 				} else {

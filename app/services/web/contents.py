@@ -70,7 +70,7 @@ class TopicEditHandler(BaseHandler):
     def get(self, topic_id):
         topic = yield self.async_task(Topic.get, topic_id)
         admin = yield self.async_task(User.get, topic.admin_id)
-        self.render('newpost.html',
+        self.render('new_post.html',
                     title=topic.name,
                     keywords=topic.name + ', 2L',
                     description=topic.description,

@@ -2,10 +2,13 @@
 
 from __future__ import print_function, division, absolute_import
 
-from sqlalchemy import Column, Integer, String, Text, ForeignKey, DateTime
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import functions, expression
 from sqlalchemy.exc import DataError, IntegrityError, ProgrammingError
+from sqlalchemy import (
+    Column, Integer, String, Text, DateTime,
+    ForeignKey, UniqueConstraint,
+)
 
 from app.models.base import Model
 from app.models.permission import Permission
@@ -126,8 +129,19 @@ class Profile(Model):
 
 
 class Following(Model):
+
+    __table_args__ = (
+        UniqueConstraint('user_id', 'following_id', name='f_usr_flw'),
+    )
+
     user_id = Column('user_id', Integer(), index=True, nullable=False)
     following_id = Column('following_id', Integer(), index=True, nullable=False)
+
+    @classmethod
+    def followed(cls, user_id, following_id):
+        r = cls.query.filter(expression.and_(
+            cls.user_id==user_id, cls.following_id==following_id))
+        return True if r.first() else False
 
     @classmethod
     def count_by_user(cls, username):
@@ -163,8 +177,19 @@ class Following(Model):
 
 
 class Blocked(Model):
+
+    __table_args__ = (
+        UniqueConstraint('user_id', 'blocked_id', name='b_usr_blk'),
+    )
+
     user_id = Column('user_id', Integer(), index=True, nullable=False)
     blocked_id = Column('blocked_id', Integer(), index=True, nullable=False)
+
+    @classmethod
+    def blocked(cls, user_id, blocked_id):
+        r = cls.query.filter(expression.and_(
+            cls.user_id==user_id, cls.blocked_id==blocked_id))
+        return True if r.first() else False
 
     @classmethod
     def count_by_user(cls, username):
