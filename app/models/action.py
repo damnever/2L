@@ -112,6 +112,93 @@ class Favorite(Model):
         return Post.get(self.post_id)
 
 
+class TopicUpVote(Model):
+
+    __table_args__ = (
+        UniqueConstraint('user_id', 'topic_id', name='up_usr_tpc'),
+    )
+
+    topic_id = Column('topic_id', Integer(), index=True, nullable=False)
+    user_id = Column('user_id', Integer(), index=True, nullable=False)
+    date = Column('date', DateTime(timezone=True), default=functions.now())
+
+    @classmethod
+    def count_by_topic(cls, topic_id):
+        return cls.query.filter(cls.topic_id==topic_id).count()
+
+    @classmethod
+    def list_by_topic(cls, topic_id):
+        return cls.query.filter(cls.topic_id==topic_id).all()
+
+    @classmethod
+    def get_by_user_topic(cls, username, topic_id):
+        user = User.get_by_name(username)
+        r = cls.query.filter(expression.and_(cls.topic_id==topic_id,
+                                             cls.user_id==user.id))
+        return r.first()
+
+    @classmethod
+    def create(cls, username, topic_id):
+        user = User.get_by_name(username)
+        tu = cls(user_id=user.id, topic_id=topic_id)
+        try:
+            db_session.add(tu)
+            db_session.commit()
+        except (DataError, IntegrityError, ProgrammingError):
+            db_session.rollback()
+            raise
+        return tu
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'user': self.user.username,
+            'date': self.date,
+        }
+
+    @property
+    def user(self):
+        return User.get(self.user_id)
+
+
+class TopicDownVote(Model):
+
+    __table_args__ = (
+        UniqueConstraint('user_id', 'topic_id', name='dn_usr_tpc'),
+    )
+
+    topic_id = Column('topic_id', Integer(), index=True, nullable=False)
+    user_id = Column('user_id', Integer(), index=True, nullable=False)
+    date = Column('date', DateTime(timezone=True), default=functions.now())
+
+    @classmethod
+    def count_by_topic(cls, topic_id):
+        return cls.query.filter(cls.topic_id==topic_id).count()
+
+    @classmethod
+    def list_by_topic(cls, topic_id):
+        return cls.query.filter(cls.topic_id==topic_id).all()
+
+    @classmethod
+    def get_by_user_topic(cls, username, topic_id):
+        user = User.get_by_name(username)
+        r = cls.query.filter(expression.and_(cls.topic_id==topic_id,
+                                             cls.user_id==user.id))
+        return r.first()
+
+    @classmethod
+    def create(cls, username, topic_id):
+        user = User.get_by_name(username)
+        td = cls(user_id=user.id, topic_id=topic_id)
+        try:
+            db_session.add(td)
+            db_session.commit()
+        except (DataError, IntegrityError, ProgrammingError):
+            db_session.rollback()
+            raise
+        return td
+
+
 class PostUpVote(Model):
 
     __table_args__ = (

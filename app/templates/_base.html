@@ -36,6 +36,7 @@
 				<li class="for-nav" :class="{'active': newest}"><a href="/">最新</a></li>
 				<li class="for-nav" :class="{'active': hot}"><a href="/hot">最热</a></li>
 				<li class="for-nav" :class="{'active': topics}"><a href="/topics">主题</a></li>
+                <li class="for-nav" :class="{'active': proposal}"><a href="/proposal">我要</a></li>
 			</ul>
 			<ul class="nav navbar-nav navbar-right" id="auth-area">
 				{% if current_user %}
@@ -139,7 +140,13 @@
     				return true
     			}
     			return false
-    		}
+    		},
+            proposal: function() {
+                if (this.url === '/proposal') {
+                    return true
+                }
+                return false
+            }
     	}
     })
 

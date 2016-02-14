@@ -17,7 +17,8 @@
 		margin-right: 3px;
 	}
 	.post-up-votes:hover,
-	.post-down-votes:hover {
+	.post-down-votes:hover,
+	.post-voted {
 		color: #000000;
 		text-decoration: none;
 	}
@@ -49,8 +50,8 @@
 			<div class="info-left">
 				<a class="post-title" href="/post/{{ post_id }}">{{ title }}</a>
 				<div style="margin-top:5px;">
-					<a class="post-up-votes" href="javascript:;" @click="upVote"><span class="glyphicon glyphicon-thumbs-up" aria-hidden="true"></span> <span class="up-votes">{{ up_votes }}</span></a>
-					<a class="post-down-votes" href="javascript:;" @click="downVote"><span class="glyphicon glyphicon-thumbs-down" aria-hidden="true"></span> <span class="down-votes">{{ down_votes }}</span></a>
+					<a class="post-up-votes" :class="{'post-voted': postUpVoted}" href="javascript:;" @click="upVote"><span class="glyphicon glyphicon-thumbs-up" aria-hidden="true"></span> <span class="up-votes">{{ up_votes }}</span></a>
+					<a class="post-down-votes" :class="{'post-voted': postDownVoted}" href="javascript:;" @click="downVote"><span class="glyphicon glyphicon-thumbs-down" aria-hidden="true"></span> <span class="down-votes">{{ down_votes }}</span></a>
 					<a class="post-author" href="/user/{{ author }}">{{ author }}</a>
 					<span class="post-date">发布于 {{ date }}</span>
 				</div>

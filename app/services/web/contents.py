@@ -24,8 +24,8 @@ class TopicHandler(BaseHandler):
 
     @gen.coroutine
     def get(self, topic_id):
-        topic = yield self.async_task(Topic.get, topic_id)
-        admin = yield self.async_task(User.get, topic.admin_id)
+        topic = yield gen.maybe_future(Topic.get(topic_id))
+        admin = yield gen.maybe_future(User.get(topic.admin_id))
         self.render(
             'topic.html',
             title=topic.name,
@@ -38,16 +38,25 @@ class TopicHandler(BaseHandler):
         )
 
 
+class NewTopicHandler(BaseHandler):
+
+    def get(self):
+        self.render('new_topic.html',
+                    title='新建主题',
+                    keywords='新建主题',
+                    description='新建主题')
+
+
 class PostHandler(BaseHandler):
 
     @gen.coroutine
     def get(self, post_id):
-        post = yield self.async_task(Post.get, post_id)
+        post = yield gen.maybe_future(Post.get(post_id))
         if not post:
             raise HTTPError(404)
-        author = yield self.async_task(User.get, post.author_id)
-        up_votes = yield self.async_task(PostUpVote.count_by_post, post_id)
-        down_votes = yield self.async_task(PostDownVote.count_by_post, post_id)
+        author = yield gen.maybe_future(User.get(post.author_id))
+        up_votes = yield gen.maybe_future(PostUpVote.count_by_post(post_id))
+        down_votes = yield gen.maybe_future(PostDownVote.count_by_post(post_id))
         self.render(
             'post.html',
             title=post.title,
@@ -64,12 +73,12 @@ class PostHandler(BaseHandler):
         )
 
 
-class TopicEditHandler(BaseHandler):
+class NewPostHandler(BaseHandler):
 
     @gen.coroutine
     def get(self, topic_id):
-        topic = yield self.async_task(Topic.get, topic_id)
-        admin = yield self.async_task(User.get, topic.admin_id)
+        topic = yield gen.maybe_future(Topic.get(topic_id))
+        admin = yield gen.maybe_future(User.get(topic.admin_id))
         self.render('new_post.html',
                     title=topic.name,
                     keywords=topic.name + ', 2L',
@@ -93,6 +102,7 @@ urls = [
     (r'/topics', TopicsHandler),
     (r'/topic/(\d+)', TopicHandler),
     (r'/post/(\d+)', PostHandler),
-    (r'/topic/(\d+)/new/post', TopicEditHandler),
+    (r'/topic/new', NewTopicHandler),
+    (r'/topic/(\d+)/new/post', NewPostHandler),
     (r'/notifications/(\w+)', NotificationsHandler),
 ]

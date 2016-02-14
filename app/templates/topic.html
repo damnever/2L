@@ -43,7 +43,9 @@
 			avatar: '{{ avatar }}',
 			admin: '{{ admin }}',
 			description: '{{ description }}',
-			rules: '{{ rules }}',
+			rules: (function () {/*
+{{ rules }}
+*/}).toString().split('\n').slice(1,-1).join('\n'),
 			bPost: true,
 		}
 	})

@@ -14,9 +14,14 @@ from app.libs.db import db_session
 class Topic(Model):
     name = Column('name', String(30), unique=True, nullable=False)
     admin_id = Column('admin_id', Integer(), default=1)
-    avatar = Column('avatar', String(100), nullable=False)
+    avatar = Column('avatar', Text(), nullable=False)
     description = Column('description', String(420), nullable=False)
     rules = Column('rules', Text(), nullable=False)
+    why = Column('why', Text(), nullable=False)
+    # 0 vote, 1 accept, -1 reject.
+    state = Column('state', Integer(), default=0)
+    date = Column('update_date', DateTime(timezone=True),
+                  default=functions.now(), onupdate=functions.now())
 
     @classmethod
     def list_all(cls):
@@ -253,3 +258,84 @@ class Comment(Model):
     @property
     def post(self):
         return Post.get(self.post_id)
+
+
+class TopicComment(Model):
+    topic_id = Column('topic_id', Integer(), index=True, nullable=False)
+    author_id = Column('author_id', Integer(), index=True, nullable=False)
+    date = Column('date', DateTime(timezone=True), default=functions.now())
+    content = Column('content', Text(), nullable=False)
+
+    @classmethod
+    def latest_by_topic(cls, topic_id):
+        cs = cls.query.filter(cls.topic_id==topic_id).order_by(
+            expression.desc(cls.date)).limit(1)
+        return cs.first()
+
+    @classmethod
+    def page_list(cls, page, per_page):
+        p = cls.query.order_by(expression.asc(cls.date))
+        return p.paginate(page, per_page)
+
+    @classmethod
+    def count_by_user(cls, username):
+        user = User.get_by_name(username)
+        return cls.query.filter(cls.author_id==user.id).count()
+
+    @classmethod
+    def count_by_topic(cls, topic_id):
+        return cls.query.filter(cls.topic_id==topic_id).count()
+
+    @classmethod
+    def page_list_by_user(cls, username, page, per_page):
+        user = User.get_by_name(username)
+        p = cls.query.order_by(
+            expression.asc(cls.date)).filter(cls.author_id==user.id)
+        return p.paginate(page, per_page)
+
+    @classmethod
+    def page_list_by_topic(cls, topic_id, page, per_page):
+        p = cls.query.order_by(
+            expression.asc(cls.date)).filter(cls.topic_id==topic_id)
+        return p.paginate(page, per_page)
+
+    @classmethod
+    def create(cls, author_name, topic_id, content):
+        user = User.get_by_name(author_name)
+        now = functions.now()
+        Topic.get(topic_id)._new_comment(now)
+        c = cls(author_id=user.id, topic_id=topic_id, content=content, date=now)
+        try:
+            db_session.add(c)
+            db_session.commit()
+        except (DataError, IntegrityError, ProgrammingError):
+            db_session.rollback()
+            raise
+        return c
+
+    def update(self, content):
+        self.content = content
+        try:
+            db_session.add(self)
+            db_session.commit()
+        except (DataError, IntegrityError, ProgrammingError):
+            db_session.rollback()
+            raise
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'author': self.author.username,
+            'avatar': self.author.profile.avatar,
+            'date': self.date,
+            'content': self.content,
+        }
+
+    @property
+    def author(self):
+        if not hasattr(self, '_author'):
+            self._author = User.get(self.author_id)
+        return self._author
+
+    def topic(self):
+        return Topic.get(self.topic_id)
