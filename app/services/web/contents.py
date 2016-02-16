@@ -6,18 +6,10 @@ from tornado import gen
 
 from app.base.exceptions import HTTPError
 from app.base.handlers import BaseHandler
-from app.models import Topic, Post, User, PostUpVote, PostDownVote
-
-
-class TopicsHandler(BaseHandler):
-
-    def get(self):
-        self.render(
-            'topics.html',
-            title='主题',
-            keywords='所有主题, topics',
-            description='2L 所有主题',
-        )
+from app.models import (
+    Topic, Post, User,
+    PostUpVote, PostDownVote, TopicUpVote, TopicDownVote,
+)
 
 
 class TopicHandler(BaseHandler):
@@ -25,6 +17,8 @@ class TopicHandler(BaseHandler):
     @gen.coroutine
     def get(self, topic_id):
         topic = yield gen.maybe_future(Topic.get(topic_id))
+        if not topic:
+            raise HTTPError(404)
         admin = yield gen.maybe_future(User.get(topic.admin_id))
         self.render(
             'topic.html',
@@ -43,8 +37,47 @@ class NewTopicHandler(BaseHandler):
     def get(self):
         self.render('new_topic.html',
                     title='新建主题',
-                    keywords='新建主题',
-                    description='新建主题')
+                    keywords='新建主题, 2L',
+                    description='新建主题, 2L')
+
+
+class ProposalHandler(BaseHandler):
+
+    @gen.coroutine
+    def get(self, topic_id):
+        topic = yield gen.maybe_future(Topic.get(topic_id))
+        if not topic:
+            raise HTTPError(404)
+        user = yield gen.maybe_future(User.get(topic.admin_id))
+        up_votes = yield gen.maybe_future(TopicUpVote.count_by_topic(topic_id))
+        down_votes = yield gen.maybe_future(
+            TopicDownVote.count_by_topic(topic_id))
+
+        up_voted, down_voted = False, False
+        username = self.current_user
+        if username is not None:
+            up_voted = bool((yield gen.maybe_future(
+                TopicUpVote.get_by_user_topic(username, topic_id))))
+            down_voted = bool((yield gen.maybe_future(
+                TopicDownVote.get_by_user_topic(username, topic_id))))
+        self.render(
+            'proposal.html',
+            title=topic.name,
+            keywords=topic.name + ', 2L',
+            description=topic.description,
+            id=topic.id,
+            avatar=topic.avatar,
+            rules=topic.rules,
+            why=topic.why,
+            state=topic.state,
+            date=topic.date,
+            user=user.username,
+            #  user_avatar=user.profile.avatar,
+            up_votes=up_votes,
+            down_votes=down_votes,
+            up_voted=int(up_voted),
+            down_voted=int(down_voted),
+        )
 
 
 class PostHandler(BaseHandler):
@@ -78,6 +111,8 @@ class NewPostHandler(BaseHandler):
     @gen.coroutine
     def get(self, topic_id):
         topic = yield gen.maybe_future(Topic.get(topic_id))
+        if not topic:
+            raise HTTPError(404)
         admin = yield gen.maybe_future(User.get(topic.admin_id))
         self.render('new_post.html',
                     title=topic.name,
@@ -99,10 +134,10 @@ class NotificationsHandler(BaseHandler):
 
 
 urls = [
-    (r'/topics', TopicsHandler),
     (r'/topic/(\d+)', TopicHandler),
     (r'/post/(\d+)', PostHandler),
     (r'/topic/new', NewTopicHandler),
+    (r'/proposal/(\d+)', ProposalHandler),
     (r'/topic/(\d+)/new/post', NewPostHandler),
     (r'/notifications/(\w+)', NotificationsHandler),
 ]

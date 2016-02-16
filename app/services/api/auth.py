@@ -52,7 +52,7 @@ class LogoutHandler(APIHandler):
     @gen.coroutine
     def post(self):
         username = self.current_user
-        token = self.get_cookie('token')
+        token = self.get_secure_cookie('token')
 
         if username == self.session.get(token):
             self.clear_cookie('token')

@@ -17,7 +17,7 @@ from tornado.log import app_log
 from app.base.exceptions import HTTPError
 from app.base.decorators import as_json
 from app.cache import session
-from app.settings import ThreadPoolMaxWorkers, DefaultAvatarURL
+from app.settings import ThreadPoolMaxWorkers, DefaultAvatar
 from app.libs.db import db_session
 
 
@@ -47,8 +47,8 @@ class BaseHandler(AsyncTaskMixIn, RequestHandler):
         return session
 
     @property
-    def default_avatar_url(self):
-        return DefaultAvatarURL
+    def default_avatar(self):
+        return DefaultAvatar
 
     def prepare(self):
         pass

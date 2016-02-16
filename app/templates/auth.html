@@ -58,11 +58,17 @@
 	var passwordRe = /^[a-zA-Z0-9,_]{6,20}$/
 	var emailRe = /^([a-zA-Z0-9]+[_|\_|\.]?)*[a-zA-Z0-9]+@([a-zA-Z0-9]+[_|\_|\.]?)*[a-zA-Z0-9]+\.[a-zA-Z]{2,3}$/
 	var template = (function () {/*
-		<li id="register" class="for-nav">
+		<li id="user-msg" class="for-nav">
 			<a href="/notifications/{0}">消息 <span class="badge"></span></a>
 		</li>
-		<li id="register" class="for-nav">
-			<a href="/user/{0}">{0}</a>
+		<li id="user-info" class="for-nav">
+    		<dropdown>
+				<a class="username" href="javascript:;" data-toggle="dropdown">{0} <span class="caret"></span></a>
+        		<ul name="dropdown-menu" class="dropdown-menu">
+            		<li><a href="/user/{0}">个人信息</a></li>
+            		<li><a href="javascript:;" @click="logout">退出</a></li>
+        		</ul>
+    		</dropdown>
 		</li>
 	*/}).toString().split('\n').slice(1,-1).join('')
 

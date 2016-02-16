@@ -73,22 +73,22 @@ def need_permissions(*permissions):
 
         @functools.wraps(method)
         @gen.coroutine
-        def wrapper(self, id_):
+        def wrapper(self, *args, **kwargs):
             username = self.current_user
             if not username:
                 raise HTTPError(403)
 
             user = yield gen.maybe_future(User.get_by_name(username))
             for permission in permissions:
-                if id_ and permission == Roles.TopicEdit:
-                    permission = permission.format(id_)
+                if args and args[0] and permission == Roles.TopicEdit:
+                    permission = permission.format(args[0])
 
                 has_permission = yield gen.maybe_future(
                     user.has_permission(permission))
                 if not has_permission:
                     raise HTTPError(403)
 
-            raise gen.Return(method(self, id_))
+            raise gen.Return(method(self, *args, **kwargs))
 
         return wrapper
     return decorator

@@ -8,6 +8,13 @@ Vue.filter('toStr', function(value) {
 	return value ? value : ""
 })
 
+Vue.filter('limitStr', function(value) {
+	if (value.length > 28) {
+		return value.slice(0, 25) + '...'
+	}
+	return value
+})
+
 
 ///////////////////////////////////////////////////////////////////////////////
 Vue.component('postComponent', {
@@ -15,7 +22,7 @@ Vue.component('postComponent', {
 		<li class="list-group-item post">
 		  	<a class="badge post-comments" href="/post/${ postId }#${ commentCount }">${ commentCount }</a>
 		  	<div class="post-avatar">
-		  		<img src="${ authorAvatar }" class="thumbnail" alt="${ authorName }" width="50" height="50">
+		  		<img src="${ 'data:image/*;base64,' + authorAvatar }" class="thumbnail" alt="${ authorName }" width="50" height="50">
 		  	</div>
 		  	<div class="post-info">
 				<a class="post-title" href="/post/${ postId }#${ commentCount }">${ postTitle }</a>
@@ -51,7 +58,7 @@ Vue.component('topicComponent', {
 	template: (function () {/*
 		<div class="topic">
 			<div class="header">
-				<img src="${ avatar }" class="thumbnail" alt="${ title }" width="60" height="60">
+				<img src="${ 'data:image/*;base64,' + avatar }" class="thumbnail" alt="${ title }" width="60" height="60">
 				<div class="text">
 					<div class="title">
 						${ name }
@@ -66,7 +73,7 @@ Vue.component('topicComponent', {
 			<div class="clearfix"></div>
 			<div class="description">${ description }</div>
 			<div class="rules">
-				<div class="rule" v-for="rule in rules.split('|')">
+				<div class="rule" v-for="rule in rules.split('\n')">
 					<span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span> ${ rule | toStr }
 				</div>
 				<a href="/topic/${ id }/new/post" v-show="bPost" class="btn btn-default" style="margin-top:10px;width:100%;" @click="newPost">发&emsp;帖</a>
@@ -95,7 +102,7 @@ Vue.component('topicThumbnailComponent', {
 		<li class="list-group-item">
 		    <div class="topics">
 		    	<div class="topic-avatar">
-		    		<img src="${ avatar }" class="thumbnail" alt="${ name }" width="60" height="60">
+		    		<img src="${ 'data:image/*;base64,' + avatar }" class="thumbnail" alt="${ name }" width="60" height="60">
 		    	</div>
 		    	<div class="topic-text">
 		    		<div class="header">
@@ -128,7 +135,7 @@ Vue.component('commentComponent', {
 	template: (function () {/*
 		<li id="${ commentId }" class="list-group-item">
 			<div class="comment-left">
-				<img src="${ commentAvatar }" class="thumbnail" alt="${ commentUser }" width="40" height="40">
+				<img src="${ 'data:image/*;base64,' + commentAvatar }" class="thumbnail" alt="${ commentUser }" width="40" height="40">
 			</div>
 		  	<div class="comment-info">
 		  		<a href="/user/${ commentUser }" class="comment-user">${ commentUser }</a>

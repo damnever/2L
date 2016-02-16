@@ -79,40 +79,57 @@
 				var vm = this
 				reader.onload = function(e) {
 			        vm.image = e.target.result;
+			        console.log(vm.image.split('base64,')[1])
 			    };
 			    reader.readAsDataURL(file);
 			},
 			removeImage: function() {
 				this.image = ''
 			},
-			post: function() {
+			check: function() {
 				if (this.name === '') {
 					vAlert.warning('主题名不能为空')
-					return
+					return false
 				}
 				if (this.image === '') {
 					vAlert.warning('主题图标不能为空')
-					return
+					return false
 				}
 				if (this.description === '') {
 					vAlert.warning('主题描述不能为空')
-					return
+					return false
 				}
 				if (this.rules === '') {
 					vAlert.warning('主题规则不能为空')
-					return
+					return false
 				}
 				if (this.why === '') {
 					vAlert.warning('主题创建的原因不能为空')
+					return false
+				}
+				return true
+			},
+			post: function() {
+				if (!this.check()) {
 					return
 				}
 				var data = {
 					'name': this.name,
-					'avatar': this.image.split(';')[1],
+					'avatar': this.image.split('base64,')[1],
 					'description': this.description,
 					'rules': this.rules,
 					'why': this.why,
 					'token': getCookieByName('token'),
+				}
+				postJSON('/api/topic', data, this.handleResp)
+			},
+			handleResp: function(response) {
+				if (response.status === 1) {
+					vAlert.success("操作成功！")
+				} else if (response.code === 403) {
+					vAlert.danger("权限不足，请登录或获取该权限后尝试发帖！")
+				} else {
+					vAlert.danger(response.code.toString() + response.reason)
 				}
 			}
 		},

@@ -24,6 +24,8 @@ error_codes = {
     1025: 'Can not vote up again',
     1026: 'Can not vote down again',
     1027: 'No vote can be cancel',
+    1028: 'Topic is not accepted',
+    1029: 'Topic vote time has passed',
 }
 
 

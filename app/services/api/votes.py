@@ -7,8 +7,13 @@ from tornado import gen
 from app.base.handlers import APIHandler
 from app.base.decorators import as_json, need_permissions
 from app.base.roles import Roles
-from app.models import PostUpVote, PostDownVote, CommentUpVote, CommentDownVote
 from app.services.api import exceptions
+from app.models import (
+    Topic,
+    TopicUpVote, TopicDownVote,
+    PostUpVote, PostDownVote,
+    CommentUpVote, CommentDownVote,
+)
 
 
 class BaseVoteAPIHandler(APIHandler):
@@ -29,7 +34,7 @@ class BaseVoteAPIHandler(APIHandler):
         return self._cls_method('count_by_')(id_)
 
     def _cls_method(self, prefix):
-        category = self.category.lower()
+        category = self.category
         return getattr(self.table, prefix + category)
 
     @as_json
@@ -47,6 +52,11 @@ class BaseVoteAPIHandler(APIHandler):
     @need_permissions(Roles.Vote)
     @gen.coroutine
     def post(self, id_):
+        if self.category == 'topic':
+            t = yield gen.maybe_future(Topic.get(id_))
+            if t and t.state in (-1, 1):
+                raise exceptions.TopicVoteTimeHasPassed()
+
         username = self.current_user
         v = yield gen.maybe_future(self._get_by_user_category(username, id_))
         if v:
@@ -63,6 +73,11 @@ class BaseVoteAPIHandler(APIHandler):
     @need_permissions(Roles.Vote)
     @gen.coroutine
     def delete(self, id_):
+        if self.category == 'topic':
+            t = yield gen.maybe_future(Topic.get(id_))
+            if t and t.state in (-1, 1):
+                raise exceptions.TopicVoteTimeHasPassed()
+
         username = self.current_user
         v = yield gen.maybe_future(self._get_by_user_category(username, id_))
         if v:
@@ -73,7 +88,21 @@ class BaseVoteAPIHandler(APIHandler):
             raise exceptions.NoVoteCanBeCancel()
 
 
-class PostUpVoteAPIHanlder(BaseVoteAPIHandler):
+class TopicUpVoteAPIHandler(BaseVoteAPIHandler):
+
+    table = TopicUpVote
+    category = 'topic'
+    vote_type = 'up'
+
+
+class TopicDownVoteAPIHandler(BaseVoteAPIHandler):
+
+    table = TopicDownVote
+    category = 'topic'
+    vote_type = 'down'
+
+
+class PostUpVoteAPIHandler(BaseVoteAPIHandler):
 
     table = PostUpVote
     category = 'post'
@@ -102,13 +131,26 @@ class CommentDownVoteAPIHandler(BaseVoteAPIHandler):
 
 
 urls = [
+    # `GET /api/votes/topic/:topic_id/up`, get all up votes of the proposal.
+    # For authenticated user:
+    #  `topic /api/votes/topic/:topic_id/up`, vote up the topic.
+    #  `DELETE /api/votes/topic/:topic_id/down`, cancel up vote of the
+    #   topic.
+    (r'/api/votes/topic/(\d+)/up', TopicUpVoteAPIHandler),
+    # `GET /api/votes/topic/:topic_id/down`, get all down votes of the
+    #  topic.
+    # For authenticated user:
+    #  `topic /api/votes/topic/:topic_id/down`, vote down the topic.
+    #  `DELETE /api/votes/topic/:topic_id/down`, cancel down vote of
+    #   the topic.
+    (r'/api/votes/topic/(\d+)/down', TopicDownVoteAPIHandler),
     # NOTE: post vote include topic creation vote and normal post vote.
     # `GET /api/votes/post/:post_id/up`, get all up votes of the post.
     # For authenticated user:
     #  `POST /api/votes/post/:post_id/up`, vote up the post.
     #  `DELETE /api/votes/post/:post_id/down`, cancel up vote of the
     #   post.
-    (r'/api/votes/post/(\d+)/up', PostUpVoteAPIHanlder),
+    (r'/api/votes/post/(\d+)/up', PostUpVoteAPIHandler),
     # `GET /api/votes/post/:post_id/down`, get all down votes of the
     #  post.
     # For authenticated user:

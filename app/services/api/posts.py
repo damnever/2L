@@ -9,6 +9,7 @@ from app.base.decorators import as_json, need_permissions
 from app.base.roles import Roles
 from app.services.api import exceptions
 from app.models import (
+    Topic,
     Post,
     Comment,
     PostUpVote,
@@ -50,8 +51,9 @@ class PostsAPIHandler(APIHandler):
         if what == 'hot':
             pass
         else:
-            page = self.get_argument('page', 1)
-            per_page = self.get_argument('per_page', 20)
+            page = int(self.get_argument('page', 1))
+            per_page = int(self.get_argument('per_page', 20))
+
             pagination = yield gen.maybe_future(Post.page_list(page, per_page))
             posts = list()
             for post in pagination.items:
@@ -59,6 +61,7 @@ class PostsAPIHandler(APIHandler):
                 posts.append(info)
             result = {
                 'page': page,
+                'per_page': per_page,
                 'has_prev': pagination.has_prev,
                 'has_next': pagination.has_next,
                 'pages': pagination.pages,
@@ -73,8 +76,9 @@ class TopicPostsAPIHandler(APIHandler):
     @as_json
     @gen.coroutine
     def get(self, topic_id):
-        page = self.get_argument('page', 1)
-        per_page = self.get_argument('per_page', 20)
+        page = int(self.get_argument('page', 1))
+        per_page = int(self.get_argument('per_page', 20))
+
         pagination = yield gen.maybe_future(
             Post.page_list_by_topic(topic_id, page, per_page))
         posts = list()
@@ -83,6 +87,7 @@ class TopicPostsAPIHandler(APIHandler):
             posts.append(info)
         result = {
             'page': page,
+            'per_page': per_page,
             'pages': pagination.pages,
             'has_prev': pagination.has_prev,
             'has_next': pagination.has_next,
@@ -104,6 +109,9 @@ class TopicPostsAPIHandler(APIHandler):
         if title is None or keywords is None:
             raise exceptions.EmptyFields()
         else:
+            can_post = yield gen.maybe_future(Topic.can_post(topic_id))
+            if not can_post:
+                raise exceptions.TopicIsNotAccepted
             exists = yield gen.maybe_future(Post.get_by_title(title))
             if exists:
                 raise exceptions.PostTitleAlreadyExists()
@@ -122,6 +130,7 @@ class UserPostsAPIHandler(APIHandler):
     def get(self, username):
         page = int(self.get_argument('page', 1))
         per_page = int(self.get_argument('per_page', 20))
+
         pagination = yield gen.maybe_future(
             Post.page_list_by_user(username, page, per_page))
         posts = list()
@@ -130,6 +139,7 @@ class UserPostsAPIHandler(APIHandler):
             posts.append(info)
         result = {
             'page': page,
+            'per_page': per_page,
             'pages': pagination.pages,
             'has_prev': pagination.has_prev,
             'has_next': pagination.has_next,

@@ -51,13 +51,13 @@
 			    <div class="panel-body" style="padding:0;">
 			    	<ul class="list-group col-md-6">
 					    <li class="list-group-item" v-for="item in leftItems">
-					    	<img src="${ item.avatar }" class="thumbnail" alt="${ item.name }" width="20" height="20">
+					    	<img src="${ 'data:image/*;base64,' + item.avatar }" class="thumbnail" alt="${ item.name }" width="20" height="20">
 					    	<a href="/topic/${ item.id }">${ item.name }</a>
 					    </li>
 					</ul>
 					<ul class="list-group col-md-6">
 					    <li class="list-group-item" v-for="item in rightItems">
-					    	<img src="${ item.avatar }" class="thumbnail" alt="${ item.name }" width="20" height="20">
+					    	<img src="${ 'data:image/*;base64,' + item.avatar }" class="thumbnail" alt="${ item.name }" width="20" height="20">
 					    	<a href="/topic/${ item.id }">${ item.name }</a>
 					    </li>
 					</ul>
@@ -136,7 +136,7 @@
 			console.log("GET SUBSCRIBED TOPICS ERROR: ", response.code, " ", response.reason)
 		}
 		if (next) {
-			getJSON('/api/topics', undefined, function(response) {
+			getJSON('/api/topics/accepted', undefined, function(response) {
 				tList.title = '推荐的主题'
 				if (response.status == 1 && response.total != 0) {
 					var mid = Math.round(response.total / 2)

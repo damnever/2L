@@ -40,11 +40,17 @@
 			</ul>
 			<ul class="nav navbar-nav navbar-right" id="auth-area">
 				{% if current_user %}
-					<li id="register" class="for-nav">
+					<li id="user-msg" class="for-nav">
    						<a href="/notifications/{{ current_user }}">消息 <span class="badge"></span></a>
    					</li>
-					<li id="register" class="for-nav">
-   						<a href="/user/{{ current_user }}">{{ current_user }}</a>
+					<li id="user-info" class="for-nav">
+                        <dropdown>
+       						<a class="username" href="javascript:;" data-toggle="dropdown">{{ current_user }} <span class="caret"></span></a>
+                            <ul name="dropdown-menu" class="dropdown-menu">
+                                <li><a href="/user/{{ current_user }}">个人信息</a></li>
+                                <li><a href="javascript:;" @click="logout">退出</a></li>
+                            </ul>
+                        </dropdown>
    					</li>
 				{% else %}
 					{% include "auth.html" %}
@@ -145,9 +151,23 @@
                 if (this.url === '/proposal') {
                     return true
                 }
-                return false
             }
-    	}
+    	},
+        methods: {
+            logout: function() {
+                postJSON('/api/logout', {'token': getCookieByName('token')}, function(response) {
+                    if (response.status === 1) {
+                        console.log('LOGOUT SUCCESS')
+                        window.location.href = "/"
+                    } else {
+                        console.log('LOGOUT ERROR:', response.code, response.reason)
+                    }
+                })
+            }
+        },
+        components: {
+            'dropdown': VueStrap.dropdown,
+        }
     })
 
     var vAlert = new Vue({

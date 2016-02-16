@@ -38,7 +38,7 @@
 		},
 	})
 
-	getJSON('/api/topics', {}, function(response) {
+	getJSON('/api/topics/accepted', {}, function(response) {
 		if (response.status === 1) {
 			if (response.total === 0) {
 				return
