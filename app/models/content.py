@@ -24,23 +24,39 @@ class Topic(Model):
                   default=functions.now(), onupdate=functions.now())
 
     @classmethod
-    def list_all(cls):
-        return cls.query.all()
+    def can_post(cls, topic_id):
+        r = cls.query.with_entities(cls.state).filter(cls.topic_id==topic_id)
+        return r.state == 1
 
     @classmethod
-    def list_by_user(cls, username):
+    def page_list_all_accepted(cls, page, per_page):
+        r = cls.query.filter(cls.state==1).order_by(expression.desc(cls.date))
+        return r.paginate(page, per_page)
+
+    @classmethod
+    def page_list_all(cls, page, per_page):
+        r = cls.query.order_by(expression.desc(cls.date))
+        return r.paginate(page, per_page)
+
+    @classmethod
+    def page_list_by_user(cls, username, page, per_page):
         user = User.get_by_name(username)
-        return cls.query.filter(cls.admin_id==user.id).all()
+        r = cls.query.filter(
+            expression.and_(cls.admin_id==user.id, cls.state==1)
+        ).order_by(expression.desc(cls.date))
+        return r.paginate(page, per_page)
 
     @classmethod
     def get_by_name(cls, name):
         return cls.query.filter(cls.name==name).first()
 
     @classmethod
-    def create(cls, name, created_name, avatar, description, rules):
+    def create(cls, name, created_name, avatar,
+               description, rules, why, state=0):
         user = User.get_by_name(created_name)
         t = Topic(name=name, admin_id=user.id, avatar=avatar,
-                  description=description, rules=rules)
+                  description=description, rules=rules,
+                  why=why, state=state)
         try:
             db_session.add(t)
             db_session.commit()
@@ -49,11 +65,13 @@ class Topic(Model):
             raise
         return t
 
-    def update(self, description=None, rules=None, avatar=None):
+    def update(self, description=None, rules=None, avatar=None, state=None):
         if description:
             self.description = description
         if rules:
             self.rules = rules
+        if state:
+            self.state = state
         try:
             db_session.add(self)
             db_session.commit()
@@ -69,6 +87,9 @@ class Topic(Model):
             'administer': self.administer.username,
             'description': self.description,
             'rules': self.rules,
+            'state': self.state,
+            'why': self.why,
+            'date': self.date,
         }
 
     @property

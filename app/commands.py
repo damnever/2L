@@ -65,5 +65,17 @@ def initdb():
 def dropdb():
     """Drop MySQL database."""
     from app.libs.db import drop_db
+
     click.echo('[2L] {0}..'.format(dropdb.__doc__))
     drop_db()
+
+
+@main.command()
+def runtasks():
+    """Run celery(task queue)."""
+    import subprocess
+
+    click.echo('[2L] {0}..'.format(runtasks.__doc__))
+    cmd = ('celery worker --autoscale=12,4 --app=app.tasks'
+           ' --loglevel=info --events')
+    subprocess.call(cmd.split())
