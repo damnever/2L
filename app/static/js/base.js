@@ -15,6 +15,38 @@ Vue.filter('limitStr', function(value) {
 	return value
 })
 
+///////////////////////////////////////////////////////////////////////////////
+var vAlert = new Vue({
+    el: '#msg-alert',
+    data: {
+        showDanger: false,
+        showWarning: false,
+        showInfo: false,
+        showSuccess: false,
+        msg: '',
+    },
+    methods: {
+        danger: function(msg) {
+            this.msg = msg
+            this.showDanger = true
+        },
+        warning: function(msg) {
+            this.msg = msg
+            this.showWarning = true
+        },
+        info: function(msg) {
+            this.msg = msg
+            this.showInfo = true
+        },
+        success: function(msg) {
+            this.msg = msg
+            this.showSuccess = true
+        },
+    },
+    components: {
+        'alert': VueStrap.alert,
+    }
+})
 
 ///////////////////////////////////////////////////////////////////////////////
 Vue.component('postComponent', {

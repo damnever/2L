@@ -99,7 +99,7 @@
 					 :last-comment-date="post.last_comment_date"
 					 :comment-count="post.comment_count">
 					</post-component>
-					<span v-show="myPostsCount <= 0">你还没有发布过任何帖子</span>
+					<span v-show="myPostsCount <= 0">这家伙还没有发布过任何帖子</span>
 			    </tab>
 			    <tab header="评论">
 			    	<comment-component
@@ -111,7 +111,7 @@
 					 :comment-date="comment.date"
 					 :comment-content="comment.content">
 					</comment-component>
-					<span v-show="myCommentsCount <= 0">你还没有发表过任何评论</span>
+					<span v-show="myCommentsCount <= 0">这家伙还没有发表过任何评论</span>
 			    </tab>
 			    <tab header="主题" {% if current_user != title %}disabled{% end %}>
 			    	<topic-thumbnail-component
@@ -122,7 +122,7 @@
 			    	 :description="topic.topic.description"
 			    	 :is-subscribed="true">
 			    	</topic-thumbnail-component>
-				    <span v-show="myTopicsCount <= 0">你还没有关注任何主题</span>
+				    <span v-show="myTopicsCount <= 0">这家伙还没有关注任何主题</span>
 				</tab>
 			    <tab header="关注" {% if current_user != title %}disabled{% end %}>
 			    	<user-component

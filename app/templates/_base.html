@@ -38,23 +38,29 @@
 				<li class="for-nav" :class="{'active': topics}"><a href="/topics">主题</a></li>
                 <li class="for-nav" :class="{'active': proposal}"><a href="/proposal">我要</a></li>
 			</ul>
-			<ul class="nav navbar-nav navbar-right" id="auth-area">
-				{% if current_user %}
+			<ul class="nav navbar-nav navbar-right" style="padding-top:14px;">
+				<span id="user-area" v-if="currentUser">
 					<li id="user-msg" class="for-nav">
    						<a href="/notifications/{{ current_user }}">消息 <span class="badge"></span></a>
    					</li>
-					<li id="user-info" class="for-nav">
+					<li id="user-info" class="for-nav" style="margin-left:10px;">
                         <dropdown>
-       						<a class="username" href="javascript:;" data-toggle="dropdown">{{ current_user }} <span class="caret"></span></a>
+       						<a class="username" href="javascript:;" data-toggle="dropdown">${ currentUser } <span class="caret"></span></a>
                             <ul name="dropdown-menu" class="dropdown-menu">
                                 <li><a href="/user/{{ current_user }}">个人信息</a></li>
                                 <li><a href="javascript:;" @click="logout">退出</a></li>
                             </ul>
                         </dropdown>
    					</li>
-				{% else %}
-					{% include "auth.html" %}
-				{% end %}
+				</span>
+                <span id="auth-area" v-else>
+                    <login-component
+                     :current-user.sync="currentUser">
+                    </login-component>
+                    <register-component
+                     :current-user.sync="currentUser">
+                    </register-component>
+				</span>
 			</ul>
 			</div>
 		</div>
@@ -122,10 +128,13 @@
         {% include "footer.html" %}
     </div>
 </body>
+<script type="text/javascript" src="{{ static_url("js/base.js") }}"></script>
+<script type="text/javascript" src="{{ static_url("js/auth.js") }}"></script>
 <script type="text/javascript">
     new Vue({
     	el: '#nav',
     	data: {
+            currentUser: "{% if current_user %}{{ current_user }}{% end %}",
     		url: window.location.href.toString().split(window.location.host)[1],
     	},
     	computed: {
@@ -155,10 +164,11 @@
     	},
         methods: {
             logout: function() {
+                var self = this
                 postJSON('/api/logout', {'token': getCookieByName('token')}, function(response) {
                     if (response.status === 1) {
                         console.log('LOGOUT SUCCESS')
-                        window.location.href = "/"
+                        self.currentUser = ""
                     } else {
                         console.log('LOGOUT ERROR:', response.code, response.reason)
                     }
@@ -167,38 +177,7 @@
         },
         components: {
             'dropdown': VueStrap.dropdown,
-        }
-    })
-
-    var vAlert = new Vue({
-        el: '#msg-alert',
-        data: {
-            showDanger: false,
-            showWarning: false,
-            showInfo: false,
-            showSuccess: false,
-            msg: '',
-        },
-        methods: {
-            danger: function(msg) {
-                this.msg = msg
-                this.showDanger = true
-            },
-            warning: function(msg) {
-                this.msg = msg
-                this.showWarning = true
-            },
-            info: function(msg) {
-                this.msg = msg
-                this.showInfo = true
-            },
-            success: function(msg) {
-                this.msg = msg
-                this.showSuccess = true
-            },
-        },
-        components: {
-            'alert': VueStrap.alert,
+            'modal': VueStrap.modal,
         }
     })
 
@@ -209,6 +188,5 @@
         })
     })
 </script>
-<script type="text/javascript" src="{{ static_url("js/base.js") }}"></script>
 {% block script %}{% end %}
 </html>
