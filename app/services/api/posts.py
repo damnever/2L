@@ -48,28 +48,53 @@ class PostsAPIHandler(APIHandler):
 
     @as_json
     @gen.coroutine
-    def get(self, what):
-        if what == 'hot':
-            pass
-        else:
-            page = int(self.get_argument('page', 1))
-            per_page = int(self.get_argument('per_page', 20))
+    def get(self):
+        page = int(self.get_argument('page', 1))
+        per_page = int(self.get_argument('per_page', 20))
+        username = self.current_user
 
-            pagination = yield gen.maybe_future(Post.page_list(page, per_page))
-            posts = list()
-            for post in pagination.items:
-                info = yield gen.maybe_future(_post_info(post))
-                posts.append(info)
-            result = {
-                'page': page,
-                'per_page': per_page,
-                'has_prev': pagination.has_prev,
-                'has_next': pagination.has_next,
-                'pages': pagination.pages,
-                'total': pagination.total,
-                'posts': posts,
-            }
-            raise gen.Return(result)
+        pagination = yield gen.maybe_future(
+            Post.page_list(username, page, per_page))
+        posts = list()
+        for post in pagination.items:
+            info = yield gen.maybe_future(_post_info(post))
+            posts.append(info)
+        result = {
+            'page': page,
+            'per_page': per_page,
+            'has_prev': pagination.has_prev,
+            'has_next': pagination.has_next,
+            'pages': pagination.pages,
+            'total': pagination.total,
+            'posts': posts,
+        }
+        raise gen.Return(result)
+
+
+class HotPostsAPIHandler(APIHandler):
+
+    @as_json
+    @gen.coroutine
+    def get(self):
+        page = int(self.get_argument('page', 1))
+        per_page = int(self.get_argument('per_page', 20))
+
+        pagination = yield gen.maybe_future(
+            Post.page_hot_list(page, per_page))
+        posts = list()
+        for post in pagination.items:
+            info = yield gen.maybe_future(_post_info(post))
+            posts.append(info)
+        result = {
+            'page': page,
+            'per_page': per_page,
+            'has_prev': pagination.has_prev,
+            'has_next': pagination.has_next,
+            'pages': pagination.pages,
+            'total': pagination.total,
+            'posts': posts,
+        }
+        raise gen.Return(result)
 
 
 class TopicPostsAPIHandler(APIHandler):
@@ -191,8 +216,9 @@ class PostAPIHandler(APIHandler):
 
 urls = [
     # `GET /api/posts/all`, get all posts.
+    (r'/api/posts/all', PostsAPIHandler),
     # `GET /api/posts/hot`, get hot posts.
-    (r'/api/posts/(all|hot)', PostsAPIHandler),
+    (r'/api/posts/hot', HotPostsAPIHandler),
     # `GET /api/posts/topic/:topic_id`, get all posts of the topic.
     # For authenticated user:
     #  `POST /api/posts/topic/:topic_id`, create a new post for

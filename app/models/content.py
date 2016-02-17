@@ -117,8 +117,20 @@ class Post(Model):
         return cls.query.filter(cls.title==title).first()
 
     @classmethod
-    def page_list(cls, page, per_page):
-        q = cls.query.order_by(expression.desc(cls.comment_date))
+    def page_hot_list(cls, page, per_page):
+        pass
+
+    @classmethod
+    def page_list(cls, username, page, per_page):
+        # ImportError: cycle import...
+        from app.models.action import Subscription
+
+        q = cls.query
+        if username:
+            subs = Subscription.list_by_user(username)
+            topics = [s.topic_id for s in subs]
+            q = q.filter(cls.topic_id in topics)
+        q = q.order_by(expression.desc(cls.comment_date))
         return q.paginate(page, per_page)
 
     @classmethod

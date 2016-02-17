@@ -17,16 +17,16 @@ from tzlocal import get_localzone
 epoch = datetime(1970, 1, 1, tzinfo=get_localzone())
 
 
-def epoch_seconds(date):
+cdef double epoch_seconds(date):
     td = date - epoch
     return td.days * 86400 + td.seconds + (float(td.microseconds) / 1000000)
 
 
-def score(ups, downs):
+cdef int score(ups, downs):
     return ups - downs
 
 
-def hot(ups, downs, date):
+cdef hot(ups, downs, date):
     s = score(ups, downs)
     order = math.log10(max(abs(s), 1))
 
@@ -43,7 +43,7 @@ def hot(ups, downs, date):
 #----------------------------------------------------------------------
 # Comment ranking.
 #----------------------------------------------------------------------
-def _confidence(ups, downs):
+cdef _confidence(ups, downs):
     n = ups + downs
 
     if n == 0:
@@ -65,7 +65,7 @@ for ups in range(up_range):
         _confidences.append(_confidence(ups, downs))
 
 
-def confidence(ups, downs):
+cdef confidence(ups, downs):
     if ups + downs == 0:
         return 0
     elif ups < up_range and downs < down_range:
