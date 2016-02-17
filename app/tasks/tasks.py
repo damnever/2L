@@ -20,6 +20,7 @@ def check_proposal(topic_id):
     from app.libs.db import db_session
     from app.models import Topic, User, Permission, TopicUpVote, TopicDownVote
     from app.base.roles import Roles
+    from app.settings import Gold
 
     user_count = User.count()
     topic = Topic.get(topic_id)
@@ -34,12 +35,78 @@ def check_proposal(topic_id):
         permission = Roles.TopicEdit.format(topic.name)
         p = Permission.create(permission)
         user.role |= p.bit
-        db_session.add(user)
+        user.profile.gold += Gold['proposal_accepted']
     else:
         topic.state = -1
+        user.profile.gold += Gold['proposal_rejected']
 
+    db_session.add(user)
     db_session.add(topic)
     db_session.commit()
+
+
+@app.task(name='update_gold', max_retries=5)
+def update_gold(type_, *args):
+    from app.models import User, Post, Comment
+    from app.settings import Gold
+
+    class _UpdateProposal(object):
+
+        def new_proposal(self, username):
+            user = User.get_by_name(username)
+            user.update(gold=Gold['new_proposal'])
+
+        def new_post(self, username):
+            user = User.get_by_name(username)
+            user.update(gold=Gold['new_post'])
+
+        def delete_post(self, username):
+            user = User.get_by_name(username)
+            user.update(gold=Gold['delete_post'])
+
+        def post_be_favorite(self, post_id, symbol=1):
+            post = Post.get(post_id)
+            user = User.get(post.author_id)
+            user.update(gold=(Gold['post_be_favorite'] * symbol))
+
+        def cancel_post_be_favorite(self, post_id):
+            self.post_be_favorite(post_id, symbol=-1)
+
+        def comment(self, username):
+            user = User.get_by_name(username)
+            user.update(gold=Gold['comment'])
+
+        def be_comment(self, *usernames):
+            for username in usernames:
+                user = User.get_by_name(username)
+                user.update(gold=Gold['be_comment'])
+
+        def vote(self, username, id_, category, vote_type, symbol=1):
+            v = None
+            if category == 'topic':
+                return
+            elif category == 'post':
+                v = Post.get(id_)
+            elif category == 'comment':
+                v = Comment.get(id_)
+            if v is None:
+                return
+
+            vote_user = User.get_by_name(username)
+            vote_user.update(gold=(Gold['{0}_vote'.format(vote_type)]*symbol))
+            be_vote_user = User.get(v.author_id)
+            be_vote_user.update(
+                gold=(Gold['be_{0}_vote'.format(vote_type)]*symbol))
+
+        def cancel_vote(self, username, id_, category, vote_type):
+            self.vote(self, username, id_, category, vote_type, symbol=-1)
+
+        def __call__(self, type_, *args):
+            method = getattr(self, type_, None)
+            if method is not None:
+                method(*args)
+
+    _UpdateProposal()(type_, *args)
 
 
 @app.task(name='send_email', max_retries=4)

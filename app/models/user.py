@@ -12,7 +12,7 @@ from sqlalchemy import (
 
 from app.models.base import Model
 from app.models.permission import Permission
-from app.settings import Level
+from app.settings import Level, Gold
 from app.libs.db import db_session
 
 
@@ -114,7 +114,7 @@ class User(Model):
 class Profile(Model):
     user_id = Column('user_id', Integer(), ForeignKey('user.id'))
     gold = Column('gold', Integer(), nullable=False,
-                  default=Level['gold']['register'])
+                  default=Gold['register'])
     join_date = Column('join_date', DateTime(timezone=True),
                        default=functions.now())
     introduce = Column('introduce', Text(300), default='You know, 2L~')

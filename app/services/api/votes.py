@@ -8,6 +8,7 @@ from app.base.handlers import APIHandler
 from app.base.decorators import as_json, need_permissions
 from app.base.roles import Roles
 from app.services.api import exceptions
+from app.tasks.tasks import update_gold
 from app.models import (
     Topic,
     TopicUpVote, TopicDownVote,
@@ -67,6 +68,10 @@ class BaseVoteAPIHandler(APIHandler):
         else:
             yield gen.maybe_future(self.table.create(username, id_))
             count = yield gen.maybe_future(self._count_by_category(id_))
+
+            # Update gold.
+            update_gold.apply_async(
+                ('vote', username, id_, self.category, self.vote_type))
             raise gen.Return({'count': count})
 
     @as_json
@@ -83,6 +88,9 @@ class BaseVoteAPIHandler(APIHandler):
         if v:
             yield gen.maybe_future(v.delete())
             count = yield gen.maybe_future(self._count_by_category(id_))
+            # Update gold.
+            update_gold.apply_async(
+                ('cancel_vote', username, id_, self.category, self.vote_type))
             raise gen.Return({'count': count})
         else:
             raise exceptions.NoVoteCanBeCancel()

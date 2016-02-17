@@ -8,6 +8,7 @@ from app.base.handlers import APIHandler
 from app.base.decorators import as_json, need_permissions
 from app.base.roles import Roles
 from app.services.api import exceptions
+from app.tasks.tasks import update_gold
 from app.models import (
     Topic,
     Post,
@@ -106,7 +107,7 @@ class TopicPostsAPIHandler(APIHandler):
         keep_silent = bool(self.get_argument('keep_silent', False))
         is_draft = bool(self.get_argument('is_draft', False))
 
-        if title is None or keywords is None:
+        if not all(title, keywords):
             raise exceptions.EmptyFields()
         else:
             can_post = yield gen.maybe_future(Topic.can_post(topic_id))
@@ -121,6 +122,9 @@ class TopicPostsAPIHandler(APIHandler):
                     Post.create(username, topic_id,
                                 title, keywords, content,
                                 keep_silent=keep_silent, is_draft=is_draft))
+
+                # Update gold.
+                update_gold.apply_async(('new_post', username))
 
 
 class UserPostsAPIHandler(APIHandler):
@@ -180,6 +184,9 @@ class PostAPIHandler(APIHandler):
     def delete(self, post_id):
         p = yield gen.maybe_future(Post.get(post_id))
         yield gen.maybe_future(p.delete())
+
+        # Update gold.
+        update_gold.apply_async(('delete_post', self.current_user))
 
 
 urls = [

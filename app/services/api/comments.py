@@ -10,6 +10,7 @@ from app.base.roles import Roles
 from app.models import Comment, CommentUpVote, CommentDownVote, User
 from app.services.api import exceptions
 from app.libs.utils import at_content
+from app.tasks.tasks import update_gold
 
 
 def _comment_info(comment):
@@ -58,10 +59,15 @@ class PostCommentsAPIHandler(APIHandler):
             raise exceptions.EmptyFields()
         else:
             users, content = at_content(content)
-            # TODO: Notify users: someone @you.
             username = self.current_user
             comment = yield gen.maybe_future(
                 Comment.create(username, post_id, content))
+
+            # Update gold.
+            update_gold.apply_async(('comment', username))
+            if users:
+                update_gold.apply_async(('be_comment', users))
+            # TODO: Notify users: someone @you.
             raise gen.Return(comment.to_dict())
 
 

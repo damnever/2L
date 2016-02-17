@@ -8,6 +8,7 @@ from app.base.handlers import APIHandler
 from app.base.decorators import as_json, authenticated
 from app.models import Favorite
 from app.services.api import exceptions
+from app.tasks.tasks import update_gold
 
 
 class FavoritePostsAPIHandler(APIHandler):
@@ -37,6 +38,8 @@ class FavoritePostAPIHandler(APIHandler):
             raise exceptions.PostAlreadyFavorited()
         else:
             yield gen.maybe_future(Favorite.create(username, post_id))
+            # Update gold.
+            update_gold.apply_async(('post_be_favorite', post_id))
 
 
 class UnfavoritePostAPIHandler(APIHandler):
@@ -47,6 +50,8 @@ class UnfavoritePostAPIHandler(APIHandler):
         f = yield gen.maybe_future(Favorite.get_by_user_post(username, post_id))
         if f:
             yield gen.maybe_future(f.delete())
+            # Update gold.
+            update_gold.apply_async(('cancel_post_be_favorite', post_id))
         else:
             raise exceptions.PostHasNotBeenFavorited()
 

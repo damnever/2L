@@ -12,7 +12,7 @@ from app.base.decorators import as_json, authenticated, need_permissions
 from app.base.roles import Roles
 from app.services.api import exceptions
 from app.models import Topic, Subscription
-from app.tasks.tasks import check_proposal
+from app.tasks.tasks import check_proposal, update_gold
 from app.settings import Level
 
 
@@ -102,6 +102,9 @@ class TopicAPIHandler(APIHandler):
                 topic = yield gen.maybe_future(
                     Topic.create(name, created_user, avatar,
                                  description, rules, why))
+
+                # Update Gold.
+                update_gold.apply_async(('new_proposal', created_user))
 
                 # Update proposal state.
                 seconds = Level['time']['proposal']
