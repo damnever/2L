@@ -76,22 +76,15 @@ class HotPostsAPIHandler(APIHandler):
     @as_json
     @gen.coroutine
     def get(self):
-        page = int(self.get_argument('page', 1))
-        per_page = int(self.get_argument('per_page', 20))
+        num = int(self.get_argument('num', 30))
 
-        pagination = yield gen.maybe_future(
-            Post.page_hot_list(page, per_page))
+        hots = yield gen.maybe_future(Post.hot_list(num))
         posts = list()
-        for post in pagination.items:
+        for post in hots:
             info = yield gen.maybe_future(_post_info(post))
             posts.append(info)
         result = {
-            'page': page,
-            'per_page': per_page,
-            'has_prev': pagination.has_prev,
-            'has_next': pagination.has_next,
-            'pages': pagination.pages,
-            'total': pagination.total,
+            'total': len(posts),
             'posts': posts,
         }
         raise gen.Return(result)
