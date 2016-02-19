@@ -27,6 +27,7 @@ error_codes = {
     1028: 'Topic is not accepted',
     1029: 'Topic vote time has passed',
     1030: 'No more gold today',
+    1031: 'Can not rob again',
 }
 
 

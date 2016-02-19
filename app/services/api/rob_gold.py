@@ -20,8 +20,10 @@ class RobGoldAPIHandler(APIHandler):
     def post(self):
         username = self.current_user
 
-        robed = gold.get(random_gold)
-        if robed == 0:
+        robed = gold.get(username, random_gold)
+        if robed == -1:
+            raise exceptions.CanNotRobAgain()
+        elif robed == 0:
             raise exceptions.NoMoreGoldToday()
         user = yield gen.maybe_future(User.get_by_name(username))
         yield gen.maybe_future(user.update(gold=robed))

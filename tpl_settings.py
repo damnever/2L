@@ -8,32 +8,79 @@ import os.path
 ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
 
 
+def read_img(path):
+    path = os.path.join(ROOT_DIR, path)
+    with open(path, 'rb') as f:
+        return '\n'.join(f.readlines())
+
+
 MySQL = {
     'username': 'root',
-    'password': 'root',
+    'password': 'DXC',
     'host': '127.0.0.1',
     'port': 3306,
     'db': '2L',
 }
 
 Redis = {
-    'password': '',
-    'host': '127.0.0.1',
-    'port': 6379,
-    'cache_db': 0,
-    'session_db': 1,
-    'gold_db': 2,
+    'cache': {
+        'password': '',
+        'host': '127.0.0.1',
+        'port': 6379,
+        'db': 0,
+    },
+    'session': {
+        'password': '',
+        'host': '127.0.0.1',
+        'port': 6379,
+        'db': 1,
+    },
+    'gold': {
+        'password': '',
+        'host': '127.0.0.1',
+        'port': 6379,
+        'db': 2,
+    },
+    'task': {
+        'password': '',
+        'host': '127.0.0.1',
+        'port': 6379,
+        'db': 3,
+    }
 }
 
 Level = {
-    'Gold': {
-        'Register': 50,
-        'TopicCreation': 500,
-        'Vote': 100,
+    'gold': {
+        'register': 50,
+        'topic_creation': 500,
+        'vote': 100,
     },
-    'Time': {
-        'Comment': 18000,  # 5 hours
+    'time': {
+        'comment': 1800,  # 30 minutes
+        'proposal': 1200,  # 20 minutes
     }
+}
+
+Gold = {
+    'register': 50,
+    '2L': [2, 222],
+    'daily_check': [2, 22],
+    'new_proposal': -50,
+    'proposal_acceptd': +60,
+    'proposal_rejected': +10,
+    'new_post': -10,
+    'delete_post': -30,
+    'post_be_favorite': 10,
+    'comment': 0,
+    'be_comment': 2,
+    'up_vote': -5,
+    'be_up_vote': 5,
+    'down_vote': -8,
+    'be_down_vote': -5,
+    'report': -15,
+    'report_confirm': 30,
+    'be_report': 0,
+    'be_report_confirm': -30,
 }
 
 Accounts = {
@@ -55,25 +102,41 @@ Accounts = {
     },
 }
 
+
 Admins = [
     {
         'username': 'Damnever',
-        'password': 'you guess',
+        'password': 'youguess',
         'email': 'dxc.wolf@gmail.com',
-        'role': 'GodFather',
+        'avatar': read_img('static/imgs/damnever.png.txt'),
+        'role': 'root',
     },
     {
         'username': 'Root',
-        'password': 'Root',
+        'password': 'RootRoot',
         'email': 'Root@2L.SB',
-        'role': 'Admin',
+        'avatar': read_img('static/imgs/anonymous.png.txt'),
+        'role': 'admin',
     },
     {
         'username': 'Admin',
-        'password': 'Admin',
+        'password': 'AdminAdmin',
         'email': 'Admin@2L.SB',
-        'role': 'Admin',
+        'avatar': read_img('static/imgs/admin.png.txt'),
+        'role': 'admin',
     }
+]
+
+Topics = [
+    {
+        'name': '2L',
+        'created_name': Admins[0]['username'],
+        'avatar': read_img('static/imgs/2L.png.txt'),
+        'description': '关于本站（2L）的所有事务都可以在这里讨论，拒绝灌水。',
+        'rules': '  \n# 2\n  ',
+        'why': 'No BB',
+        'state': 1,
+    },
 ]
 
 
@@ -88,7 +151,10 @@ EMail = {
 }
 
 
-ThreadPoolMaxWorkers = 5
+ThreadPoolMaxWorkers = 10
+
+
+DefaultAvatar = read_img('static/imgs/anonymous.png.txt')
 
 
 Tornado = {
@@ -98,4 +164,6 @@ Tornado = {
     'xsrf_cookies': True,
     # base64.b64encode(uuid.uuid4().bytes + uuid.uuid4().bytes)[:-1] + 'x'
     'cookie_secret': 'mv69eaIlTPWUsSwCQMhMYO36uX6MM0uMiJ2D6rRjOdE4',
+    'allow_origin': '*',
+    'allow_origin_pat': '.+',
 }

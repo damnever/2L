@@ -9,6 +9,7 @@ from app.settings import Redis
 
 _KEY_NUM = '2L:gold:num'
 _KEY_GOLD = '2L:gold:gold'
+_KEY_USERS = '2L:gold:robed-users'
 
 conn = redis.StrictRedis(**Redis['gold'])
 
@@ -18,25 +19,31 @@ def set(num, gold):
     conn.set(_KEY_GOLD, gold)
 
 
-def get(func):
-    """Use Redis optimistic locking."""
-    gold = 0
+def get(username, func):
+    """Use Redis optimistic locking.
+
+     0  no more gold today
+     -1 can not rob again
+    """
     with conn.pipeline() as pipe:
         while 1:
             try:
                 pipe.watch(_KEY_NUM, _KEY_GOLD)
 
+                if pipe.hexists(_KEY_USERS, username):
+                    return -1
+
                 left_num = int(pipe.get(_KEY_NUM) or 0)
                 left_gold = int(pipe.get(_KEY_GOLD) or 0)
-
                 if left_num == 0 and left_gold == 0:
-                    return gold
+                    return 0
 
                 left_num -= 1
                 gold = func(left_num, left_gold)
                 left_gold -= gold
 
                 pipe.multi()
+                pipe.hmset(_KEY_USERS, username, 1)
                 pipe.set(_KEY_NUM, left_num)
                 pipe.set(_KEY_GOLD, left_gold)
                 pipe.execute()

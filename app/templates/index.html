@@ -45,6 +45,9 @@
 			    </panel>
 			</accordion>
 		</div>
+		<div>
+		    <button id="rob-gold" class="btn btn-default" style="width: 100%; margin-bottom: 20px;" @click="rob">抢金币</button>
+		</div>
 		<div id="subscribed-topics">
 			<div class="panel panel-default">
 			    <div class="panel-heading">${ title }</div>
@@ -109,6 +112,28 @@
 	        accordion: VueStrap.accordion,
 	        panel: VueStrap.panel
 	    }
+	})
+
+	///////////////////////////////////////////////////////////////////////////
+	new Vue({
+		el: '#rob-gold',
+		methods: {
+			rob: function() {
+				postJSON('/rob/gold', {'token': getCookieByName('token')}, function(response) {
+					if (response.status == 1) {
+						vAlert.success('您抢到了 ' + response.gold.toString() + ' 个金币！')
+					} else {
+						if (response.code == 403) {
+							vAlert.danger('您还未登录，没有权限枪金币！')
+						} else if (response.code == 1030) {
+							vAlert.warning('很遗憾，今天的金币已经抢完了！')
+						} else if (response.code == 1031) {
+							vAlert.warning('您今天已经抢过一次了，明天在来吧O(∩_∩)O~')
+						}
+					}
+				})
+			}
+		}
 	})
 
 	///////////////////////////////////////////////////////////////////////////
