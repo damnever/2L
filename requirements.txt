@@ -7,7 +7,7 @@ Cython == 0.23.4
 # app/libs/db.py: 7,8,9
 # app/models/action.py: 5,6,7
 # app/models/base.py: 5,6
-# app/models/content.py: 5,6,7
+# app/models/content.py: 7,8,9
 # app/models/notification.py: 5,6,7
 # app/models/permission.py: 5,6,7
 # app/models/user.py: 5,6,7,8
@@ -21,6 +21,7 @@ SQLAlchemy == 1.0.10
 # app/services/api/comments.py: 5
 # app/services/api/favorite.py: 5
 # app/services/api/posts.py: 5
+# app/services/api/rob_gold.py: 5
 # app/services/api/status.py: 5
 # app/services/api/subscription.py: 5
 # app/services/api/topics.py: 7
@@ -33,6 +34,7 @@ tornado == 4.3
 # app/cache/lru.py: 7
 six == 1.10.0
 
+# app/cache/gold.py: 5
 # app/cache/session.py: 5
 redis == 2.10.5
 
