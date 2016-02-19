@@ -2,6 +2,8 @@
 
 from __future__ import print_function, division, absolute_import
 
+import heapq
+
 from sqlalchemy import Column, Integer, String, Text, DateTime, Boolean
 from sqlalchemy.sql import functions, expression
 from sqlalchemy.exc import DataError, IntegrityError, ProgrammingError
@@ -9,6 +11,7 @@ from sqlalchemy.exc import DataError, IntegrityError, ProgrammingError
 from app.models.base import Model
 from app.models.user import User
 from app.libs.db import db_session
+from app.libs.sorts import hot
 
 
 class Topic(Model):
@@ -117,8 +120,25 @@ class Post(Model):
         return cls.query.filter(cls.title==title).first()
 
     @classmethod
-    def page_hot_list(cls, page, per_page):
-        pass
+    def hot_list(cls, num=30):
+        # Maybe -> ImportError: cycle import...
+        from app.models.action import PostUpVote, PostDownVote
+
+        hots, count = list(), 0
+        # Use heapsort and query iterator to cut down memory usage...
+        # http://stackoverflow.com/questions/1078383/sqlalchemy-difference-between-query-and-query-all-in-for-loops
+        for post in cls.query:
+            post_id, post_date = post.id, post.update_date
+            ups = PostUpVote.count_by_post(post_id)
+            downs = PostDownVote.count_by_post(post_id)
+            score = hot(ups, downs, post_date)
+            if count < num:
+                heapq.heappush(hots, {'post': post, 'score': score})
+                count += 1
+            elif score > hots[0]['score']:
+                heapq.heappushpop(hots, {'post': post, 'score': score})
+
+        return [item['post'] for item in hots[::-1]]
 
     @classmethod
     def page_list(cls, username, page, per_page):

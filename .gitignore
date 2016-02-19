@@ -1,4 +1,5 @@
 *.py[ocd]
+*.so
 *~
 __pycache__/
 app/dev_settings.py
