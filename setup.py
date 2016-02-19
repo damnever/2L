@@ -1,11 +1,22 @@
 # -*- coding: utf-8 -*-
 
+import os
+import fnmatch
+
 from setuptools import setup
 from pip.req import parse_requirements
+from Cython.Build import cythonize
 
 
 reqs = [str(r.req)
         for r in parse_requirements('requirements.txt', session=False)]
+
+pyx_files = list()
+for dirpath, dirnames, files in os.walk('./app'):
+    for file in fnmatch.filter(files, '*.pyx'):
+        pyx_files.append(os.path.join(dirpath, file))
+pyx_extensions = cythonize(pyx_files)
+
 
 setup(
     name='2L',
@@ -23,6 +34,7 @@ setup(
         'Programming Language :: Python :: 3',
     ],
     install_requires=reqs,
+    ext_modules=pyx_extensions,
     entry_points={
         'console_scripts': [
             '2L=app.commands:main',
