@@ -47,10 +47,18 @@ def check_proposal(topic_id):
 
 @app.task(name='update_gold', max_retries=5)
 def update_gold(type_, *args):
+    import random
     from app.models import User, Post, Comment
     from app.settings import Gold
 
     class _UpdateProposal(object):
+
+        def sb_2l(self, username, post_id):
+            count, comment = Comment.last_with_count(post_id)
+            user = User.get(comment.author_id)
+            if count == 2 and username == user.username:
+                gold = random.randint(*Gold['2L'])
+                user.update(gold=gold)
 
         def new_proposal(self, username):
             user = User.get_by_name(username)

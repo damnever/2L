@@ -14,7 +14,13 @@ _KEY_USERS = '2L:gold:robed-users'
 conn = redis.StrictRedis(**Redis['gold'])
 
 
+def delete_all():
+    # conn.delete(_KEY_NUM, _KEY_GOLD, _KEY_USERS)
+    conn.flushdb()
+
+
 def set(num, gold):
+    delete_all()
     conn.set(_KEY_NUM, num)
     conn.set(_KEY_GOLD, gold)
 

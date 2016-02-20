@@ -2,4 +2,7 @@
 *.so
 *~
 __pycache__/
-app/dev_settings.py
+dev_settings.py
+build/
+*.egg-info/
+app/settings.py

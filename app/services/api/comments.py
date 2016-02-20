@@ -64,6 +64,7 @@ class PostCommentsAPIHandler(APIHandler):
                 Comment.create(username, post_id, content))
 
             # Update gold.
+            update_gold.apply_async(('sb_2l', username, post_id))
             update_gold.apply_async(('comment', username))
             if users:
                 update_gold.apply_async(('be_comment', users))

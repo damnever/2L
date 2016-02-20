@@ -258,6 +258,11 @@ class Comment(Model):
         return cls.query.filter(cls.post_id==post_id).count()
 
     @classmethod
+    def last_with_count(cls, post_id):
+        q = cls.query.filter(cls.post_id==post_id)
+        return q.count(), q.order_by('-id').first()
+
+    @classmethod
     def page_list_by_user(cls, username, page, per_page):
         user = User.get_by_name(username)
         p = cls.query.order_by(
