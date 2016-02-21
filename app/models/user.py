@@ -118,7 +118,7 @@ class Profile(Model):
     join_date = Column('join_date', DateTime(timezone=True),
                        default=functions.now())
     introduce = Column('introduce', Text(300), default='You know, 2L~')
-    avatar = Column('avatar', String(100))
+    avatar = Column('avatar', Text())
     location = Column('location', String(120), default='Earth')
     wiki = Column('wiki', Text(), default='')
     blog = Column('blog', String(100), default='')

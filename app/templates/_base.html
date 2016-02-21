@@ -41,13 +41,13 @@
 			<ul class="nav navbar-nav navbar-right" style="padding-top:14px;">
 				<span id="user-area" v-if="currentUser">
 					<li id="user-msg" class="for-nav">
-   						<a href="/notifications/{{ current_user }}">消息 <span class="badge"></span></a>
+   						<a href="/notifications/${ currentUser }">消息 <span class="badge"></span></a>
    					</li>
 					<li id="user-info" class="for-nav" style="margin-left:10px;">
                         <dropdown>
        						<a class="username" href="javascript:;" data-toggle="dropdown">${ currentUser } <span class="caret"></span></a>
                             <ul name="dropdown-menu" class="dropdown-menu">
-                                <li><a href="/user/{{ current_user }}">个人信息</a></li>
+                                <li><a href="/user/${ currentUser }">个人信息</a></li>
                                 <li><a href="javascript:;" @click="logout">退出</a></li>
                             </ul>
                         </dropdown>

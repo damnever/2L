@@ -125,7 +125,7 @@ class TopicPostsAPIHandler(APIHandler):
         keep_silent = bool(self.get_argument('keep_silent', False))
         is_draft = bool(self.get_argument('is_draft', False))
 
-        if not all(title, keywords):
+        if not all([title, keywords]):
             raise exceptions.EmptyFields()
         else:
             can_post = yield gen.maybe_future(Topic.can_post(topic_id))

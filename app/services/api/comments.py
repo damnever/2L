@@ -13,15 +13,21 @@ from app.libs.utils import at_content
 from app.tasks.tasks import update_gold
 
 
-def _comment_info(comment):
+def _comment_info(username, comment):
     info = comment.to_dict()
     up_votes = CommentUpVote.count_by_comment(comment.id)
     down_votes = CommentDownVote.count_by_comment(comment.id)
     avatar = User.get(comment.author_id).profile.avatar
+    up_voted, down_voted = False, False
+    if username:
+        up_voted = CommentUpVote.get_by_user_comment(username, comment.id)
+        down_voted = CommentDownVote.get_by_user_comment(username, comment.id)
     info.update({
         'avatar': avatar,
         'up_votes': up_votes,
         'down_votes': down_votes,
+        'up_voted': bool(up_voted),
+        'down_voted': bool(down_voted),
     })
     return info
 
@@ -33,11 +39,13 @@ class PostCommentsAPIHandler(APIHandler):
     def get(self, post_id):
         page = int(self.get_argument('page', 1))
         per_page = int(self.get_argument('per_page', 20))
+        username = self.current_user
+
         pagination = yield gen.maybe_future(
             Comment.page_list_by_post(post_id, page, per_page))
         comments = list()
         for comment in pagination.items:
-            info = yield gen.maybe_future(_comment_info(comment))
+            info = yield gen.maybe_future(_comment_info(username, comment))
             comments.append(info)
         result = {
             'page': page,
@@ -79,11 +87,13 @@ class UserCommentsAPIHandler(APIHandler):
     def get(self, username):
         page = int(self.get_argument('page', 1))
         per_page = int(self.get_argument('per_page', 20))
+        username = self.current_user
+
         pagination = yield gen.maybe_future(
             Comment.page_list_by_user(username, page, per_page))
         comments = list()
         for comment in pagination.items:
-            info = yield gen.maybe_future(_comment_info(comment))
+            info = yield gen.maybe_future(_comment_info(username, comment))
             comments.append(info)
         result = {
             'page': page,

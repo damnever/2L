@@ -16,6 +16,18 @@ from app.tasks.tasks import check_proposal, update_gold
 from app.settings import Level
 
 
+def _topic_info(username, topic):
+    is_subed = False
+    if username is not None:
+        exists = Subscription.get_by_user_topic(username, topic.id)
+        if exists:
+            is_subed = True
+
+    info = topic.to_dict()
+    info.update({'is_subscribed': is_subed})
+    return info
+
+
 class AcceptedTopicsAPIHandler(APIHandler):
 
     @as_json
@@ -23,6 +35,7 @@ class AcceptedTopicsAPIHandler(APIHandler):
     def get(self):
         page = int(self.get_argument('page', 1))
         per_page = int(self.get_argument('per_page', 20))
+        username = self.current_user
 
         pagination = yield gen.maybe_future(
             Topic.page_list_all_accepted(page, per_page))
@@ -33,22 +46,10 @@ class AcceptedTopicsAPIHandler(APIHandler):
             'has_next': pagination.has_next,
             'pages': pagination.pages,
             'total': pagination.total,
-            'topics': [(yield gen.maybe_future(self.topic_info(item)))
+            'topics': [(yield gen.maybe_future(_topic_info(username, item)))
                        for item in pagination.items],
         }
         raise gen.Return(result)
-
-    def topic_info(self, topic):
-        username = self.current_user
-        is_subed = False
-        if username is not None:
-            exists = Subscription.get_by_user_topic(username, topic.id)
-            if exists:
-                is_subed = True
-
-        info = topic.to_dict()
-        info.update({'is_subscribed': is_subed})
-        return info
 
 
 class TopicsAPIHandler(APIHandler):
@@ -56,9 +57,11 @@ class TopicsAPIHandler(APIHandler):
     @as_json
     @gen.coroutine
     def get(self, topic_id):
+        username = self.current_user
+
         if topic_id:
             topic = yield gen.maybe_future(Topic.get(topic_id))
-            info = yield gen.maybe_future(self.topic_info(topic))
+            info = yield gen.maybe_future(_topic_info(username, topic))
             raise gen.Return(info)
         else:
             page = int(self.get_argument('page', 1))

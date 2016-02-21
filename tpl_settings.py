@@ -11,12 +11,12 @@ ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
 def read_img(path):
     path = os.path.join(ROOT_DIR, path)
     with open(path, 'rb') as f:
-        return '\n'.join(f.readlines())
+        return f.read()
 
 
 MySQL = {
     'username': 'root',
-    'password': 'DXC',
+    'password': 'root',
     'host': '127.0.0.1',
     'port': 3306,
     'db': '2L',
@@ -132,7 +132,7 @@ Topics = [
         'created_name': Admins[0]['username'],
         'avatar': read_img('static/imgs/2L.png.txt'),
         'description': '关于本站（2L）的所有事务都可以在这里讨论，拒绝灌水。',
-        'rules': '  \n# 2\n  ',
+        'rules': '  \n# 2',
         'why': 'No BB',
         'state': 1,
     },

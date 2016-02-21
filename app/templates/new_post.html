@@ -7,7 +7,7 @@
 <div class="row">
 	<div class="list-group col-md-5 col-md-offset-2">
 		<blockquote>
-			<p>正文支持 <a href="" target="_blank">Markdown</a> 语法，发贴会扣除相应的金币，内容一经发布就不可修改，发帖前务必过一遍 <abbr title="WHO, WHEN, WHERE, WHAT, WHY">5W</abbr> + <abbr title="HOW">1H</abbr>，不提倡恶意诽谤诋毁他人，不提倡发布违法乱纪的内容。</p>
+			<p>正文写作支持 <b>Markdown</b> 语法（<a href="https://daringfireball.net/projects/markdown/syntax" target="_blank">English</a> | <a href="http://www.ituring.com.cn/article/504" target="_blank">中文</a>），发贴会扣除相应的金币，内容一经发布就不可修改，发帖前务必过一遍 <abbr title="WHO, WHEN, WHERE, WHAT, WHY">5W</abbr> + <abbr title="HOW">1H</abbr>，不提倡恶意诽谤诋毁他人，不提倡发布违法乱纪的内容。</p>
 		</blockquote>
 		<form class="form-horizontal" role="form" id="new-post" v-on:submit.prevent="ignore">
 			<input type="hidden" name="id" value="{{ topic_id }}" v-model="topicId">
@@ -74,7 +74,9 @@
 			avatar: "{{ avatar }}",
 			admin: "{{ admin }}",
 			description: "{{ description }}",
-			rules: "{{ rules }}",
+			rules: (function () {/*
+			{{ rules }}
+			*/}).toString().split('\n').slice(1,-1).join('\n'),
 			bPost: false,
 		}
 	})
@@ -82,7 +84,7 @@
 	new Vue({
 		el: '#new-post',
 		data: {
-			topicId: -1,
+			topicId: {{ topic_id }},
 			title: '',
 			content: '',
 			keywords: '',

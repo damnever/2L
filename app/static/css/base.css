@@ -498,3 +498,7 @@ pre {
     float: left;
     margin-right: 5px;
 }
+
+.comment-voted {
+	color: #111;
+}

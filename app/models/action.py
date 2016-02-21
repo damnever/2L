@@ -345,7 +345,7 @@ class CommentDownVote(Model):
     @classmethod
     def get_by_user_comment(cls, username, comment_id):
         user = User.get_by_name(username)
-        r = cls.query.filter(expression.adn_(cls.comment_id==comment_id,
+        r = cls.query.filter(expression.and_(cls.comment_id==comment_id,
                                              cls.user_id==user.id))
         return r.first()
 

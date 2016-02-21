@@ -109,7 +109,11 @@
 					 :comment-avatar="comment.avatar"
 					 :comment-user="comment.author"
 					 :comment-date="comment.date"
-					 :comment-content="comment.content">
+					 :comment-content="comment.content"
+					 :comment-up-votes="comment.up_votes"
+					 :comment-down-votes="comment.down_votes"
+					 :is-up-voted="comment.up_voted"
+					 :is-down-voted="comment.down_voted">
 					</comment-component>
 					<span v-show="myCommentsCount <= 0">这家伙还没有发表过任何评论</span>
 			    </tab>

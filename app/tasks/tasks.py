@@ -107,7 +107,7 @@ def update_gold(type_, *args):
                 gold=(Gold['be_{0}_vote'.format(vote_type)]*symbol))
 
         def cancel_vote(self, username, id_, category, vote_type):
-            self.vote(self, username, id_, category, vote_type, symbol=-1)
+            self.vote(username, id_, category, vote_type, symbol=-1)
 
         def __call__(self, type_, *args):
             method = getattr(self, type_, None)

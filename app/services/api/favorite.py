@@ -41,10 +41,9 @@ class FavoritePostAPIHandler(APIHandler):
             # Update gold.
             update_gold.apply_async(('post_be_favorite', post_id))
 
-
-class UnfavoritePostAPIHandler(APIHandler):
-
     @as_json
+    @authenticated
+    @gen.coroutine
     def delete(self, post_id):
         username = self.current_user
         f = yield gen.maybe_future(Favorite.get_by_user_post(username, post_id))
@@ -62,7 +61,6 @@ urls = [
     #  `GET /api/favorite/posts`, get all favorite posts.
     (r'/api/favorite/posts', FavoritePostsAPIHandler),
     #  `POST /api/favorite/post/:post_id`, favorite a new post.
+    #  `DELETE /api/favorite/post/:post_id`, unfavorite a post.
     (r'/api/favorite/post/(\d+)', FavoritePostAPIHandler),
-    #  `DELETE /api/unfavorite/post/:post_id`, unfavorite a post.
-    (r'/api/unfavorite/post/(\d+)', UnfavoritePostAPIHandler),
 ]

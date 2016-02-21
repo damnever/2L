@@ -7,8 +7,14 @@ from tornado import gen
 from app.base.exceptions import HTTPError
 from app.base.handlers import BaseHandler
 from app.models import (
-    Topic, Post, User,
-    PostUpVote, PostDownVote, TopicUpVote, TopicDownVote,
+    Topic,
+    Post,
+    User,
+    Favorite,
+    PostUpVote,
+    PostDownVote,
+    TopicUpVote,
+    TopicDownVote,
 )
 
 
@@ -87,9 +93,20 @@ class PostHandler(BaseHandler):
         post = yield gen.maybe_future(Post.get(post_id))
         if not post:
             raise HTTPError(404)
+
         author = yield gen.maybe_future(User.get(post.author_id))
         up_votes = yield gen.maybe_future(PostUpVote.count_by_post(post_id))
         down_votes = yield gen.maybe_future(PostDownVote.count_by_post(post_id))
+
+        username = self.current_user
+        favorited, up_voted, down_voted = False, False, False
+        if username:
+            up_voted = bool((yield gen.maybe_future(
+                PostUpVote.get_by_user_post(username, post_id))))
+            down_voted = bool((yield gen.maybe_future(
+                PostDownVote.get_by_user_post(username, post_id))))
+            favorited = bool((yield gen.maybe_future(
+                Favorite.get_by_user_post(username, post_id))))
         self.render(
             'post.html',
             title=post.title,
@@ -103,6 +120,9 @@ class PostHandler(BaseHandler):
             content=post.content,
             up_votes=up_votes,
             down_votes=down_votes,
+            favorited=int(favorited),
+            up_voted=int(up_voted),
+            down_voted=int(down_voted),
         )
 
 

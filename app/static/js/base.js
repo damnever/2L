@@ -5,7 +5,7 @@ Vue.filter('toHTML', function(value) {
 })
 
 Vue.filter('toStr', function(value) {
-	return value ? value : ""
+	return value ? value : " "
 })
 
 Vue.filter('limitStr', function(value) {
@@ -172,11 +172,11 @@ Vue.component('commentComponent', {
 		  	<div class="comment-info">
 		  		<a href="/user/${ commentUser }" class="comment-user">${ commentUser }</a>
 		  		<span style="margin-left:5px;">
-			  		<a href="javascript:;" @click="upVote" class="comment-up-votes">
-						<span class="glyphicon glyphicon-thumbs-up" aria-hidden="true"></span>
+			  		<a href="javascript:;" @click="upVote" class="comment-up-votes"  :class="{'comment-voted': isUpVoted}">
+						<span class="glyphicon glyphicon-thumbs-up" aria-hidden="true"></span> ${ commentUpVotes }
 					</a>
-					<a href="javascript:;" @click="downVote" class="comment-down-votes">
-						<span class="glyphicon glyphicon-thumbs-down" aria-hidden="true"></span>
+					<a href="javascript:;" @click="downVote" class="comment-down-votes"  :class="{'comment-voted': isDownVoted}">
+						<span class="glyphicon glyphicon-thumbs-down" aria-hidden="true"></span> ${ commentDownVotes }
 					</a>
 				</span>
 		  		<span class="comment-date">评论于 ${ commentDate }</span>
@@ -194,7 +194,11 @@ Vue.component('commentComponent', {
 		commentDate: String,
 		commentContent: String,
 		commentAvatar: String,
+		commentUpVotes: Number,
+		commentDownVotes: Number,
 		atUsers: Array,
+		isUpVoted: Boolean,
+		isDownVoted: Boolean,
 	},
 	methods: {
 		at: function() {
@@ -206,24 +210,64 @@ Vue.component('commentComponent', {
 			this.atUsers.push("@" + this.commentUser)
 		},
 		upVote: function() {
+			var self = this
 			var id  = this.commentId
-			postJSON('/api/votes/comment/'+ id +'/up', {}, function(response) {
-				if (response.status === 1) {
-					console.log("UP VOTES: ", response.count)
-				} else {
-					console.log("VOTES COMMENT #" + id + " UP GOT ERROR: ", response.code, " ", response.reason)
-				}
-			})
+
+			if (self.isUpVoted) {
+				DELETE('/api/votes/comment/'+ id +'/up', {'token': getCookieByName('token')}, function(response) {
+					if (response.status === 1) {
+						self.commentUpVotes = response.count
+						self.isUpVoted = false
+					} else {
+						if (response.code == 403) {
+							vAlert.danger('您没有投票权限！')
+						}
+						console.log("VOTES COMMENT #" + id + " UP GOT ERROR: ", response.code, response.reason)
+					}
+				})
+			} else {
+				postJSON('/api/votes/comment/'+ id +'/up', {'token': getCookieByName('token')}, function(response) {
+					if (response.status === 1) {
+						self.commentUpVotes = response.count
+						self.isUpVoted = true
+					} else {
+						if (response.code == 403) {
+							vAlert.danger('您没有投票权限！')
+						}
+						console.log("VOTES COMMENT #" + id + " UP GOT ERROR: ", response.code, response.reason)
+					}
+				})
+			}
 		},
 		downVote: function() {
+			var self = this
 			var id  = this.commentId
-			postJSON('/api/votes/comment/'+ id +'/down', {}, function(response) {
-				if (response.status === 1) {
-					console.log("DOWN VOTES: ", response.count)
-				} else {
-					console.log("VOTES COMMENT #" + id + " DOWN GOT ERROR: ", response.code, " ", response.reason)
-				}
-			})
+
+			if (self.isDownVoted) {
+				DELETE('/api/votes/comment/'+ id +'/down', {'token': getCookieByName('token')}, function(response) {
+					if (response.status === 1) {
+						self.commentDownVotes = response.count
+						self.isDownVoted = false
+					} else {
+						if (response.code == 403) {
+							vAlert.danger('您没有投票权限！')
+						}
+						console.log("VOTES COMMENT #" + id + " DOWN GOT ERROR: ", response.code, response.reason)
+					}
+				})
+			} else {
+				postJSON('/api/votes/comment/'+ id +'/down', {}, function(response) {
+					if (response.status === 1) {
+						self.commentDownVotes = response.count
+						self.isDownVoted = true
+					} else {
+						if (response.code == 403) {
+							vAlert.danger('您没有投票权限！')
+						}
+						console.log("VOTES COMMENT #" + id + " DOWN GOT ERROR: ", response.code, response.reason)
+					}
+				})
+			}
 		}
 	}
 })

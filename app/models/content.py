@@ -28,8 +28,8 @@ class Topic(Model):
 
     @classmethod
     def can_post(cls, topic_id):
-        r = cls.query.with_entities(cls.state).filter(cls.topic_id==topic_id)
-        return r.state == 1
+        r = cls.query.with_entities(cls.state).filter(cls.id==topic_id)
+        return r.first().state == 1
 
     @classmethod
     def page_list_all_accepted(cls, page, per_page):
@@ -146,10 +146,13 @@ class Post(Model):
         from app.models.action import Subscription
 
         q = cls.query
+        # If user logined, query subscribed topics.
         if username:
             subs = Subscription.list_by_user(username)
-            topics = [s.topic_id for s in subs]
-            q = q.filter(cls.topic_id in topics)
+            topics = set([s.topic_id for s in subs])
+            # If user subscribed topics.
+            if topics:
+                q = q.filter(cls.topic_id.in_(topics))
         q = q.order_by(expression.desc(cls.comment_date))
         return q.paginate(page, per_page)
 
