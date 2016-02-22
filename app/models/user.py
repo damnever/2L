@@ -72,9 +72,9 @@ class User(Model):
                 setattr(self.profile, k, v)
 
         if self.profile.gold >= Level['gold']['topic_creation']:
-            self.role |= Permission.get_by_role('topic_creation')
+            self.role |= Permission.get_by_role('topic_creation').bit
         if self.profile.gold >= Level['gold']['vote']:
-            self.role |= Permission.get_by_role('vote')
+            self.role |= Permission.get_by_role('vote').bit
         try:
             db_session.add(self)
             db_session.commit()

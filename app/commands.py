@@ -76,6 +76,6 @@ def runtasks():
     import subprocess
 
     click.echo('[2L] {0}..'.format(runtasks.__doc__))
-    cmd = ('celery worker --autoscale=12,4 --app=app.tasks'
+    cmd = ('celery worker --beat --autoscale=12,4 --app=app.tasks'
            ' --loglevel=info --events --autoreload')
     subprocess.call(cmd.split())

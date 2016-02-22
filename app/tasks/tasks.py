@@ -5,6 +5,18 @@ from __future__ import print_function, division, absolute_import
 from app.tasks.celery import app
 
 
+@app.task(name='reset_gold', max_retries=5)
+def reset_gold():
+    import random
+    from app.models import User
+    from app.cache import gold
+    from app.settings import Gold
+
+    users = User.count() // 2
+    count = random.randint(*Gold['rob']) * users
+    gold.set(users, count)
+
+
 @app.task(name='update_permission', max_retries=5)
 def update_permission(user, role):
     from app.libs.db import db_session

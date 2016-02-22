@@ -95,6 +95,7 @@ class PostHandler(BaseHandler):
             raise HTTPError(404)
 
         author = yield gen.maybe_future(User.get(post.author_id))
+        favorites = yield gen.maybe_future(Favorite.count_by_post(post_id))
         up_votes = yield gen.maybe_future(PostUpVote.count_by_post(post_id))
         down_votes = yield gen.maybe_future(PostDownVote.count_by_post(post_id))
 
@@ -120,6 +121,7 @@ class PostHandler(BaseHandler):
             content=post.content,
             up_votes=up_votes,
             down_votes=down_votes,
+            favorites=favorites,
             favorited=int(favorited),
             up_voted=int(up_voted),
             down_voted=int(down_voted),

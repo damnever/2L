@@ -38,8 +38,10 @@ class FavoritePostAPIHandler(APIHandler):
             raise exceptions.PostAlreadyFavorited()
         else:
             yield gen.maybe_future(Favorite.create(username, post_id))
+            count = yield gen.maybe_future(Favorite.count_by_post(post_id))
             # Update gold.
             update_gold.apply_async(('post_be_favorite', post_id))
+            raise gen.Return({'count': count})
 
     @as_json
     @authenticated
@@ -49,8 +51,10 @@ class FavoritePostAPIHandler(APIHandler):
         f = yield gen.maybe_future(Favorite.get_by_user_post(username, post_id))
         if f:
             yield gen.maybe_future(f.delete())
+            count = yield gen.maybe_future(Favorite.count_by_post(post_id))
             # Update gold.
             update_gold.apply_async(('cancel_post_be_favorite', post_id))
+            raise gen.Return({'count': count})
         else:
             raise exceptions.PostHasNotBeenFavorited()
 

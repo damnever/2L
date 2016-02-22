@@ -56,7 +56,7 @@
 			<div class="info-left">
 				<a class="post-title" href="/post/{{ post_id }}">{{ title }}</a>
 				<div style="margin-top:5px;">
-					<a class="favorite" href="javascript:;" @click="favorite"><span class="glyphicon" :class="{'glyphicon-heart-empty': !isFavorited, 'glyphicon-heart': isFavorited}" aria-hidden="true"></span></a>
+					<a class="favorite" href="javascript:;" @click="favorite"><span class="glyphicon" :class="{'glyphicon-heart-empty': !isFavorited, 'glyphicon-heart': isFavorited}" aria-hidden="true"></span> ${ favorites }</a>
 					<a class="post-up-votes" :class="{'post-voted': isUpVoted}" href="javascript:;" @click="upVote"><span class="glyphicon glyphicon-thumbs-up" aria-hidden="true"></span> ${ upVotes }</a>
 					<a class="post-down-votes" :class="{'post-voted': isDownVoted}" href="javascript:;" @click="downVote"><span class="glyphicon glyphicon-thumbs-down" aria-hidden="true"></span> ${ downVotes }</a>
 					<a class="post-author" href="/user/{{ author }}">{{ author }}</a>
@@ -122,6 +122,7 @@
 			token: getCookieByName('token'),
 			upVotes: {{ up_votes }},
 			downVotes: {{ down_votes }},
+			favorites: {{ favorites }},
 			isUpVoted: Boolean({{ up_voted }}),
 			isDownVoted: Boolean({{ down_voted }}),
 			isFavorited: Boolean({{ favorited }}),
@@ -133,6 +134,7 @@
 				if (self.isFavorited) {
 					DELETE('/api/favorite/post/' + postID, {'token': self.token}, function(response) {
 						if (response.status === 1) {
+							self.favorites = response.count
 							self.isFavorited = false
 						} else {
 							if (response.code == 403) {
@@ -144,6 +146,7 @@
 				} else {
 					postJSON('/api/favorite/post/' + postID, {'token': self.token}, function(response) {
 						if (response.status === 1) {
+							self.favorites = response.count
 							self.isFavorited = true
 						} else {
 							if (response.code == 403) {

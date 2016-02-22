@@ -41,15 +41,15 @@ def get(username, func):
 
                 left_num = int(pipe.get(_KEY_NUM) or 0)
                 left_gold = int(pipe.get(_KEY_GOLD) or 0)
-                if left_num == 0 and left_gold == 0:
+                if left_num <= 0 or left_gold <= 0:
                     return 0
 
-                left_num -= 1
                 gold = func(left_num, left_gold)
+                left_num -= 1
                 left_gold -= gold
 
                 pipe.multi()
-                pipe.hmset(_KEY_USERS, username, 1)
+                pipe.hmset(_KEY_USERS, {username: 1})
                 pipe.set(_KEY_NUM, left_num)
                 pipe.set(_KEY_GOLD, left_gold)
                 pipe.execute()

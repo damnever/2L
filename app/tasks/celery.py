@@ -3,9 +3,10 @@
 from __future__ import print_function, division, absolute_import
 
 from celery import Celery
+from celery.schedules import crontab
 from tzlocal import get_localzone
 
-from app.settings import Redis
+from app.settings import Redis, ResetGoldTime
 
 
 BROKER_URL = 'redis://:{password}@{host}:{port}/{db}'.format(**Redis['task'])
@@ -18,6 +19,12 @@ app.conf.update(
     CELERY_TASK_SERIALIZER='json',
     CELERY_RESULT_SERIALIZER='json',
     CELERY_ACCEPT_CONTENT=['json', 'yaml'],
+    CELERYBEAT_SCHEDULE={
+        'reset-gold-every-day-{0}am'.format(ResetGoldTime): {
+            'task': 'reset_gold',
+            'schedule': crontab(hour=17, minute=7),
+        }
+    },
 )
 
 
