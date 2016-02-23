@@ -48,6 +48,8 @@
 
 {% block script %}
 <script type="text/javascript">
+	var token = getCookieByName('token')
+
 	Vue.component('notifyComponent', {
 		template:  (function () {/*
 			<li class="list-group-item" id="${ id }">
@@ -62,38 +64,32 @@
 		}
 	})
 
-	new Vue({
+	var notifications = new Vue({
 		el: '#notifications',
 		data: {
-			comments: [
-				{
-					'id': 1,
-					'header': '<a href="/user/Damnever">Damnever</a>在回复 <a href="http://127.0.0.1:8888/post/1">又来测试</a> 时提到了你：',
-					'content': '@Damnever @Root 哈哈哈哈哈哈哈哈哈哈哈哈哈',
-				},
-				{
-					'id': 1,
-					'header': '<a href="/user/Damnever">Damnever</a>在回复 <a href="http://127.0.0.1:8888/post/1">又来测试</a> 时提到了你：',
-					'content': '@Damnever @Root 哈哈哈哈哈哈哈哈哈哈哈哈哈',
-				},
-			],
-			ats: [
-				{
-					'id': 1,
-					'header': '<a href="/user/Damnever">Damnever</a>在回复 <a href="http://127.0.0.1:8888/post/1">又来测试</a> 时提到了你：',
-					'content': '@Damnever @Root 哈哈哈哈哈哈哈哈哈哈哈哈哈',
-				},
-				{
-					'id': 1,
-					'header': '<a href="/user/Damnever">Damnever</a>在回复 <a href="http://127.0.0.1:8888/post/1">又来测试</a> 时提到了你：',
-					'content': '@Damnever @Root 哈哈哈哈哈哈哈哈哈哈哈哈哈',
-				},
-			],
+			comments: [],
+			ats: [],
 		},
 	    components: {
 	        tabs: VueStrap.tabset,
 	        tab: VueStrap.tab
 	    },
+	})
+
+	getJSON('/api/notifications/comments', {'type': 'comment', 'token': token}, function(response) {
+		if (response.status == 1) {
+			notifications.comments = response.messages
+		} else {
+			console.log('GET ALL COMMENT NOTIFICATIONS ERROR: ', response.code, response.reason)
+		}
+	})
+
+	getJSON('/api/notifications/comments', {'type': 'at', 'token': token}, function(response) {
+		if (response.status == 1) {
+			notifications.ats = response.messages
+		} else {
+			console.log('GET ALL AT NOTIFICATIONS ERROR: ', response.code, response.reason)
+		}
 	})
 </script>
 {% end %}

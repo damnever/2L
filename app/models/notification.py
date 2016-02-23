@@ -12,6 +12,8 @@ from app.libs.db import db_session
 
 
 class Notification(Model):
+    """activity_type: comment, at, follow..."""
+
     sender_id = Column('sender_id', Integer(), index=True, nullable=False)
     recipient_id = Column('recipient_id', Integer(), index=True, nullable=False)
     activity_type = Column('activity_type', String(50), nullable=False)
@@ -36,11 +38,20 @@ class Notification(Model):
         return cls.query.filter(stmt).all()
 
     @classmethod
-    def create(cls, sender_name, recipient_name, activity_type, content_url):
+    def list_by_user_and_type(cls, username, type_, unread=None):
+        user = User.get_by_name(username)
+        cond = [cls.activity_type==type_, cls.recipient_id==user.id]
+        if unread is not None:
+            cond.append(cls.unread==unread)
+        return cls.query.filter(expression.and_(*cond)).all()
+
+    @classmethod
+    def create(cls, sender_name, recipient_name,
+               activity_type, header, content):
         sender = User.get_by_name(sender_name)
         recipient = User.get_by_name(recipient_name)
         n = cls(sender_id=sender.id, recipient_id=recipient.id,
-                activity_type=activity_type, content_url=content_url)
+                activity_type=activity_type, header=header, content=content)
         try:
             db_session.add(n)
             db_session.commit()
@@ -48,6 +59,13 @@ class Notification(Model):
             db_session.rollback()
             raise
         return n
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'header': self.header,
+            'content': self.content,
+        }
 
     def mark_as_read(self):
         self.unread = False

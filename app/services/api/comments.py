@@ -7,10 +7,15 @@ from tornado import gen
 from app.base.handlers import APIHandler
 from app.base.decorators import as_json, need_permissions
 from app.base.roles import Roles
-from app.models import Comment, CommentUpVote, CommentDownVote, User
 from app.services.api import exceptions
 from app.libs.utils import at_content
-from app.tasks.tasks import update_gold
+from app.tasks.tasks import update_gold, notify
+from app.models import (
+    Comment,
+    CommentUpVote,
+    CommentDownVote,
+    User,
+)
 
 
 def _comment_info(username, comment):
@@ -76,7 +81,12 @@ class PostCommentsAPIHandler(APIHandler):
             update_gold.apply_async(('comment', username))
             if users:
                 update_gold.apply_async(('be_comment', users))
-            # TODO: Notify users: someone @you.
+
+            # TODO: Notify users: be comment, someone @you.
+            notify.apply_async(('comment', username, post_id, content))
+            if users:
+                notify.apply_async(('at', username, users, post_id, content))
+
             raise gen.Return(comment.to_dict())
 
 

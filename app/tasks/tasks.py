@@ -5,6 +5,14 @@ from __future__ import print_function, division, absolute_import
 from app.tasks.celery import app
 
 
+class Strategy(object):
+
+    def __call__(self, type_, *args):
+        method = getattr(self, type_, None)
+        if method is not None:
+            method(*args)
+
+
 @app.task(name='reset_gold', max_retries=5)
 def reset_gold():
     import random
@@ -63,7 +71,7 @@ def update_gold(type_, *args):
     from app.models import User, Post, Comment
     from app.settings import Gold
 
-    class _UpdateProposal(object):
+    class _UpdateProposal(Strategy):
 
         def sb_2l(self, username, post_id):
             count, comment = Comment.last_with_count(post_id)
@@ -96,7 +104,7 @@ def update_gold(type_, *args):
             user = User.get_by_name(username)
             user.update(gold=Gold['comment'])
 
-        def be_comment(self, *usernames):
+        def be_comment(self, usernames):
             for username in usernames:
                 user = User.get_by_name(username)
                 user.update(gold=Gold['be_comment'])
@@ -121,11 +129,6 @@ def update_gold(type_, *args):
         def cancel_vote(self, username, id_, category, vote_type):
             self.vote(username, id_, category, vote_type, symbol=-1)
 
-        def __call__(self, type_, *args):
-            method = getattr(self, type_, None)
-            if method is not None:
-                method(*args)
-
     _UpdateProposal()(type_, *args)
 
 
@@ -134,6 +137,32 @@ def send_email(to_name, to_addr, subject, message):
     pass
 
 
-@app.task(name='', max_retries=10)
-def notifiy():
-    pass
+@app.task(name='notify', max_retries=10)
+def notify(type_, *args):
+    import functools
+    from app.models import User, Notification, Post
+
+    class _Notification(Strategy):
+        _comment_header = ('<a href="/user/{0}">{0}</a> 回复了你的帖子 '
+                           '<a href="/post/{1}">{2}</a>：')
+        _at_header = ('<a href="/user/{0}">{0}</a> 在回复 '
+                      '<a href="/post/{1}">{2}</a> 时提到了你：')
+
+        def comment(self, sender_name, post_id, content):
+            post = Post.get(post_id)
+            user = User.get(post.author_id)
+            header = self._comment_header.format(
+                sender_name, post.id, post.title)
+            Notification.create(
+                sender_name, user.username, 'comment', header, content)
+
+        def at(self, sender_name, usernames, post_id, content):
+            post = Post.get(post_id)
+            hfmt = functools.partial(self._at_header.format, sender_name)
+
+            for username in usernames:
+                header = hfmt(post.id, post.title)
+                Notification.create(
+                    sender_name, username, 'at', header, content)
+
+    _Notification()(type_, *args)
