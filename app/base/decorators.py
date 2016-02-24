@@ -52,8 +52,7 @@ def as_json(method):
                 'reason': 'Unknown server error.',
             })
         else:
-            if result is None:
-                result = dict()
+            result = result or dict()
             result.update({'status': 1})
             self.finish(json_encode(result))
     return wrapper

@@ -1,6 +1,11 @@
 # -*- coding: utf-8 -*-
 
+"""Simple push service use WebSocket and Redis Pub-Sub, no BB!"""
+
 from __future__ import print_function, division, absolute_import
+
+import os
+import multiprocessing
 
 try:
     from urllib.parse import urlparse  # Py3
@@ -10,6 +15,34 @@ except ImportError:
 from tornado.websocket import WebSocketHandler
 
 from app.base.handlers import BaseHandler
+
+
+class PushService(object):
+
+    def __init__(self):
+        self._manager = multiprocessing.Manager()
+        self._connections = self._manager.dict()
+        self._lock = multiprocessing.Lock()
+
+    def add_connection(self, username, connection):
+        with self._lock:
+            self._connections[username] = connection
+
+    def remove_connection(self, username):
+        with self._lock:
+            if username in self._connections:
+                del self._connections[username]
+
+    def start(self):
+        try:
+            pid = os.fork()
+            if pid == 0:
+                self.push_msg()
+        except OSError as e:
+            print('[PUSH SERVICE]: \x1b[33;01m{0}\x1b[39;49;00m'.format(e))
+
+    def push_msg(self):
+        pass
 
 
 class NotifyHandler(BaseHandler, WebSocketHandler):
