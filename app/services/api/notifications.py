@@ -19,7 +19,6 @@ class CommentNotificationsAPIHandler(APIHandler):
         unread = bool(self.get_argument('unread', True))
         username = self.current_user
 
-        print(username)
         ntfs = yield gen.maybe_future(
             Notification.list_by_user_and_type(username, type_, unread))
         result = {
