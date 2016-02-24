@@ -2,7 +2,12 @@
 
 from __future__ import print_function, division, absolute_import
 
+from celery.utils.log import get_task_logger
+
 from app.tasks.celery import app
+
+
+logger = get_task_logger(__name__)
 
 
 class Strategy(object):
@@ -139,14 +144,13 @@ def send_email(to_name, to_addr, subject, message):
 
 @app.task(name='notify', max_retries=10)
 def notify(type_, *args):
-    import functools
     from app.models import User, Notification, Post
 
     class _Notification(Strategy):
-        _comment_header = ('<a href="/user/{0}">{0}</a> 回复了你的帖子 '
-                           '<a href="/post/{1}">{2}</a>：')
-        _at_header = ('<a href="/user/{0}">{0}</a> 在回复 '
-                      '<a href="/post/{1}">{2}</a> 时提到了你：')
+        _comment_header = (u'<a href="/user/{0}">{0}</a> 回复了你的帖子'
+                           u' <a href="/post/{1}">{2}</a>:')
+        _at_header = (u'<a href="/user/{0}">{0}</a> 在回复 '
+                      u'<a href="/post/{1}">{2}</a> 时提到了你:')
 
         def comment(self, sender_name, post_id, content):
             post = Post.get(post_id)
@@ -158,10 +162,10 @@ def notify(type_, *args):
 
         def at(self, sender_name, usernames, post_id, content):
             post = Post.get(post_id)
-            hfmt = functools.partial(self._at_header.format, sender_name)
 
             for username in usernames:
-                header = hfmt(post.id, post.title)
+                header = self._at_header.format(
+                    sender_name, post.id, post.title)
                 Notification.create(
                     sender_name, username, 'at', header, content)
 

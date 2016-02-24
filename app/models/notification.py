@@ -19,23 +19,23 @@ class Notification(Model):
     activity_type = Column('activity_type', String(50), nullable=False)
     header = Column('header', Text(), nullable=False)
     content = Column('content', Text(), nullable=False)
-    unread = Column('unread', Boolean(), nullable=True)
+    unread = Column('unread', Boolean(), default=True)
     date = Column('date', DateTime(timezone=True), default=functions.now())
 
     @classmethod
     def list_by_recipient(cls, username, unread=None):
         user = User.get_by_name(username)
-        stmt = cls.recipient_id==user.id
+        cond = [cls.recipient_id==user.id]
         if unread is not None:
-            stmt = expression.and_(stmt, cls.unread==unread)
-        return cls.query.filter(stmt).all()
+            cond.append(cls.unread==unread)
+        return cls.query.filter(expression.and_()).all()
 
     @classmethod
     def list_by_type(cls, type_, unread=None):
-        stmt = cls.activity_type==type_
+        cond = [cls.activity_type==type_]
         if unread is not None:
-            stmt = expression.and_(stmt, cls.unread==unread)
-        return cls.query.filter(stmt).all()
+            cond.append(cls.unread==unread)
+        return cls.query.filter(expression.and_(cond)).all()
 
     @classmethod
     def list_by_user_and_type(cls, username, type_, unread=None):
@@ -51,7 +51,8 @@ class Notification(Model):
         sender = User.get_by_name(sender_name)
         recipient = User.get_by_name(recipient_name)
         n = cls(sender_id=sender.id, recipient_id=recipient.id,
-                activity_type=activity_type, header=header, content=content)
+                activity_type=activity_type, header=header,
+                content=content, unread=True)
         try:
             db_session.add(n)
             db_session.commit()
