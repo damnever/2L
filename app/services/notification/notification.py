@@ -52,6 +52,7 @@ class PushService(object):
             name='push_forever',
             args=(),
         )
+        self._thread.daemon = True
         self._thread.start()
 
     def _push_msg(self):
@@ -144,9 +145,15 @@ class NotifyHandler(WebSocketHandler, BaseHandler):
         except json.JSONDecoder:
             self.log.error("WebSocket: ", exc_info=True)
             return
-        assert isinstance(msg, dict), 'message format: {"username": "xxx"}'
+
+        if not isinstance(msg, dict):
+            self.log.error('message format: {"username": "xxx"}')
+            return
+
         self.username = msg.get('username', None)
-        assert self.username is not None, '"username" required'
+        if self.username is None:
+            self.log.error('"username" required')
+            return
         push_service.add_conn(self.username, self)
 
     def on_close(self):
