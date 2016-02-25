@@ -16,8 +16,8 @@ app = Celery('2L', broker=BROKER_URL, include=['app.tasks.tasks'])
 
 app.conf.update(
     CELERY_TIMEZONE=get_localzone(),
-    CELERY_TASK_SERIALIZER='pickle',
-    CELERY_RESULT_SERIALIZER='pickle',
+    CELERY_TASK_SERIALIZER='json',
+    CELERY_RESULT_SERIALIZER='json',
     CELERY_ACCEPT_CONTENT=['pickle', 'json'],
     CELERYBEAT_SCHEDULE={
         'reset-gold-every-day-{0}am'.format(ResetGoldTime): {
