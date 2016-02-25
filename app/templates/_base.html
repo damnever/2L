@@ -41,7 +41,7 @@
 			<ul class="nav navbar-nav navbar-right" style="padding-top:14px;">
 				<span id="user-area" v-if="currentUser">
 					<li id="user-msg" class="for-nav">
-   						<a href="/notifications/${ currentUser }">消息 <span class="badge"></span></a>
+   						<a href="/notifications/${ currentUser }">消息 <span class="badge" v-if="unread != 0">${ unread }</span></a>
    					</li>
 					<li id="user-info" class="for-nav" style="margin-left:10px;">
                         <dropdown>
@@ -131,10 +131,11 @@
 <script type="text/javascript" src="{{ static_url("js/base.js") }}"></script>
 <script type="text/javascript" src="{{ static_url("js/auth.js") }}"></script>
 <script type="text/javascript">
-    new Vue({
+    var NAV = new Vue({
     	el: '#nav',
     	data: {
             currentUser: "{% if current_user %}{{ current_user }}{% end %}",
+            unread: 0,
     		url: window.location.href.toString().split(window.location.host)[1],
     	},
     	computed: {
@@ -187,6 +188,41 @@
             if(this.blur) {this.blur()}
         })
     })
+
+    var ws = {}, enabled= false;
+    ws.close = function(){}
+    function checkUser() {
+        if (NAV.currentUser === "") {
+            window.setTimeout(checkUser, 100);
+            ws.close()
+            enabled = false
+        } else {
+            window.setTimeout(checkUser, 60 * 1000);
+            if (!enabled) {
+                enableWebSocket()
+                enabled = true
+            }
+        }
+    }
+    function enableWebSocket() {
+        ws = new WebSocket("ws://" + window.location.host + "/notify")
+        ws.onopen = function() {
+            ws.send(JSON.stringify({'username': NAV.currentUser}))
+        }
+        ws.onmessage = function(event) {
+            console.log(event.data)
+            var msg = JSON.parse(event.data)
+            NAV.unread += Number(msg.unread)
+        }
+        ws.onclose = function() {
+            enabled = false
+            console.log('CLOSED')
+        }
+        ws.onerror = function() {
+            console.log('ERROR')
+        }
+    }
+    checkUser()
 </script>
 {% block script %}{% end %}
 </html>

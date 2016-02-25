@@ -1,51 +1,92 @@
 # -*- coding: utf-8 -*-
 
-"""Simple push service use WebSocket and Redis Pub-Sub, no BB!"""
+"""Simple push service, as simple as possible...
+
+XXX: PICKLE IS A BIG PROBLE, celery, multiprocessing...
+"""
 
 from __future__ import print_function, division, absolute_import
 
-import os
-import multiprocessing
-
+import json
+import time
+import threading
 try:
     from urllib.parse import urlparse  # Py3
 except ImportError:
     from urlparse import urlparse  # Py2
 
-from tornado.websocket import WebSocketHandler
+import redis
+from tornado.websocket import WebSocketHandler, WebSocketClosedError
 
 from app.base.handlers import BaseHandler
+from app.settings import Redis
+
+
+Number = (type(1), type(1L))
 
 
 class PushService(object):
 
+    _subject_notification = 'subject:notification:{0}'
+
     def __init__(self):
-        self._manager = multiprocessing.Manager()
-        self._connections = self._manager.dict()
-        self._lock = multiprocessing.Lock()
+        self._conns = dict()
+        self._lock = threading.Lock()
+        self._redis = redis.StrictRedis(**Redis['notification'])
+        self._pubsub = self._redis.pubsub()
 
-    def add_connection(self, username, connection):
+    def add_conn(self, username, conn):
+        self._pubsub.subscribe(self._subject_notification.format(username))
         with self._lock:
-            self._connections[username] = connection
+            self._conns[username] = conn
 
-    def remove_connection(self, username):
+    def remove_conn(self, username):
+        self._pubsub.unsubscribe(self._subject_notification.format(username))
         with self._lock:
-            if username in self._connections:
-                del self._connections[username]
+            if username in self._conns:
+                del self._conns[username]
 
     def start(self):
+        self._thread = threading.Thread(
+            target=self._push_msg,
+            name='push_forever',
+            args=(),
+        )
+        self._thread.start()
+
+    def _push_msg(self):
+        while 1:
+            try:
+                message = self._pubsub.get_message()
+            except AttributeError:
+                # no one subscribed!
+                pass
+            else:
+                if message and not isinstance(message['data'], Number):
+                    username = self._parse_username(message['channel'])
+                    with self._lock:
+                        conn = self._conns.get(username, None)
+
+                    if conn is not None:
+                        try:
+                            conn.write_message(message['data'])
+                        except WebSocketClosedError:
+                            self.remove_conn(username)
+
+            time.sleep(0.001)
+
+    def _parse_username(self, channel):
         try:
-            pid = os.fork()
-            if pid == 0:
-                self.push_msg()
-        except OSError as e:
-            print('[PUSH SERVICE]: \x1b[33;01m{0}\x1b[39;49;00m'.format(e))
-
-    def push_msg(self):
-        pass
+            return channel.rsplit(':', 1)[1]
+        except IndexError:
+            return None
 
 
-class NotifyHandler(BaseHandler, WebSocketHandler):
+push_service = PushService()
+push_service.start()
+
+
+class NotifyHandler(WebSocketHandler, BaseHandler):
 
     # Borrow from:
     #  https://github.com/jupyter/notebook/blob/master/notebook/base/zmqhandlers.py
@@ -92,8 +133,28 @@ class NotifyHandler(BaseHandler, WebSocketHandler):
                               "Origin: %s, Host: %s"), origin, host)
         return allow
 
+    username = None
+
     def open(self):
         self.log.info('New WebSocket connect in...')
 
+    def on_message(self, message):
+        try:
+            msg = json.loads(message)
+        except json.JSONDecoder:
+            self.log.error("WebSocket: ", exc_info=True)
+            return
+        assert isinstance(msg, dict), 'message format: {"username": "xxx"}'
+        self.username = msg.get('username', None)
+        assert self.username is not None, '"username" required'
+        push_service.add_conn(self.username, self)
+
     def on_close(self):
         self.log.info('WebSocket closed...')
+        #  self.close()
+        push_service.remove_conn(self.username)
+
+
+urls = [
+    (r'/notify', NotifyHandler),
+]

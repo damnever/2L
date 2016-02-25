@@ -68,26 +68,6 @@ class BaseHandler(AsyncTaskMixIn, RequestHandler):
         """Regular expression version of allow_origin"""
         return self.settings.get('allow_origin_pat', None)
 
-    def set_default_headers(self):
-        super(BaseHandler, self).set_default_headers()
-        if self.allow_origin:
-            self.set_header('Access-Control-Allow-Origin', self.allow_origin)
-        elif self.allow_origin_pat:
-            origin = self.get_origin()
-            if origin and self.allow_origin_pat.match(origin):
-                self.set_header('Access-Control-Allow-Origin', origin)
-
-    def get_origin(self):
-        # Handle WebSocket Origin naming convention differences
-        # The difference between version 8 and 13 is that in 8 the
-        # client sends a "Sec-Websocket-Origin" header and in 13 it's
-        # simply "Origin".
-        if 'Origin' in self.request.headers:
-            origin = self.request.headers['Origin']
-        else:
-            origin = self.request.headers.get('Sec-Websocket-Origin', None)
-        return origin
-
     # origin_to_satisfy_tornado is present because tornado requires
     # check_origin to take an origin argument, but we don't use it
     def check_origin(self, origin_to_satisfy_tornado=""):

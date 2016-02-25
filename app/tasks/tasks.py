@@ -144,7 +144,9 @@ def send_email(to_name, to_addr, subject, message):
 
 @app.task(name='notify', max_retries=10)
 def notify(type_, *args):
+    from tornado.escape import json_encode
     from app.models import User, Notification, Post
+    from app.cache import notification
 
     class _Notification(Strategy):
         _comment_header = (u'<a href="/user/{0}">{0}</a> 回复了你的帖子'
@@ -159,6 +161,7 @@ def notify(type_, *args):
                 sender_name, post.id, post.title)
             Notification.create(
                 sender_name, user.username, 'comment', header, content)
+            notification.publish(user.username, json_encode({'unread': 1}))
 
         def at(self, sender_name, usernames, post_id, content):
             post = Post.get(post_id)
@@ -168,5 +171,6 @@ def notify(type_, *args):
                     sender_name, post.id, post.title)
                 Notification.create(
                     sender_name, username, 'at', header, content)
+                notification.publish(username, json_encode({'unread': 1}))
 
     _Notification()(type_, *args)

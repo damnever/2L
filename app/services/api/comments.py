@@ -82,10 +82,12 @@ class PostCommentsAPIHandler(APIHandler):
             if users:
                 update_gold.apply_async(('be_comment', users))
 
-            # TODO: Notify users: be comment, someone @you.
-            notify.apply_async(('comment', username, post_id, content))
+            # Notify users: be comment, someone @you.
+            notify.apply_async(
+                ('comment', username, post_id, content))
             if users:
-                notify.apply_async(('at', username, users, post_id, content))
+                notify.apply_async(
+                    ('at', username, users, post_id, content))
 
             raise gen.Return(comment.to_dict())
 
