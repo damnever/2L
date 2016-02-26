@@ -296,6 +296,22 @@ function subUnsub(obj) {
 	}
 }
 
+///////////////////////////////////////////////////////////////////////////////
+function getListByPage(vObj, url, page, perPage, items) {
+	getJSON(url, {'page': page, 'per_page': perPage}, function(response) {
+		if (response.status === 1) {
+			vObj.total = response.total
+			vObj.page = response.page
+			vObj.pages = response.pages
+			vObj.hasPrev = response.has_prev
+			vObj.hasNext = response.has_next
+			vObj.items = response[items]
+		} else {
+			console.log('GET LIST BY PAGE ERROR: ' + response.code, response.reason)
+		}
+	})
+}
+
 
 ///////////////////////////////////////////////////////////////////////////////
 function getJSON(url, data, callback) {

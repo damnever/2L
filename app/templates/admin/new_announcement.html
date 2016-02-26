@@ -1,0 +1,84 @@
+{% extends "../_base.html" %}
+
+{% block head %}
+
+{% end %}
+
+{% block content %}
+<div class="row">
+	<div id="posts" class="list-group col-md-5 col-md-offset-2">
+		<div id="new">
+			<legend>新广播</legend>
+			<form class="form-horizontal" role="form" id="new-post" v-on:submit.prevent="ignore">
+				<div class="form-group">
+			        <div class="col-sm-10">
+			            <textarea class="form-control" rows="3" id="content" v-model="content"></textarea>
+			        </div>
+			        <div class="col-sm-2">
+			            <button class="btn btn-info" style="width:100%;" @click="post">发布</button>
+			        </div>
+			    </div>
+			</form>
+		</div>
+		<hr/>
+		<div id="old">
+			<legend>最近的广播</legend>
+			<table class="table">
+				<tr>
+					<th>#</th>
+					<th>内容</th>
+					<th>管理员</th>
+					<th>发布日期</th>
+				</tr>
+				<tr v-for="(index, item) in items">
+					<td>${ index + 1 }</td>
+					<td>${ item.content }</td>
+					<td>${ item.author }</td>
+					<td>${ item.date }</td>
+				</tr>
+			</table>
+		</div>
+	</div>
+</div>
+{% end %}
+
+{% block script %}
+<script type="text/javascript">
+	new Vue({
+		el: '#new',
+		methods: {
+			ignore: function(){},
+			post: function() {
+
+			},
+		}
+	})
+	new Vue({
+		el: '#old',
+		data: {
+			items: [
+				{
+					'content': 'Move your big ass.',
+					'author': 'Damnever',
+					'date': '2016-2-24 08:08:00',
+				},
+				{
+					'content': 'Eat your dog food.',
+					'author': 'Damnever',
+					'date': '2016-2-24 08:08:00',
+				},
+				{
+					'content': 'Lie on your cold bed.',
+					'author': 'Damnever',
+					'date': '2016-2-24 08:08:00',
+				},
+				{
+					'content': 'You are a pile of shit.',
+					'author': 'Damnever',
+					'date': '2016-2-24 08:08:00',
+				}
+			],
+		},
+	})
+</script>
+{% end %}

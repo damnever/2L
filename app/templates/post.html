@@ -83,6 +83,11 @@
 			 :is-up-voted="item.up_voted"
 			 :is-down-voted="item.down_voted">
 			</comment-component>
+			<ul v-if="pages > 1" class="pagination pagination-sm">
+				<li :class="{'disabled': !hasPrev}"><a href="javascript:;" @click="prev">&laquo;</a></li>
+	 			<li v-for="idx in pagesList" :class="{'active': (page == idx)}"><a href="javascript:;" @click="currentPage(idx)">${ idx }</a></li>
+	 			<li :class="{'disabled': !hasNext}"><a href="javascript:;" @click="next">&raquo;</a></li>
+			</ul>
 			<div id="comment" style="margin-top:10px;">
 				<textarea id="comment-area" class="form-control" rows="3" v-model="content">${ atUsers.join(" ") + " " }</textarea>
 				<div class="comment-submit">
@@ -247,13 +252,29 @@
 	})
 
 	///////////////////////////////////////////////////////////////////////////
+	var perPage = 20
+	var commentsURL = '/api/comments/post/' + postID
+
 	var comments = new Vue({
 		el: '#comments',
 		data: {
 			tag: false,
+			total: 0,
+			page: 1,
+			hasPrev: false,
+			hasNext: false,
+			pages: 0,
 			items: [],
 			content: '',
 			atUsers: [],
+		},
+		computed: {
+			pagesList: function() {
+				if (this.pages <= 0) {
+					return []
+				}
+				return range(1, this.pages);
+			},
 		},
 		methods: {
 			comment: function() {
@@ -265,7 +286,7 @@
 					'token': getCookieByName('token'),
 					'content': this.content,
 				}
-				postJSON('/api/comments/post/' + postID, data, this.handleResp)
+				postJSON(commentsURL, data, this.handleResp)
 			},
 			handleResp: function(response) {
 				if (response.status === 1) {
@@ -284,16 +305,28 @@
 				} else {
 					console.log("COMMENT POST #" + postID + " FAILED", response.code, response.reason)
 				}
+			},
+			prev: function() {
+				if (!this.hasPrev) {
+					return
+				}
+				getListByPage(this, commentsURL, this.page - 1, perPage, 'comments')
+			},
+			next: function() {
+				if (!this.hasNext) {
+					return
+				}
+				getListByPage(this, commentsURL, this.page + 1, perPage, 'comments')
+			},
+			currentPage: function(idx) {
+				if (this.page == idx) {
+					return
+				}
+				getListByPage(this, commentsURL, idx, perPage, 'comments')
 			}
 		}
 	})
-	getJSON('/api/comments/post/' + postID, {'page': 1, 'per_page': 20}, function(response) {
-		if (response.status === 1) {
-			comments.items = response.comments
-		} else {
-			console.log('GET COMMENTS OF POST #' + postID + ' ERROR: ' + response.code, response.reason)
-		}
-	})
+	getListByPage(comments, commentsURL, 1, 20, 'comments')
 	
 </script>
 {% end %}

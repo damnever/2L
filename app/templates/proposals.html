@@ -60,6 +60,11 @@
 		 :author-name="item.administer"
 		 :topic-description="item.description">
 		</proposal-component>
+		<ul v-show="pages > 1" class="pagination pagination-sm">
+			<li :class="{'disabled': !hasPrev}"><a href="javascript:;" @click="prev">&laquo;</a></li>
+ 			<li v-for="idx in pagesList" :class="{'active': (page == idx)}"><a href="javascript:;" @click="currentPage(idx)">${ idx }</a></li>
+ 			<li :class="{'disabled': !hasNext}"><a href="javascript:;" @click="next">&raquo;</a></li>
+		</ul>
 	</div>
 	<div class="col-md-3" style="background-color: #fff;padding:0 0 0 24px;">
 		<div class="topic">
@@ -125,25 +130,49 @@
 		}
 	})
 
+	var perPage = 20
+	var topicURL = '/api/topics'
+
 	var p = new Vue({
 		el: '#proposals',
 		data: {
+			total: 0,
 			items: [],
+			pages: 0,
+			page: 1,
+			hasPrev: false,
+			hasNext: false,
+		},
+		computed: {
+			pagesList: function() {
+				if (this.pages <= 0) {
+					return []
+				}
+				return range(1, this.pages);
+			},
 		},
 		methods: {
+			prev: function() {
+				if (!this.hasPrev) {
+					return
+				}
+				getListByPage(this, topicURL, this.page - 1, perPage, 'topics')
+			},
+			next: function() {
+				if (!this.hasNext) {
+					return
+				}
+				getListByPage(this, topicURL, this.page + 1, perPage, 'topics')
+			},
+			currentPage: function(idx) {
+				if (this.page == idx) {
+					return
+				}
+				getListByPage(this, topicURL, idx, perPage, 'topics')
+			},
 		}
 	})
 
-	getJSON('/api/topics', {}, function(response) {
-		if (response.status === 1) {
-			if (response.total === 0) {
-				return
-			}
-			p.items = response.topics
-			console.log(JSON.stringify(response.topics))
-		} else {
-			console.log("GET ALL TOPICS ERROR: ", response.code.toString() + response.reason)
-		}
-	})
+	getListByPage(p, topicURL, 1, perPage, 'topics')
 </script>
 {% end %}

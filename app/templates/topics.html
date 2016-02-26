@@ -25,30 +25,77 @@
     	 :is-subscribed="topic.is_subscribed">
     	</topic-thumbnail-component>
 	</ul>
+	<ul v-show="pages > 1" class="pagination pagination-sm">
+		<li :class="{'disabled': !hasPrev}"><a href="javascript:;" @click="prev">&laquo;</a></li>
+		<li v-for="idx in pagesList" :class="{'active': (page == idx)}"><a href="javascript:;" @click="currentPage(idx)">${ idx }</a></li>
+		<li :class="{'disabled': !hasNext}"><a href="javascript:;" @click="next">&raquo;</a></li>
+	</ul>
 </div>
 {% end %}
 
 {% block script %}
 <script type="text/javascript">
+	function listTopicsByPage(vObj, page) {
+		var perPage = 20
+		getJSON('/api/topics/accepted', {'page': page, 'per_page': perPage}, function(response) {
+			if (response.status === 1) {
+				vObj.total = response.total
+				vObj.page = response.page
+				vObj.pages = response.pages
+				vObj.hasPrev = response.has_prev
+				vObj.hasNext = response.has_next
+				if (response.total === 0) {
+					return
+				}
+				var mid = Math.round(response.total/2)
+				vObj.rightTopics = response.topics.slice(mid)
+				vObj.leftTopics = response.topics.slice(0, mid)
+			} else {
+				console.log("GET ALL TOPICS ERROR: ", response.code.toString() + response.reason)
+			}
+		})
+	}
 	var topics = new Vue({
 		el: '#topics',
 		data: {
+			total: 0,
+			pages: 0,
+			page: 1,
+			hasPrev: false,
+			hasNext: false,
 			leftTopics: [],
 			rightTopics: []
 		},
-	})
-
-	getJSON('/api/topics/accepted', {}, function(response) {
-		if (response.status === 1) {
-			if (response.total === 0) {
-				return
-			}
-			var mid = Math.round(response.total/2)
-			topics.rightTopics = response.topics.slice(mid)
-			topics.leftTopics = response.topics.slice(0, mid)
-		} else {
-			console.log("GET ALL TOPICS ERROR: ", response.code.toString() + response.reason)
+		computed: {
+			pagesList: function() {
+				if (this.pages <= 0) {
+					return []
+				}
+				return range(1, this.pages);
+			},
+		},
+		methods: {
+			prev: function() {
+				if (!this.hasPrev) {
+					return
+				}
+				listTopicsByPage(this, this.page - 1)
+			},
+			next: function() {
+				if (!this.hasNext) {
+					return
+				}
+				listTopicsByPage(this, this.page + 1)
+			},
+			currentPage: function(idx) {
+				if (this.page == idx) {
+					return
+				}
+				listTopicsByPage(this, idx)
+			},
 		}
 	})
+
+	listTopicsByPage(topics, 1)
 </script>
 {% end %}
