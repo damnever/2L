@@ -124,7 +124,6 @@
 	new Vue({
 		el: '#post-info',
 		data: {
-			token: getCookieByName('token'),
 			upVotes: {{ up_votes }},
 			downVotes: {{ down_votes }},
 			favorites: {{ favorites }},
@@ -135,9 +134,10 @@
 		methods: {
 			favorite: function() {
 				var self = this
+				var token = getCookieByName('token')
 
 				if (self.isFavorited) {
-					DELETE('/api/favorite/post/' + postID, {'token': self.token}, function(response) {
+					DELETE('/api/favorite/post/' + postID, {'token': token}, function(response) {
 						if (response.status === 1) {
 							self.favorites = response.count
 							self.isFavorited = false
@@ -149,7 +149,7 @@
 						}
 					})
 				} else {
-					postJSON('/api/favorite/post/' + postID, {'token': self.token}, function(response) {
+					postJSON('/api/favorite/post/' + postID, {'token': token}, function(response) {
 						if (response.status === 1) {
 							self.favorites = response.count
 							self.isFavorited = true
@@ -164,9 +164,10 @@
 			},
 			upVote: function() {
 				var self = this
+				var token = getCookieByName('token')
 
 				if (self.isUpVoted) {
-					DELETE('/api/votes/post/'+ postID +'/up', {'token': self.token}, function(response) {
+					DELETE('/api/votes/post/'+ postID +'/up', {'token': token}, function(response) {
 						if (response.status === 1) {
 							self.upVotes = response.count
 							self.isUpVoted = false
@@ -178,7 +179,7 @@
 						}
 					})
 				} else {
-					postJSON('/api/votes/post/'+ postID +'/up', {'token': self.token}, function(response) {
+					postJSON('/api/votes/post/'+ postID +'/up', {'token': token}, function(response) {
 						if (response.status === 1) {
 							self.upVotes = response.count
 							self.isUpVoted = true
@@ -193,9 +194,10 @@
 			},
 			downVote: function() {
 				var self = this
+				var token = getCookieByName('token')
 
 				if (self.isDownVoted) {
-					DELETE('/api/votes/post/'+ postID +'/down', {'token': self.token}, function(response) {
+					DELETE('/api/votes/post/'+ postID +'/down', {'token': token}, function(response) {
 						if (response.status === 1) {
 							self.downVotes = response.count
 							self.isDownVoted = false
@@ -207,7 +209,7 @@
 						}
 					})
 				} else {
-					postJSON('/api/votes/post/'+ postID +'/down', {'token': self.token}, function(response) {
+					postJSON('/api/votes/post/'+ postID +'/down', {'token': token}, function(response) {
 						if (response.status === 1) {
 							self.downVotes = response.count
 							self.isDownVoted = true

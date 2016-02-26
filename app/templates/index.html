@@ -31,17 +31,8 @@
 	<div id="right" class="col-md-3" style="background-color: #fff;padding:0 0 0 24px;">
 		<div id="announcement">
 			<accordion :one-at-atime="true">
-			    <panel header="公告 #1" :is-open="true">
-			    {!! one | toHTML !!}
-			    </panel>
-			    <panel header="公告 #2">
-			    {!! two | toHTML !!}
-			    </panel>
-			    <panel header="公告 #3">
-			    {!! three | toHTML !!}
-			    </panel>
-			    <panel header="公告 #4">
-			    {!! four | toHTML !!}
+			    <panel v-for="(index, item) in announcements" :header="'公告 #' + (index + 1)" :is-open="index == 0">
+			    {!! item.content | toHTML !!}
 			    </panel>
 			</accordion>
 		</div>
@@ -120,18 +111,23 @@
 	getListByPage(pList, allPostURL, 1, perPage, 'posts')
 
 	///////////////////////////////////////////////////////////////////////////
-	new Vue({
+	var ann = new Vue({
 		el: '#announcement',
 		data: {
-			one: '## Move your big ass.',
-			two: 'Eat your dog food.',
-			three: 'Lie on your cold bed.',
-			four: 'You are a pile of shit.',
+			announcements: [],
 		},
 	    components: {
 	        accordion: VueStrap.accordion,
 	        panel: VueStrap.panel
 	    }
+	})
+
+	getJSON('/api/notifications/announcement', {}, function(response) {
+		if (response.status == 1) {
+			ann.announcements = response.announcements
+		} else {
+			console.log('GET ANNOUNCEMENTS ERROR: ', response.code, response.reason)
+		}
 	})
 
 	///////////////////////////////////////////////////////////////////////////

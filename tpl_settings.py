@@ -16,7 +16,7 @@ def read_img(path):
 
 MySQL = {
     'username': 'root',
-    'password': 'root',
+    'password': 'DXC',
     'host': '127.0.0.1',
     'port': 3306,
     'db': '2L',
@@ -46,7 +46,13 @@ Redis = {
         'host': '127.0.0.1',
         'port': 6379,
         'db': 3,
-    }
+    },
+    'notification': {
+        'password': '',
+        'host': '127.0.0.1',
+        'port': 6379,
+        'db': 4,
+    },
 }
 
 Level = {
@@ -62,8 +68,9 @@ Level = {
 }
 
 Gold = {
+    'rob': [2, 22],
     'register': 50,
-    '2L': [2, 222],
+    '2L': [2, 22],
     'new_proposal': -50,
     'proposal_acceptd': +60,
     'proposal_rejected': +10,
@@ -81,6 +88,8 @@ Gold = {
     'be_report': 0,
     'be_report_confirm': -30,
 }
+
+ResetGoldTime = 14
 
 Accounts = {
     'GitHub': {

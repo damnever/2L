@@ -30,7 +30,7 @@
 					<th>管理员</th>
 					<th>发布日期</th>
 				</tr>
-				<tr v-for="(index, item) in items">
+				<tr v-for="(index, item) in announcements">
 					<td>${ index + 1 }</td>
 					<td>${ item.content }</td>
 					<td>${ item.author }</td>
@@ -44,41 +44,51 @@
 
 {% block script %}
 <script type="text/javascript">
-	new Vue({
+	var olds = new Vue({
+		el: '#old',
+		data: {
+			announcements: [],
+		},
+	})
+
+	function getANNS() {
+		getJSON('/api/notifications/announcement', {}, function(response) {
+			if (response.status == 1) {
+				olds.announcements = response.announcements
+			} else {
+				console.log('GET ANNOUNCEMENTS ERROR: ', response.code, response.reason)
+			}
+		})
+	}
+	getANNS()
+
+	var news = new Vue({
 		el: '#new',
+		data: {
+			content: '',
+		},
 		methods: {
 			ignore: function(){},
 			post: function() {
-
+				var self = this
+				if (self.content === "") {
+					vAlert.warning('广播内容不能为空！')
+					return
+				}
+				var data = {
+					'token': getCookieByName('token'),
+					'content': self.content,
+				}
+				postJSON('/api/notifications/announcement', data, function(response) {
+					if (response.status == 1) {
+						self.content = ""
+						getANNS()
+					} else {
+						console.log('CREATE NEW ANNOUNCEMENTS ERROR:', response.code, response.reason)
+					}
+				})
 			},
 		}
-	})
-	new Vue({
-		el: '#old',
-		data: {
-			items: [
-				{
-					'content': 'Move your big ass.',
-					'author': 'Damnever',
-					'date': '2016-2-24 08:08:00',
-				},
-				{
-					'content': 'Eat your dog food.',
-					'author': 'Damnever',
-					'date': '2016-2-24 08:08:00',
-				},
-				{
-					'content': 'Lie on your cold bed.',
-					'author': 'Damnever',
-					'date': '2016-2-24 08:08:00',
-				},
-				{
-					'content': 'You are a pile of shit.',
-					'author': 'Damnever',
-					'date': '2016-2-24 08:08:00',
-				}
-			],
-		},
 	})
 </script>
 {% end %}

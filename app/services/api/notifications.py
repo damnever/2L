@@ -5,8 +5,36 @@ from __future__ import print_function, division, absolute_import
 from tornado import gen
 
 from app.base.handlers import APIHandler
-from app.base.decorators import as_json, authenticated
-from app.models import Notification
+from app.base.decorators import as_json, authenticated, need_permissions
+from app.models import Announcement, Notification
+from app.base.roles import Roles
+from app.services.api import exceptions
+
+
+class AnnouncementAPIHandler(APIHandler):
+
+    @as_json
+    @gen.coroutine
+    def get(self):
+        count = int(self.get_argument('count', 4))
+
+        ans = yield gen.maybe_future(Announcement.list_by_count(count))
+        raise gen.Return({
+            'total': len(ans),
+            'announcements': [(yield gen.maybe_future(an.to_dict()))
+                              for an in ans]
+        })
+
+    @as_json
+    @need_permissions(Roles.Admin)
+    @gen.coroutine
+    def post(self):
+        content = self.get_argument('content', None)
+        username = self.current_user
+
+        if content is None:
+            raise exceptions.EmptyFields()
+        yield gen.maybe_future(Announcement.create(username, content))
 
 
 class CommentNotificationsAPIHandler(APIHandler):
@@ -29,5 +57,6 @@ class CommentNotificationsAPIHandler(APIHandler):
 
 
 urls = [
+    (r'/api/notifications/announcement', AnnouncementAPIHandler),
     (r'/api/notifications/comments', CommentNotificationsAPIHandler),
 ]

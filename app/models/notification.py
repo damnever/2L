@@ -52,7 +52,7 @@ class Notification(Model):
         recipient = User.get_by_name(recipient_name)
         n = cls(sender_id=sender.id, recipient_id=recipient.id,
                 activity_type=activity_type, header=header,
-                content=content, unread=True)
+                content=content)
         try:
             db_session.add(n)
             db_session.commit()
@@ -85,35 +85,20 @@ class Notification(Model):
 
 
 class Announcement(Model):
-    sender_id = Column('sender_id', Integer(), index=True, nullable=False)
-    recipient_id = Column('recipient_id', Integer(), index=True, nullable=False)
-    activity_type = Column('activity_type', String(50), nullable=False)
-    content_url = Column('content_url', String(100), nullable=False)
+    # For admin.
+    author_id = Column('author_id', Integer(), index=True, nullable=False)
+    content = Column('content', Text, nullable=False)
     date = Column('date', DateTime(timezone=True), default=functions.now())
-    expire = Column('expire', DateTime(timezone=True), default=functions.now())
 
     @classmethod
-    def list_by_recipient(cls, username):
+    def list_by_count(cls, count):
+        r = cls.query.order_by(expression.desc(cls.date)).limit(count)
+        return r.all()
+
+    @classmethod
+    def create(cls, username, content):
         user = User.get_by_name(username)
-        return cls.query.filter(cls.recipient_id==user.id).all()
-
-    @classmethod
-    def expired(cls, id_):
-        announcement = cls.get(id_)
-        return announcement.expire <= announcement.date
-
-    @classmethod
-    def create(cls, sender_name, recipient_name, activity_type,
-               content_url, expire):
-        sender = User.get_by_name(sender_name)
-        recipient = User.get_by_name(recipient_name)
-        a = cls(
-            sender_id=sender.id,
-            recipient_id=recipient.id,
-            activity_type=activity_type,
-            content_url=content_url,
-            expire=expire
-        )
+        a = cls(author_id=user.id, content=content)
         try:
             db_session.add(a)
             db_session.commit()
@@ -122,18 +107,24 @@ class Announcement(Model):
             raise
         return a
 
-    def sender(self):
-        return User.get(self.sender_id)
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'author': self.author.username,
+            'content': self.content,
+            'date': self.date,
+        }
 
-    def recipient(self):
-        return User.get(self.recipient_id)
+    @property
+    def author(self):
+        return User.get(self.author_id)
 
 
 class PrivateMessage(Model):
     sender_id = Column('sender_id', Integer(), index=True, nullable=False)
     recipient_id = Column('recipient_id', Integer(), index=True, nullable=False)
     message = Column('message', Integer(), nullable=False)
-    unread = Column('unread', Boolean(), nullable=True)
+    unread = Column('unread', Boolean(), default=True)
     date = Column('date', DateTime(timezone=True), default=functions.now())
 
     @classmethod
