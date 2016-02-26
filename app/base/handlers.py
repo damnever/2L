@@ -11,7 +11,7 @@ except ImportError:  # Py3
 from concurrent.futures import ThreadPoolExecutor
 
 from tornado.concurrent import run_on_executor
-from tornado.web import RequestHandler
+from tornado.web import RequestHandler, decode_signed_value
 from tornado.log import app_log
 
 from app.base.exceptions import HTTPError
@@ -109,8 +109,10 @@ class BaseHandler(AsyncTaskMixIn, RequestHandler):
                               "  Origin: %s, Host: %s", origin, host,)
             return allow
 
-    def _decode_user_token(self, value):
-        return self._decode_xsrf_token(value)
+    def _decode_user_token(self, value, max_age_days=31, min_version=None):
+        return decode_signed_value(self.application.settings['cookie_secret'],
+                                   'token', value, max_age_days=max_age_days,
+                                   min_version=min_version)
 
     def get_current_user(self):
         token = self.get_secure_cookie('token')
@@ -118,7 +120,7 @@ class BaseHandler(AsyncTaskMixIn, RequestHandler):
             value = self.get_argument('token', None)
             if value is None:
                 return None
-            _, token, _ = self._decode_user_token(value)
+            token = self._decode_user_token(value)
 
         if token:
             username = self.session.get(token)

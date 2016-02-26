@@ -3,6 +3,7 @@
 from __future__ import print_function, division, absolute_import
 
 from app.base.handlers import BaseHandler
+from app.base.decorators import authenticated
 
 
 class IndexHandler(BaseHandler):
@@ -47,9 +48,20 @@ class ProposalHandler(BaseHandler):
                            '请注明新主题的发帖规则'))
 
 
+class NotificationsHandler(BaseHandler):
+
+    @authenticated
+    def get(self, username):
+        self.render('notifications.html',
+                    title='通知',
+                    description='通知',
+                    keywords='通知')
+
+
 urls = [
     (r'/', IndexHandler),
     (r'/hot', HotHandler),
     (r'/topics', TopicsHandler),
     (r'/proposal', ProposalHandler),
+    (r'/notifications/(\w+)', NotificationsHandler),
 ]

@@ -147,18 +147,20 @@ class NotifyHandler(WebSocketHandler, BaseHandler):
             return
 
         if not isinstance(msg, dict):
-            self.log.error('message format: {"username": "xxx"}')
+            self.log.error('message format is not dict like.')
             return
 
-        self.username = msg.get('username', None)
+        token = msg.get('token', '')
+        token = self._decode_user_token(token)
+        self.username = self.session.get(token)
         if self.username is None:
-            self.log.error('"username" required')
+            self.log.error('"token" wrong')
             return
         push_service.add_conn(self.username, self)
 
     def on_close(self):
         self.log.info('WebSocket closed...')
-        #  self.close()
+        self.close()
         push_service.remove_conn(self.username)
 
 
