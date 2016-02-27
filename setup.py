@@ -10,6 +10,7 @@ from Cython.Build import cythonize
 
 reqs = [str(r.req)
         for r in parse_requirements('requirements.txt', session=False)]
+reqs.append("MySQL-python==1.2.5")
 
 pyx_files = list()
 for dirpath, dirnames, files in os.walk('./app'):
