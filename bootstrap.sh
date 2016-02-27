@@ -72,6 +72,8 @@ ln -s $(pwd)/tpl_settings.py $(pwd)/app/settings.py
 
 pip install -e .
 
+2L initdb
+
 
 # supervisor
 pip install supervisor
