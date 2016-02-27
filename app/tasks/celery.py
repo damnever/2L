@@ -22,7 +22,7 @@ app.conf.update(
     CELERYBEAT_SCHEDULE={
         'reset-gold-every-day-{0}am'.format(ResetGoldTime): {
             'task': 'reset_gold',
-            'schedule': crontab(hour=17, minute=7),
+            'schedule': crontab(hour=ResetGoldTime),
         }
     },
 )

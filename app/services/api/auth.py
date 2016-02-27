@@ -31,7 +31,7 @@ class LoginHandler(APIHandler):
     def post(self):
         username = self.get_argument('username', None)
         password = self.get_argument('password', None)
-        expire = int(self.get_argument('expire', 1))
+        expire = int(self.get_argument('expire', 0))
 
         if username is None or password is None:
             raise exceptions.EmptyFields()
