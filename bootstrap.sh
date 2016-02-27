@@ -14,6 +14,18 @@ sudo apt-get -y install make build-essential wget curl git python-pip \
 sudo debconf-set-selections <<< 'mysql-server mysql-server/root_password password DXC'
 sudo debconf-set-selections <<< 'mysql-server mysql-server/root_password_again password DXC'
 sudo apt-get -y install mysql-server libmysqlclient-dev
+# http://stackoverflow.com/questions/3513773/change-mysql-default-character-set-to-utf-8-in-my-cnf
+sudo echo "[client]" >> /etc/mysql/my.cnf
+sudo echo "default-character-set=utf8" >> /etc/mysql/my.cnf
+sudo echo "" >> /etc/mysql/my.cnf
+sudo echo "[mysql]" >> /etc/mysql/my.cnf
+sudo echo "default-character-set=utf8" >> /etc/mysql/my.cnf
+sudo echo "" >> /etc/mysql/my.cnf
+sudo echo "[mysqld]" >> /etc/mysql/my.cnf
+sudo echo "collation-server = utf8_unicode_ci" >> /etc/mysql/my.cnf
+sudo echo "init-connect='SET NAMES utf8'" >> /etc/mysql/my.cnf
+sudo echo "character-set-server = utf8" >> /etc/mysql/my.cnf
+sudo /etc/init.d/mysql restart
 
 # redis
 wget ${redis} -O redis-stable.tar.gz
