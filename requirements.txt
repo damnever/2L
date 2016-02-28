@@ -20,6 +20,7 @@ SQLAlchemy == 1.0.10
 # app/services/api/auth.py: 7
 # app/services/api/comments.py: 5
 # app/services/api/favorite.py: 5
+# app/services/api/notifications.py: 5
 # app/services/api/posts.py: 5
 # app/services/api/rob_gold.py: 5
 # app/services/api/status.py: 5
@@ -27,7 +28,9 @@ SQLAlchemy == 1.0.10
 # app/services/api/topics.py: 7
 # app/services/api/users.py: 5
 # app/services/api/votes.py: 5
+# app/services/notification/notification.py: 19
 # app/services/web/contents.py: 5
+# app/tasks/tasks.py: 147
 # app/tests/base.py: 10
 tornado == 4.3
 
@@ -35,7 +38,9 @@ tornado == 4.3
 six == 1.10.0
 
 # app/cache/gold.py: 5
+# app/cache/notification.py: 5
 # app/cache/session.py: 5
+# app/services/notification/notification.py: 18
 redis == 2.10.5
 
 # app/tests/api/test_post.py: 7
@@ -45,7 +50,7 @@ mox == 0.5.3
 
 # app/services/api/auth.py: 8
 # app/services/api/topics.py: 8
-# app/tasks/celery.py: 6
+# app/tasks/celery.py: 7
 tzlocal == 1.2
 
 # setup.py: 6
