@@ -349,6 +349,24 @@ function postJSON(url, data, callback) {
 	})
 }
 
+function patchJSON(url, data, callback) {
+	data._xsrf = getXSRF()
+	$.ajax({
+		url: url,
+		data: $.param(data),
+		dataType: "json",
+		type: "PATCH",
+		success: function(response) {
+			if (callback) {
+				callback(response)
+			}
+		},
+		error: function(response) {
+			console.log("POST TO " , url, " GOT ERROR: ", response)
+		}
+	})
+}
+
 function DELETE(url, data, callback) {
 	data._xsrf = getXSRF()
 	$.ajax({

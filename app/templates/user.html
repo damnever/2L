@@ -59,7 +59,7 @@
 							<span v-else>拉黑</span>
 						</button>
 					{% else %}
-						<a href="/edit/profile" class="btn btn-default btn-xs">编辑</a>
+						<a href="/profile/edit" class="btn btn-default btn-xs">编辑</a>
 					{% end %}
 				</div>
 			</div>
@@ -207,7 +207,7 @@
 		template: (function () {/*
 			<li id="user-thumbnail" class="list-group-item">
 	    		<div class="avatar">
-	    			<img src="${ avatar }" class="thumbnail" alt="${ username }">
+	    			<img src="${ 'data:image/*;base64,' + avatar }" class="thumbnail" alt="${ username }">
 	    		</div>
 	    		<div class="info">
 	    			<div class="header">
@@ -333,10 +333,10 @@
 			userProfile.joinDate = response.join_date
 			userProfile.wiki = (response.wiki ? response.wiki : "### 这家伙很懒，啥都不愿意写，简直无可救药！")
 			userProfile.blog = (response.blog ? response.blog : window.location.href)
-			userProfile.github = (response.github ? response.blog : window.location.href)
-			userProfile.google = (response.google ? response.blog : window.location.href)
-			userProfile.weibo = (response.weibo ? response.blog : window.location.href)
-			userProfile.twitter = (response.twitter ? response.blog : window.location.href)
+			userProfile.github = (response.github ? response.github : window.location.href)
+			userProfile.google = (response.google ? response.google : window.location.href)
+			userProfile.weibo = (response.weibo ? response.weibo : window.location.href)
+			userProfile.twitter = (response.twitter ? response.twitter : window.location.href)
 			userProfile.followed = response.followed
 			userProfile.blocked = response.blocked
 		} else {

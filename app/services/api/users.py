@@ -36,7 +36,7 @@ class UsersAPIHandler(APIHandler):
 
 class UserAPIHandler(APIHandler):
 
-    _fields = ("password role gold intorduce avatar location "
+    _fields = ("password role gold introduce avatar location "
                "wiki blog github google weibo twitter")
 
     @as_json
@@ -54,7 +54,7 @@ class UserAPIHandler(APIHandler):
         fields = dict()
         for key in self._fields.split():
             value = self.get_argument(key, None)
-            if value is not None:
+            if value:
                 fields[key] = value
 
         if not fields:
@@ -62,17 +62,7 @@ class UserAPIHandler(APIHandler):
         else:
             username = self.current_user
             user = yield gen.maybe_future(User.get_by_name(username))
-            yield gen.maybe_future(user.update(fields))
-            info = user.information()
-            following = yield gen.maybe_future(Following.count_by_user(username))
-            blocked = yield gen.maybe_future(Blocked.count_by_user(username))
-            info.update({
-                'following': following,
-                'blocked': blocked,
-                'following_url': '/api/user/following',
-                'blocked_url': '/api/user/blocked',
-            })
-            raise gen.Return(info)
+            yield gen.maybe_future(user.update(**fields))
 
 
 class FollowingAPIHandler(APIHandler):
