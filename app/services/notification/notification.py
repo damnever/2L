@@ -55,6 +55,9 @@ class PushService(object):
         self._thread.daemon = True
         self._thread.start()
 
+    def republish(self, target, msg):
+        self._redis.publish(self._subject_notification.format(target), msg)
+
     def _push_msg(self):
         while 1:
             try:
@@ -65,13 +68,15 @@ class PushService(object):
             else:
                 if message and not isinstance(message['data'], Number):
                     username = self._parse_username(message['channel'])
+                    msg = message['data']
                     with self._lock:
                         conn = self._conns.get(username, None)
 
                     if conn is not None:
                         try:
-                            conn.write_message(message['data'])
+                            conn.write_message(msg)
                         except WebSocketClosedError:
+                            self.republish(username, msg)
                             self.remove_conn(username)
 
             time.sleep(0.001)
