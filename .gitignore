@@ -1,6 +1,9 @@
 *.py[ocd]
 *.so
 *~
+*.dir
+*.bat
+app/daemon.pid
 __pycache__/
 dev_settings.py
 build/
