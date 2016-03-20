@@ -10,5 +10,6 @@ Vagrant.configure(GRANTFILE_API_VERSION) do |config|
 
   config.vm.provision :shell, path: INIT_SCRIPT
 
-  # config.vm.network :forwarded_port, guest: 80, host: 8888
+  config.vm.network :forwarded_port, guest: 80, host: 9487
+  config.vm.network :forwarded_port, guest: 8888, host: 8888
 end

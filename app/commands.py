@@ -13,7 +13,7 @@ def main():
 @main.command()
 @click.option('--host', default='127.0.0.1',
               help='run server at the given host.')
-@click.option('--port', default=8888,
+@click.option('--port', default=9487,
               help='run server on the given port.')
 def runserver(host, port):
     """Run 2L services."""

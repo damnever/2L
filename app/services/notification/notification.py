@@ -169,6 +169,7 @@ class NotifyHandler(WebSocketHandler, BaseHandler):
         push_service.remove_conn(self.username)
 
 
-urls = [
-    (r'/notify', NotifyHandler),
+# Make load_module_attrs ignore this...
+no_urls = [
+    (r'/', NotifyHandler),
 ]

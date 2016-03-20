@@ -5,8 +5,8 @@ html, body {
 
 /*** Footer align the bottom. ***/
 html, body, #container {
-    height: 100%; 
-    margin: 0; 
+    height: 100%;
+    margin: 0;
     padding: 0;
 }
 
@@ -63,7 +63,6 @@ body {
 	color: #555;
 	font-size: 14px;
 }
-
 
 
 /*** POST LIST ***/
@@ -399,7 +398,7 @@ pre {
 
 .right-link {
     padding-right: 96px;
-    float: right;   
+    float: right;
 }
 
 .footer-link li {

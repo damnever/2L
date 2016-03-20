@@ -4,19 +4,48 @@
 # setup.py: 8
 Cython == 0.23.4
 
-# app/libs/db.py: 7,8,9
-# app/models/action.py: 5,6,7
+# app/libs/db.py: 8,9
+# app/models/action.py: 7
 # app/models/base.py: 5,6
-# app/models/content.py: 7,8,9
-# app/models/notification.py: 5,6,7
-# app/models/permission.py: 5,6,7
-# app/models/user.py: 5,6,7,8
+# app/models/content.py: 9
+# app/models/notification.py: 7
+# app/models/permission.py: 7
+# app/models/user.py: 8
 SQLAlchemy == 1.0.10
 
-# app/app.py: 9,10,11,12
+# app/tasks/celery.py: 5,6
+celery == 3.1.23
+
+# app/commands.py: 5
+click == 6.2
+
+# app/base/handlers.py: 11
+futures == 3.0.5
+
+# app/tests/api/test_post.py: 7
+# app/tests/api/test_topics.py: 7
+# app/tests/api/test_users.py: 7
+mox == 0.5.3
+
+# setup.py: 7
+pip == 8.1.1
+
+# app/cache/gold.py: 5
+# app/cache/notification.py: 5
+# app/cache/session.py: 5
+# app/services/notification/notification.py: 18
+redis == 2.10.5
+
+# setup.py: 6
+setuptools == 18.2
+
+# app/cache/lru.py: 7
+six == 1.10.0
+
+# app/app.py: 11,12
 # app/base/decorators.py: 9
 # app/base/exceptions.py: 10
-# app/base/handlers.py: 13,14,15
+# app/base/handlers.py: 14,15
 # app/services/api/auth.py: 7
 # app/services/api/comments.py: 5
 # app/services/api/favorite.py: 5
@@ -28,39 +57,14 @@ SQLAlchemy == 1.0.10
 # app/services/api/topics.py: 7
 # app/services/api/users.py: 5
 # app/services/api/votes.py: 5
+# app/services/notification/daemon_service.py: 5,6,7
 # app/services/notification/notification.py: 19
 # app/services/web/contents.py: 5
-# app/tasks/tasks.py: 147
+# app/tasks/tasks.py: 145
 # app/tests/base.py: 10
 tornado == 4.3
-
-# app/cache/lru.py: 7
-six == 1.10.0
-
-# app/cache/gold.py: 5
-# app/cache/notification.py: 5
-# app/cache/session.py: 5
-# app/services/notification/notification.py: 18
-redis == 2.10.5
-
-# app/tests/api/test_post.py: 7
-# app/tests/api/test_topics.py: 7
-# app/tests/api/test_users.py: 7
-mox == 0.5.3
 
 # app/services/api/auth.py: 8
 # app/services/api/topics.py: 8
 # app/tasks/celery.py: 7
 tzlocal == 1.2
-
-# setup.py: 6
-setuptools == 18.2
-
-# setup.py: 7
-pip == 8.0.2
-
-# app/commands.py: 5
-click == 6.2
-
-# app/base/handlers.py: 11
-futures == 3.0.3

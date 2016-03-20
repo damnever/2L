@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<meta charset="utf-8"/>
-	<meta name="keywords" content="{% if keywords %}{{ keywords }}{% else %}2L, BBS, FORUM{% end %}"/>
-	<meta name="description" content="{% if description %}{{ description }}{% else %}2L by Damnever{% end %}"/>
-	<meta name="viewport" content="width=device-width, initial-scale=1"/>
-	<title>{% if title %}{{ title }} &laquo; 2L{% else %}2L{% end %}</title>
-	<link rel="icon" href="{{ static_url("favicon.ico") }}"/>
+    <meta charset="utf-8"/>
+    <meta name="keywords" content="{% if keywords %}{{ keywords }}{% else %}2L, BBS, FORUM{% end %}"/>
+    <meta name="description" content="{% if description %}{{ description }}{% else %}2L by Damnever{% end %}"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>{% if title %}{{ title }} &laquo; 2L{% else %}2L{% end %}</title>
+    <link rel="icon" href="{{ static_url("favicon.ico") }}"/>
     <link rel="shortcut icon" href="{{ static_url("favicon.ico") }}"/>
     <link rel="Bookmark" href="{{ static_url("favicon.ico") }}"/>
     <link rel="stylesheet" type="text/css" href="{{ static_url("css/bootstrap.min.css") }}"/>
@@ -17,42 +17,42 @@
     <script type="text/javascript" src="{{ static_url("js/marked.min.js") }}"></script>
     <script type="text/javascript" src="{{ static_url("js/vue.min.js") }}"></script>
     <script type="text/javascript">
-    	Vue.config.delimiters = ['${', '}']
-    	Vue.config.unsafeDelimiters = ['{!!', '!!}']
-    	Vue.config.debug = true
-	</script>
+        Vue.config.delimiters = ['${', '}']
+        Vue.config.unsafeDelimiters = ['{!!', '!!}']
+        Vue.config.debug = true
+    </script>
     <script type="text/javascript" src="{{ static_url("js/vue-strap.min.js") }}"></script>
 </head>
 <body>
-	{% block nav %}
-	<nav id="nav" class="navbar navbar-default navbar-fixed-top" role="navigation">
-		<div class="container">
-			<div class="row col-md-10 col-md-offset-1">
-			<div class="navbar-header">
-		        <a href="/"><img alt="Brand" src="{{ static_url("imgs/icon-32x32.png") }}" style="margin-top:8px;margin-right:20px"></a>
-		    </div>
-			<span></span>
-			<ul class="nav navbar-nav navbar-left">
-				<li class="for-nav" :class="{'active': newest}"><a href="/">最新</a></li>
-				<li class="for-nav" :class="{'active': hot}"><a href="/hot">最热</a></li>
-				<li class="for-nav" :class="{'active': topics}"><a href="/topics">主题</a></li>
+    {% block nav %}
+    <nav id="nav" class="navbar navbar-default navbar-fixed-top" role="navigation">
+        <div class="container">
+            <div class="row col-md-10 col-md-offset-1">
+            <div class="navbar-header">
+                <a href="/"><img alt="Brand" src="{{ static_url("imgs/icon-32x32.png") }}" style="margin-top:8px;margin-right:20px"></a>
+            </div>
+            <span></span>
+            <ul class="nav navbar-nav navbar-left">
+                <li class="for-nav" :class="{'active': newest}"><a href="/">最新</a></li>
+                <li class="for-nav" :class="{'active': hot}"><a href="/hot">最热</a></li>
+                <li class="for-nav" :class="{'active': topics}"><a href="/topics">主题</a></li>
                 <li class="for-nav" :class="{'active': proposal}"><a href="/proposal">我要</a></li>
-			</ul>
-			<ul class="nav navbar-nav navbar-right" style="padding-top:14px;">
-				<span id="user-area" v-if="currentUser">
-					<li id="user-msg" class="for-nav">
-   						<a href="/notifications/${ currentUser }">消息 <span class="badge" v-if="unread != 0">${ unread }</span></a>
-   					</li>
-					<li id="user-info" class="for-nav" style="margin-left:10px;">
+            </ul>
+            <ul class="nav navbar-nav navbar-right" style="padding-top:14px;">
+                <span id="user-area" v-if="currentUser">
+                    <li id="user-msg" class="for-nav">
+                        <a href="/notifications/${ currentUser }">消息 <span class="badge" v-if="unread != 0">${ unread }</span></a>
+                    </li>
+                    <li id="user-info" class="for-nav" style="margin-left:10px;">
                         <dropdown>
-       						<a class="username" href="javascript:;" data-toggle="dropdown">${ currentUser } <span class="caret"></span></a>
+                            <a class="username" href="javascript:;" data-toggle="dropdown">${ currentUser } <span class="caret"></span></a>
                             <ul name="dropdown-menu" class="dropdown-menu">
                                 <li><a href="/user/${ currentUser }">个人信息</a></li>
                                 <li><a href="javascript:;" @click="logout">退出</a></li>
                             </ul>
                         </dropdown>
-   					</li>
-				</span>
+                    </li>
+                </span>
                 <span id="auth-area" v-else>
                     <login-component
                      :current-user.sync="currentUser">
@@ -60,15 +60,15 @@
                     <register-component
                      :current-user.sync="currentUser">
                     </register-component>
-				</span>
-			</ul>
-			</div>
-		</div>
-	</nav>
-	{% end %}
+                </span>
+            </ul>
+            </div>
+        </div>
+    </nav>
+    {% end %}
     <div id="container">
         <div id="content">
-    	    <div class="container-fluid">
+            <div class="container-fluid">
                 {% block content %}{% end %}
                 {% module xsrf_form_html() %}
             </div>
@@ -132,37 +132,37 @@
 <script type="text/javascript" src="{{ static_url("js/auth.js") }}"></script>
 <script type="text/javascript">
     var NAV = new Vue({
-    	el: '#nav',
-    	data: {
+        el: '#nav',
+        data: {
             currentUser: "{% if current_user %}{{ current_user }}{% end %}",
             unread: 0,
-    		url: window.location.href.toString().split(window.location.host)[1],
-    	},
-    	computed: {
-    		newest: function() {
-    			if (this.url === '/') {
-    				return true
-    			}
-    			return false
-    		},
-    		hot: function() {
-    			if (this.url === '/hot') {
-    				return true
-    			}
-    			return false
-    		},
-    		topics: function() {
-    			if (this.url === '/topics') {
-    				return true
-    			}
-    			return false
-    		},
+            url: window.location.href.toString().split(window.location.host)[1],
+        },
+        computed: {
+            newest: function() {
+                if (this.url === '/') {
+                    return true
+                }
+                return false
+            },
+            hot: function() {
+                if (this.url === '/hot') {
+                    return true
+                }
+                return false
+            },
+            topics: function() {
+                if (this.url === '/topics') {
+                    return true
+                }
+                return false
+            },
             proposal: function() {
                 if (this.url === '/proposal') {
                     return true
                 }
             }
-    	},
+        },
         methods: {
             logout: function() {
                 var self = this
@@ -205,7 +205,7 @@
         }
     }
     function enableWebSocket() {
-        ws = new WebSocket("ws://" + window.location.host + "/notify")
+        ws = new WebSocket("ws://" + window.location.host + ":8888/")
         ws.onopen = function() {
             ws.send(JSON.stringify({'token': getCookieByName('token')}))
         }

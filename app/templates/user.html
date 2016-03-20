@@ -3,393 +3,393 @@
 {% block head %}
 <link rel="stylesheet" type="text/css" href="{{ static_url("css/user.css") }}"/>
 <style type="text/css">
-	#activity {
-		color: #555;
-		font-size: 14px;
-	}
-	#user-thumbnail {
-		min-height: 50px;
-	}
-	#user-thumbnail .avatar {
-		float: left;
-	}
-	#user-thumbnail .avatar img {
-		width: 40px;
-		height: 40px;
-	}
-	#user-thumbnail .info {
-		margin-left: 50px;
-	}
-	#user-thumbnail .info .header a {
-		color: #444444;
-		font-size: 13px;
-	}
-	#user-thumbnail .info .header a:hover {
-		color: #000000;
-	}
-	#user-thumbnail .info .header button {
-		float: right;
-		margin-right: 5px;
-		font-size: 10px;
-	}
-	#user-thumbnail .info .intro {
-		margin-top: 3px;
-		color: #555;
-		font-size: 12px;
-	}
+    #activity {
+        color: #555;
+        font-size: 14px;
+    }
+    #user-thumbnail {
+        min-height: 50px;
+    }
+    #user-thumbnail .avatar {
+        float: left;
+    }
+    #user-thumbnail .avatar img {
+        width: 40px;
+        height: 40px;
+    }
+    #user-thumbnail .info {
+        margin-left: 50px;
+    }
+    #user-thumbnail .info .header a {
+        color: #444444;
+        font-size: 13px;
+    }
+    #user-thumbnail .info .header a:hover {
+        color: #000000;
+    }
+    #user-thumbnail .info .header button {
+        float: right;
+        margin-right: 5px;
+        font-size: 10px;
+    }
+    #user-thumbnail .info .intro {
+        margin-top: 3px;
+        color: #555;
+        font-size: 12px;
+    }
 </style>
 {% end %}
 
 {% block content %}
 <div class="row" id="user-profile">
-	<div id="user" class="col-md-5 col-md-offset-2">
-		<div id="info">
-			<div class="info-header">
-				<div class="left">
-					<span class="username">${ username }</span>&ensp;•&ensp;<span class="intro">${ introduce }</span>
-				</div>
-				<div class="right">
-					{% if current_user != title %}
-						<button class="btn btn-default btn-xs" @click="followOne">
-							<span v-if="followed">取消关注</span>
-							<span v-else>关注</span>
-						</button>
-						<button class="btn btn-default btn-xs" @click="blockOne">
-							<span v-if="blocked">取消拉黑</span>
-							<span v-else>拉黑</span>
-						</button>
-					{% else %}
-						<a href="/profile/edit" class="btn btn-default btn-xs">编辑</a>
-					{% end %}
-				</div>
-			</div>
-			<div class="clearfix"></div>
-			<div class="detail">
-				<img src="${ 'data:image/*;base64,' + avatar }" class="thumbnail" alt="{{ title }}" width="80" height="80">
-				<div class="other">
-					<div class="gold"><span class="glyphicon glyphicon-piggy-bank" aria-hidden="true"></span>&ensp;${ gold } 金币</div>
-					<div class="location"><span class="glyphicon glyphicon-map-marker" aria-hidden="true"></span>&ensp;${ location }</div>
-					<div class="date"><span class="glyphicon glyphicon-flag" aria-hidden="true"></span>&ensp;加入于 ${ joinDate }</div>
-				</div>
-			</div>
-			<div class="clearfix"></div>
-			<div id="links">
-				<a class="label label-default" href="${ blog }" target="_blank">Blog</a>
-				<a class="label label-default label-hover" href="${ github }" target="_blank">GitHub</a>
-				<a class="label label-default" href="${ google }" target="_blank">Google+</a>
-				<a class="label label-default" href="${ weibo }" target="_blank">weibo</a>
-				<a class="label label-default" href="${ twitter }" target="_blank">Twitter</a>
-			</div>
-		</div>
-		<div id="activity">
-			<tabs>
-				<tab header="WIKI">
-				    {!! wiki | toHTML !!}
-				</tab>
-			    <tab header="帖子">
-				    <post-component :tag="tag" v-for="post in posts"
-					 :post-id="post.id"
-					 :post-title="post.title"
-					 :post-date="post.created_date"
-					 :topic-id="post.topic_id"
-					 :topic-name="post.topic_name"
-					 :author-avatar="post.author_avatar"
-					 :author-name="post.author_name"
-					 :last-comment-name="post.last_comment_user"
-					 :last-comment-date="post.last_comment_date"
-					 :comment-count="post.comment_count">
-					</post-component>
-					<span v-show="myPostsCount <= 0">这家伙还没有发布过任何帖子</span>
-			    </tab>
-			    <tab header="评论">
-			    	<comment-component
-					 v-for="(index, comment) in comments"
-					 :comment-index="index + 1"
-					 :comment-id="comment.id"
-					 :comment-avatar="comment.avatar"
-					 :comment-user="comment.author"
-					 :comment-date="comment.date"
-					 :comment-content="comment.content"
-					 :comment-up-votes="comment.up_votes"
-					 :comment-down-votes="comment.down_votes"
-					 :is-up-voted="comment.up_voted"
-					 :is-down-voted="comment.down_voted">
-					</comment-component>
-					<span v-show="myCommentsCount <= 0">这家伙还没有发表过任何评论</span>
-			    </tab>
-			    <tab header="主题" {% if current_user != title %}disabled{% end %}>
-			    	<topic-thumbnail-component
-			    	 v-for="topic in topics"
-			    	 :id="topic.topic.id"
-			    	 :name="topic.topic.name"
-			    	 :avatar="topic.topic.avatar"
-			    	 :description="topic.topic.description"
-			    	 :is-subscribed="true">
-			    	</topic-thumbnail-component>
-				    <span v-show="myTopicsCount <= 0">这家伙还没有关注任何主题</span>
-				</tab>
-			    <tab header="关注" {% if current_user != title %}disabled{% end %}>
-			    	<user-component
-			    	 v-for="follower in followings"
-			    	 :id="follower.id"
-			    	 :username="follower.username"
-			    	 :avatar="follower.avatar"
-			    	 :introduce="follower.introduce"
-			    	 >
-			    	</user-component>
-			    	<span v-show="myFollowingCount <= 0">你还没有关注任何人</span>
-			    </tab>
-			    <tab header="拉黑" {% if current_user != title %}disabled{% end %}>
-			    	<user-component
-			    	 v-for="blocked in blockeds"
-			    	 :id="blocked.id"
-			    	 :username="blocked.username"
-			    	 :avatar="blocked.avatar"
-			    	 :introduce="blocked.introduce"
-			    	 >
-			    	</user-component>
-			    	<span v-show="myBlockedCount <= 0">你还没有拉黑任何人</span>
-			    </tab>
-			</tabs>
-		</div>
-	</div>
-	<div id="progress" class="col-md-3" style="background-color: #fff;padding-left: 50px; padding-right: 10px;">
-		<span class="raquo"><span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span></span> 订阅的主题数： ${ myTopicsCount }
-		<div class="progress">
-		    <progressbar :now="Math.round(myTopicsCount / topicsCount * 100)" label type="success" striped animated></progressbar>
-		</div>
-		<span class="raquo"><span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span></span> 发布的帖子数：  ${ myPostsCount }
-		<div class="progress">
-		    <progressbar :now="Math.round(myPostsCount / postsCount * 100)" label type="success" striped animated></progressbar>
-		</div>
-		<span class="raquo"><span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span></span> 写下的评论数： ${ myCommentsCount }
-		<div class="progress">
-		    <progressbar :now="Math.round(myCommentsCount / commentsCount * 100)" label type="success" striped animated></progressbar>
-		</div>
-		<div {% if current_user != title %}style="display:none;"{% end %}>
-			<span class="raquo"><span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span></span> 关注的人数： ${ myFollowingCount }
-			<div class="progress">
-			    <progressbar :now="Math.round(myFollowingCount / usersCount * 100)" label type="success" striped animated></progressbar>
-			</div>
-		</div>
-		<div {% if current_user != title %}style="display:none;"{% end %}>
-			<span class="raquo"><span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span></span> 拉黑的人数： ${ myBlockedCount }
-			<div class="progress">
-			    <progressbar :now="Math.round(myBlockedCount / usersCount * 100)" label type="success" striped animated></progressbar>
-			</div>
-		</div>
-	</div>
+    <div id="user" class="col-md-5 col-md-offset-2">
+        <div id="info">
+            <div class="info-header">
+                <div class="left">
+                    <span class="username">${ username }</span>&ensp;•&ensp;<span class="intro">${ introduce }</span>
+                </div>
+                <div class="right">
+                    {% if current_user != title %}
+                        <button class="btn btn-default btn-xs" @click="followOne">
+                            <span v-if="followed">取消关注</span>
+                            <span v-else>关注</span>
+                        </button>
+                        <button class="btn btn-default btn-xs" @click="blockOne">
+                            <span v-if="blocked">取消拉黑</span>
+                            <span v-else>拉黑</span>
+                        </button>
+                    {% else %}
+                        <a href="/profile/edit" class="btn btn-default btn-xs">编辑</a>
+                    {% end %}
+                </div>
+            </div>
+            <div class="clearfix"></div>
+            <div class="detail">
+                <img src="${ 'data:image/*;base64,' + avatar }" class="thumbnail" alt="{{ title }}" width="80" height="80">
+                <div class="other">
+                    <div class="gold"><span class="glyphicon glyphicon-piggy-bank" aria-hidden="true"></span>&ensp;${ gold } 金币</div>
+                    <div class="location"><span class="glyphicon glyphicon-map-marker" aria-hidden="true"></span>&ensp;${ location }</div>
+                    <div class="date"><span class="glyphicon glyphicon-flag" aria-hidden="true"></span>&ensp;加入于 ${ joinDate }</div>
+                </div>
+            </div>
+            <div class="clearfix"></div>
+            <div id="links">
+                <a class="label label-default" href="${ blog }" target="_blank">Blog</a>
+                <a class="label label-default label-hover" href="${ github }" target="_blank">GitHub</a>
+                <a class="label label-default" href="${ google }" target="_blank">Google+</a>
+                <a class="label label-default" href="${ weibo }" target="_blank">weibo</a>
+                <a class="label label-default" href="${ twitter }" target="_blank">Twitter</a>
+            </div>
+        </div>
+        <div id="activity">
+            <tabs>
+                <tab header="WIKI">
+                    {!! wiki | toHTML !!}
+                </tab>
+                <tab header="帖子">
+                    <post-component :tag="tag" v-for="post in posts"
+                     :post-id="post.id"
+                     :post-title="post.title"
+                     :post-date="post.created_date"
+                     :topic-id="post.topic_id"
+                     :topic-name="post.topic_name"
+                     :author-avatar="post.author_avatar"
+                     :author-name="post.author_name"
+                     :last-comment-name="post.last_comment_user"
+                     :last-comment-date="post.last_comment_date"
+                     :comment-count="post.comment_count">
+                    </post-component>
+                    <span v-show="myPostsCount <= 0">这家伙还没有发布过任何帖子</span>
+                </tab>
+                <tab header="评论">
+                    <comment-component
+                     v-for="(index, comment) in comments"
+                     :comment-index="index + 1"
+                     :comment-id="comment.id"
+                     :comment-avatar="comment.avatar"
+                     :comment-user="comment.author"
+                     :comment-date="comment.date"
+                     :comment-content="comment.content"
+                     :comment-up-votes="comment.up_votes"
+                     :comment-down-votes="comment.down_votes"
+                     :is-up-voted="comment.up_voted"
+                     :is-down-voted="comment.down_voted">
+                    </comment-component>
+                    <span v-show="myCommentsCount <= 0">这家伙还没有发表过任何评论</span>
+                </tab>
+                <tab header="主题" {% if current_user != title %}disabled{% end %}>
+                    <topic-thumbnail-component
+                     v-for="topic in topics"
+                     :id="topic.topic.id"
+                     :name="topic.topic.name"
+                     :avatar="topic.topic.avatar"
+                     :description="topic.topic.description"
+                     :is-subscribed="true">
+                    </topic-thumbnail-component>
+                    <span v-show="myTopicsCount <= 0">这家伙还没有关注任何主题</span>
+                </tab>
+                <tab header="关注" {% if current_user != title %}disabled{% end %}>
+                    <user-component
+                     v-for="follower in followings"
+                     :id="follower.id"
+                     :username="follower.username"
+                     :avatar="follower.avatar"
+                     :introduce="follower.introduce"
+                     >
+                    </user-component>
+                    <span v-show="myFollowingCount <= 0">你还没有关注任何人</span>
+                </tab>
+                <tab header="拉黑" {% if current_user != title %}disabled{% end %}>
+                    <user-component
+                     v-for="blocked in blockeds"
+                     :id="blocked.id"
+                     :username="blocked.username"
+                     :avatar="blocked.avatar"
+                     :introduce="blocked.introduce"
+                     >
+                    </user-component>
+                    <span v-show="myBlockedCount <= 0">你还没有拉黑任何人</span>
+                </tab>
+            </tabs>
+        </div>
+    </div>
+    <div id="progress" class="col-md-3" style="background-color: #fff;padding-left: 50px; padding-right: 10px;">
+        <span class="raquo"><span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span></span> 订阅的主题数： ${ myTopicsCount }
+        <div class="progress">
+            <progressbar :now="Math.round(myTopicsCount / topicsCount * 100)" label type="success" striped animated></progressbar>
+        </div>
+        <span class="raquo"><span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span></span> 发布的帖子数：  ${ myPostsCount }
+        <div class="progress">
+            <progressbar :now="Math.round(myPostsCount / postsCount * 100)" label type="success" striped animated></progressbar>
+        </div>
+        <span class="raquo"><span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span></span> 写下的评论数： ${ myCommentsCount }
+        <div class="progress">
+            <progressbar :now="Math.round(myCommentsCount / commentsCount * 100)" label type="success" striped animated></progressbar>
+        </div>
+        <div {% if current_user != title %}style="display:none;"{% end %}>
+            <span class="raquo"><span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span></span> 关注的人数： ${ myFollowingCount }
+            <div class="progress">
+                <progressbar :now="Math.round(myFollowingCount / usersCount * 100)" label type="success" striped animated></progressbar>
+            </div>
+        </div>
+        <div {% if current_user != title %}style="display:none;"{% end %}>
+            <span class="raquo"><span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span></span> 拉黑的人数： ${ myBlockedCount }
+            <div class="progress">
+                <progressbar :now="Math.round(myBlockedCount / usersCount * 100)" label type="success" striped animated></progressbar>
+            </div>
+        </div>
+    </div>
 </div>
 {% end %}
 
 {% block script %}
 <script type="text/javascript">
-	var myName = "{{ current_user }}"
-	var otherName = "{{ title }}"
+    var myName = "{{ current_user }}"
+    var otherName = "{{ title }}"
 
-	var profileURL = "/api/users/" + otherName
-	var postsURL = "/api/posts/user/" + otherName
-	var commentsURL = "/api/comments/user/" + otherName
-	var countURL = "/api/status/count"
-	var subscribedURL = ""
-	var followingURL = ""
-	var blockedURL = ""
-	if (myName === otherName) {
-		profileURL = "/api/user"
-		subscribedURL = "/api/subscribed/topics"
-		followingURL = "/api/user/following"
-		blockedURL = "/api/user/blocked"
-	}
+    var profileURL = "/api/users/" + otherName
+    var postsURL = "/api/posts/user/" + otherName
+    var commentsURL = "/api/comments/user/" + otherName
+    var countURL = "/api/status/count"
+    var subscribedURL = ""
+    var followingURL = ""
+    var blockedURL = ""
+    if (myName === otherName) {
+        profileURL = "/api/user"
+        subscribedURL = "/api/subscribed/topics"
+        followingURL = "/api/user/following"
+        blockedURL = "/api/user/blocked"
+    }
 
-	var token = getCookieByName('token')
+    var token = getCookieByName('token')
 
-	Vue.component('userComponent', {
-		template: (function () {/*
-			<li id="user-thumbnail" class="list-group-item">
-	    		<div class="avatar">
-	    			<img src="${ 'data:image/*;base64,' + avatar }" class="thumbnail" alt="${ username }">
-	    		</div>
-	    		<div class="info">
-	    			<div class="header">
-		    			<a href="/user/${ username }">${ username }</a>
-		    			<button type="button" class="btn btn-link btn-xs">取消</button>
-		    		</div>
-	    			<div class="intro">${ introduce }</div>
-	    		</div>
-	    	</li>
-		*/}).toString().split('\n').slice(1,-1).join(''),
-		props: {
-			id: Number,
-			username: String,
-			avatar: String,
-			introduce: String,
-		},
-	})
+    Vue.component('userComponent', {
+        template: (function () {/*
+            <li id="user-thumbnail" class="list-group-item">
+                <div class="avatar">
+                    <img src="${ 'data:image/*;base64,' + avatar }" class="thumbnail" alt="${ username }">
+                </div>
+                <div class="info">
+                    <div class="header">
+                        <a href="/user/${ username }">${ username }</a>
+                        <button type="button" class="btn btn-link btn-xs">取消</button>
+                    </div>
+                    <div class="intro">${ introduce }</div>
+                </div>
+            </li>
+        */}).toString().split('\n').slice(1,-1).join(''),
+        props: {
+            id: Number,
+            username: String,
+            avatar: String,
+            introduce: String,
+        },
+    })
 
-	var userProfile = new Vue({
-		el: '#user-profile',
-		data: {
-			id: 0,
-			username: '',
-			avatar: '',
-			introduce: '',
-			gold: '',
-			location: '',
-			joinDate: '',
-			wiki: '',
-			blog: '',
-			github: '',
-			google: '',
-			weibo: '',
-			twitter: '',
-			////////////////
-			followed: false,
-			blocked: false,
-			////////////////
-			tag: true,
-			posts: [],
-			comments: [],
-			topics: [],
-			followings: [],
-			blockeds: [],
-			myPostsCount: 0,
-			postsCount: 0,
-			myTopicsCount: 0,
-			topcisCount: 0,
-			myCommentsCount: 0,
-			commentsCount: 0,
-			myFollowingCount: 0,
-			myBlockedCount: 0,
-			usersCount: 0,
-		},
-		methods: {
-			followOne: function() {
-				var that = this
-				if (that.followed) {
-					DELETE("/api/user/unfollow/" + otherName, {'token': token}, function(response) {
-						if (response.status == 1) {
-							that.followed = false
-						} else {
-							console.log("UNFOLLOW ", otherName, "ERROR:", response.code, response.reason)
-						}
-					})
-				} else {
-					postJSON("/api/user/follow/" + otherName, {'token': token}, function(response) {
-						if (response.status == 1) {
-							that.followed = true
-						} else {
-							console.log("FOLLOW ", otherName, "ERROR:", response.code, response.reason)
-						}
-					})
-				}
-			},
-			blockOne: function() {
-				var that = this
-				if (that.blocked) {
-					DELETE("/api/user/unblock/" + otherName, {'token': token}, function(response) {
-						if (response.status == 1) {
-							that.blocked = false
-						} else {
-							console.log("UNBLOCK ", otherName, "ERROR:", response.code, response.reason)
-						}
-					})
-				} else {
-					postJSON("/api/user/block/" + otherName, {'token': token}, function(response) {
-						if (response.status == 1) {
-							that.blocked = true
-						} else {
-							console.log("BLOCK ", otherName, "ERROR:", response.code, response.reason)
-						}
-					})
-				}
-			}
-		},
-	    components: {
-	        tabs: VueStrap.tabset,
-	        tab: VueStrap.tab,
-	        progressbar: VueStrap.progressbar,
-	    }
-	})
+    var userProfile = new Vue({
+        el: '#user-profile',
+        data: {
+            id: 0,
+            username: '',
+            avatar: '',
+            introduce: '',
+            gold: '',
+            location: '',
+            joinDate: '',
+            wiki: '',
+            blog: '',
+            github: '',
+            google: '',
+            weibo: '',
+            twitter: '',
+            ////////////////
+            followed: false,
+            blocked: false,
+            ////////////////
+            tag: true,
+            posts: [],
+            comments: [],
+            topics: [],
+            followings: [],
+            blockeds: [],
+            myPostsCount: 0,
+            postsCount: 0,
+            myTopicsCount: 0,
+            topcisCount: 0,
+            myCommentsCount: 0,
+            commentsCount: 0,
+            myFollowingCount: 0,
+            myBlockedCount: 0,
+            usersCount: 0,
+        },
+        methods: {
+            followOne: function() {
+                var that = this
+                if (that.followed) {
+                    DELETE("/api/user/unfollow/" + otherName, {'token': token}, function(response) {
+                        if (response.status == 1) {
+                            that.followed = false
+                        } else {
+                            console.log("UNFOLLOW ", otherName, "ERROR:", response.code, response.reason)
+                        }
+                    })
+                } else {
+                    postJSON("/api/user/follow/" + otherName, {'token': token}, function(response) {
+                        if (response.status == 1) {
+                            that.followed = true
+                        } else {
+                            console.log("FOLLOW ", otherName, "ERROR:", response.code, response.reason)
+                        }
+                    })
+                }
+            },
+            blockOne: function() {
+                var that = this
+                if (that.blocked) {
+                    DELETE("/api/user/unblock/" + otherName, {'token': token}, function(response) {
+                        if (response.status == 1) {
+                            that.blocked = false
+                        } else {
+                            console.log("UNBLOCK ", otherName, "ERROR:", response.code, response.reason)
+                        }
+                    })
+                } else {
+                    postJSON("/api/user/block/" + otherName, {'token': token}, function(response) {
+                        if (response.status == 1) {
+                            that.blocked = true
+                        } else {
+                            console.log("BLOCK ", otherName, "ERROR:", response.code, response.reason)
+                        }
+                    })
+                }
+            }
+        },
+        components: {
+            tabs: VueStrap.tabset,
+            tab: VueStrap.tab,
+            progressbar: VueStrap.progressbar,
+        }
+    })
 
-	getJSON(countURL, {'page': 1, 'pages': 20}, function(response) {
-		if (response.status === 1) {
-			userProfile.usersCount = response.users_count
-			userProfile.topcisCount = response.topics_count
-			userProfile.postsCount = response.posts_count
-			userProfile.commentsCount = response.comments_count
-		} else {
-			console.log("GET FROM", postsURL, "ERROR:", response.code, response.reason)	
-		}
-	})
+    getJSON(countURL, {'page': 1, 'pages': 20}, function(response) {
+        if (response.status === 1) {
+            userProfile.usersCount = response.users_count
+            userProfile.topcisCount = response.topics_count
+            userProfile.postsCount = response.posts_count
+            userProfile.commentsCount = response.comments_count
+        } else {
+            console.log("GET FROM", postsURL, "ERROR:", response.code, response.reason)
+        }
+    })
 
-	getJSON(profileURL, {'token': getCookieByName('token')}, function(response) {
-		if (response.status === 1) {
-			userProfile.id = response
-			userProfile.username = response.username
-			userProfile.avatar = response.avatar
-			userProfile.introduce = response.introduce
-			userProfile.gold = response.gold
-			userProfile.location = response.location
-			userProfile.joinDate = response.join_date
-			userProfile.wiki = (response.wiki ? response.wiki : "### 这家伙很懒，啥都不愿意写，简直无可救药！")
-			userProfile.blog = (response.blog ? response.blog : window.location.href)
-			userProfile.github = (response.github ? response.github : window.location.href)
-			userProfile.google = (response.google ? response.google : window.location.href)
-			userProfile.weibo = (response.weibo ? response.weibo : window.location.href)
-			userProfile.twitter = (response.twitter ? response.twitter : window.location.href)
-			userProfile.followed = response.followed
-			userProfile.blocked = response.blocked
-		} else {
-			console.log("GET FROM", profileURL, "ERROR:", response.code, response.reason)
-		}
-	})
+    getJSON(profileURL, {'token': getCookieByName('token')}, function(response) {
+        if (response.status === 1) {
+            userProfile.id = response
+            userProfile.username = response.username
+            userProfile.avatar = response.avatar
+            userProfile.introduce = response.introduce
+            userProfile.gold = response.gold
+            userProfile.location = response.location
+            userProfile.joinDate = response.join_date
+            userProfile.wiki = (response.wiki ? response.wiki : "### 这家伙很懒，啥都不愿意写，简直无可救药！")
+            userProfile.blog = (response.blog ? response.blog : window.location.href)
+            userProfile.github = (response.github ? response.github : window.location.href)
+            userProfile.google = (response.google ? response.google : window.location.href)
+            userProfile.weibo = (response.weibo ? response.weibo : window.location.href)
+            userProfile.twitter = (response.twitter ? response.twitter : window.location.href)
+            userProfile.followed = response.followed
+            userProfile.blocked = response.blocked
+        } else {
+            console.log("GET FROM", profileURL, "ERROR:", response.code, response.reason)
+        }
+    })
 
-	getJSON(postsURL, undefined, function(response) {
-		if (response.status === 1) {
-			userProfile.posts = response.posts
-			userProfile.myPostsCount = response.total
-		} else {
-			console.log("GET FROM", countURL, "ERROR:", response.code, response.reason)	
-		}
-	})
-	
-	getJSON(commentsURL, {'page': 1, 'pages': 20}, function(response) {
-		if (response.status === 1) {
-			userProfile.comments = response.comments
-			userProfile.myCommentsCount =response.total
-		} else {
-			console.log("GET FROM", commentsURL, "ERROR:", response.code, response.reason)	
-		}
-	})
+    getJSON(postsURL, undefined, function(response) {
+        if (response.status === 1) {
+            userProfile.posts = response.posts
+            userProfile.myPostsCount = response.total
+        } else {
+            console.log("GET FROM", countURL, "ERROR:", response.code, response.reason)
+        }
+    })
 
-	if (subscribedURL) {
-		getJSON(subscribedURL, {'token': getCookieByName('token')}, function(response) {
-			if (response.status === 1) {
-				userProfile.topics = response.topics
-				userProfile.myTopicsCount = response.total
-			} else {
-				console.log("GET FROM", subscribedURL, "ERROR:", response.code, response.reason)	
-			}
-		})
+    getJSON(commentsURL, {'page': 1, 'pages': 20}, function(response) {
+        if (response.status === 1) {
+            userProfile.comments = response.comments
+            userProfile.myCommentsCount =response.total
+        } else {
+            console.log("GET FROM", commentsURL, "ERROR:", response.code, response.reason)
+        }
+    })
 
-		getJSON(followingURL, {'token': getCookieByName('token')}, function(response) {
-			if (response.status === 1) {
-				userProfile.followings = response.followings
-				userProfile.myFollowingCount = response.total
-			} else {
-				console.log("GET FROM", followingURL, "ERROR:", response.code, response.reason)	
-			}
-		})
+    if (subscribedURL) {
+        getJSON(subscribedURL, {'token': getCookieByName('token')}, function(response) {
+            if (response.status === 1) {
+                userProfile.topics = response.topics
+                userProfile.myTopicsCount = response.total
+            } else {
+                console.log("GET FROM", subscribedURL, "ERROR:", response.code, response.reason)
+            }
+        })
 
-		getJSON(blockedURL, {'token': getCookieByName('token')}, function(response) {
-			if (response.status === 1) {
-				userProfile.blockeds = response.blockeds
-				userProfile.myBlockedCount = response.total
-			} else {
-				console.log("GET FROM", blockedURL, "ERROR:", response.code, response.reason)
-			}
-		})
-	}
-	
+        getJSON(followingURL, {'token': getCookieByName('token')}, function(response) {
+            if (response.status === 1) {
+                userProfile.followings = response.followings
+                userProfile.myFollowingCount = response.total
+            } else {
+                console.log("GET FROM", followingURL, "ERROR:", response.code, response.reason)
+            }
+        })
+
+        getJSON(blockedURL, {'token': getCookieByName('token')}, function(response) {
+            if (response.status === 1) {
+                userProfile.blockeds = response.blockeds
+                userProfile.myBlockedCount = response.total
+            } else {
+                console.log("GET FROM", blockedURL, "ERROR:", response.code, response.reason)
+            }
+        })
+    }
+
 </script>
 {% end %}

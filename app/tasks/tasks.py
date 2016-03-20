@@ -2,12 +2,7 @@
 
 from __future__ import print_function, division, absolute_import
 
-from celery.utils.log import get_task_logger
-
 from app.tasks.celery import app
-
-
-logger = get_task_logger(__name__)
 
 
 class Strategy(object):

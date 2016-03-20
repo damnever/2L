@@ -5,134 +5,134 @@
 
 {% block content %}
 <div class="row">
-	<div class="list-group col-md-5 col-md-offset-2">
-		<blockquote>
-			<p>发贴会扣除相应的金币，内容一经发布就不可修改，发帖前务必过一遍 <abbr title="WHO, WHEN, WHERE, WHAT, WHY">5W</abbr> + <abbr title="HOW">1H</abbr>。描述尽量简明扼要，每条规则之间用换行分割。</p>
-		</blockquote>
-		<form class="form-horizontal" role="form" id="new-topic" v-on:submit.prevent="ignore">
-			<div class="form-group">
-		        <label for="name" class="col-sm-2 control-label">主题名</label>
-		        <div class="col-sm-10">
-		            <input type="text" class="form-control" id="name" placeholder="主题名称" v-model="name">
-		        </div>
-		    </div>
-		    <div class="form-group">
-		        <label for="avatar" class="col-sm-2 control-label">图&emsp;标</label>
-		        <div class="col-sm-10" v-if="!image">
-		            <input type="file" accept="image/*" id="avatar" placeholder="主题图标" @change="onFileChange">
-		        </div>
-				<div class="col-sm-10" v-else>
-				    <img :src="image" class="thumbnail" width="60" height="60"/>
-				    <button class="btn btn-default btn-xs" @click="removeImage">删除</button>
-				</div>
-		    </div>
-		    <div class="form-group">
-		        <label for="description" class="col-sm-2 control-label">描&emsp;述</label>
-		        <div class="col-sm-10">
-		            <input type="text" class="form-control" id="description" placeholder="描述尽量简明扼要" v-model="description">
-		        </div>
-		    </div>
-		    <div class="form-group">
-		        <label for="rules" class="col-sm-2 control-label">规&emsp;则</label>
-		        <div class="col-sm-10">
-		        	<textarea class="form-control" rows="5" id="rules" placeholder="每条规则之间换行分割" v-model="rules"></textarea>
-		        </div>
-		    </div>
-		    <div class="form-group">
-		        <label for="why" class="col-sm-2 control-label">为什么</label>
-		        <div class="col-sm-10">
-		        	<textarea class="form-control" rows="5" id="why" placeholder="为什么要创建这个主题？" v-model="why"></textarea>
-		        </div>
-		    </div>
-		    <div class="form-group">
-			    <div class="col-sm-offset-2 col-sm-5">
-			        <button class="btn btn-default" style="width:100%;" @click="post">发起投票</button>
-			    </div>
-			</div>
-		</form>
-	</div>
+    <div class="list-group col-md-5 col-md-offset-2">
+        <blockquote>
+            <p>发贴会扣除相应的金币，内容一经发布就不可修改，发帖前务必过一遍 <abbr title="WHO, WHEN, WHERE, WHAT, WHY">5W</abbr> + <abbr title="HOW">1H</abbr>。描述尽量简明扼要，每条规则之间用换行分割。</p>
+        </blockquote>
+        <form class="form-horizontal" role="form" id="new-topic" v-on:submit.prevent="ignore">
+            <div class="form-group">
+                <label for="name" class="col-sm-2 control-label">主题名</label>
+                <div class="col-sm-10">
+                    <input type="text" class="form-control" id="name" placeholder="主题名称" v-model="name">
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="avatar" class="col-sm-2 control-label">图&emsp;标</label>
+                <div class="col-sm-10" v-if="!image">
+                    <input type="file" accept="image/*" id="avatar" placeholder="主题图标" @change="onFileChange">
+                </div>
+                <div class="col-sm-10" v-else>
+                    <img :src="image" class="thumbnail" width="60" height="60"/>
+                    <button class="btn btn-default btn-xs" @click="removeImage">删除</button>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="description" class="col-sm-2 control-label">描&emsp;述</label>
+                <div class="col-sm-10">
+                    <input type="text" class="form-control" id="description" placeholder="描述尽量简明扼要" v-model="description">
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="rules" class="col-sm-2 control-label">规&emsp;则</label>
+                <div class="col-sm-10">
+                    <textarea class="form-control" rows="5" id="rules" placeholder="每条规则之间换行分割" v-model="rules"></textarea>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="why" class="col-sm-2 control-label">为什么</label>
+                <div class="col-sm-10">
+                    <textarea class="form-control" rows="5" id="why" placeholder="为什么要创建这个主题？" v-model="why"></textarea>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-sm-offset-2 col-sm-5">
+                    <button class="btn btn-default" style="width:100%;" @click="post">发起投票</button>
+                </div>
+            </div>
+        </form>
+    </div>
 </div>
 {% end %}
 
 {% block script %}
 <script type="text/javascript">
-	var v = new Vue({
-		el: '#new-topic',
-		data: {
-			name: '',
-			description: '',
-			rules: '',
-			why: '',
-			image: '',
-		},
-		methods: {
-			ignore: function() {},
-			onFileChange: function(e) {
-				var files = e.target.files || e.dataTransfer.files
-				if (!files.length) {
-					return
-				}
-				this.createImage(files[0])
-			},
-			createImage: function(file) {
-				var reader = new FileReader()
-				var vm = this
-				reader.onload = function(e) {
-			        vm.image = e.target.result;
-			        console.log(vm.image.split('base64,')[1])
-			    };
-			    reader.readAsDataURL(file);
-			},
-			removeImage: function() {
-				this.image = ''
-			},
-			check: function() {
-				if (this.name === '') {
-					vAlert.warning('主题名不能为空')
-					return false
-				}
-				if (this.image === '') {
-					vAlert.warning('主题图标不能为空')
-					return false
-				}
-				if (this.description === '') {
-					vAlert.warning('主题描述不能为空')
-					return false
-				}
-				if (this.rules === '') {
-					vAlert.warning('主题规则不能为空')
-					return false
-				}
-				if (this.why === '') {
-					vAlert.warning('主题创建的原因不能为空')
-					return false
-				}
-				return true
-			},
-			post: function() {
-				if (!this.check()) {
-					return
-				}
-				var data = {
-					'name': this.name,
-					'avatar': this.image.split('base64,')[1],
-					'description': this.description,
-					'rules': this.rules,
-					'why': this.why,
-					'token': getCookieByName('token'),
-				}
-				postJSON('/api/topic', data, this.handleResp)
-			},
-			handleResp: function(response) {
-				if (response.status === 1) {
-					vAlert.success("操作成功！")
-				} else if (response.code === 403) {
-					vAlert.danger("权限不足，请登录或获取该权限后尝试发帖！")
-				} else {
-					vAlert.danger(response.code.toString() + response.reason)
-				}
-			}
-		},
-	})
+    var v = new Vue({
+        el: '#new-topic',
+        data: {
+            name: '',
+            description: '',
+            rules: '',
+            why: '',
+            image: '',
+        },
+        methods: {
+            ignore: function() {},
+            onFileChange: function(e) {
+                var files = e.target.files || e.dataTransfer.files
+                if (!files.length) {
+                    return
+                }
+                this.createImage(files[0])
+            },
+            createImage: function(file) {
+                var reader = new FileReader()
+                var vm = this
+                reader.onload = function(e) {
+                    vm.image = e.target.result;
+                    console.log(vm.image.split('base64,')[1])
+                };
+                reader.readAsDataURL(file);
+            },
+            removeImage: function() {
+                this.image = ''
+            },
+            check: function() {
+                if (this.name === '') {
+                    vAlert.warning('主题名不能为空')
+                    return false
+                }
+                if (this.image === '') {
+                    vAlert.warning('主题图标不能为空')
+                    return false
+                }
+                if (this.description === '') {
+                    vAlert.warning('主题描述不能为空')
+                    return false
+                }
+                if (this.rules === '') {
+                    vAlert.warning('主题规则不能为空')
+                    return false
+                }
+                if (this.why === '') {
+                    vAlert.warning('主题创建的原因不能为空')
+                    return false
+                }
+                return true
+            },
+            post: function() {
+                if (!this.check()) {
+                    return
+                }
+                var data = {
+                    'name': this.name,
+                    'avatar': this.image.split('base64,')[1],
+                    'description': this.description,
+                    'rules': this.rules,
+                    'why': this.why,
+                    'token': getCookieByName('token'),
+                }
+                postJSON('/api/topic', data, this.handleResp)
+            },
+            handleResp: function(response) {
+                if (response.status === 1) {
+                    vAlert.success("操作成功！")
+                } else if (response.code === 403) {
+                    vAlert.danger("权限不足，请登录或获取该权限后尝试发帖！")
+                } else {
+                    vAlert.danger(response.code.toString() + response.reason)
+                }
+            }
+        },
+    })
 </script>
 {% end %}

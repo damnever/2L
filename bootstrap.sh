@@ -48,28 +48,16 @@ sudo sed -i '/^logfile*/c\logfile \/var\/log\/redis_6379\.log' /etc/redis/6379.c
 sudo sed -i '/^dir*/c\dir \/var\/redis\/6379' /etc/redis/6379.conf
 sudo update-rc.d redis_6379 defaults
 sudo /etc/init.d/redis_6379 start
+cd -
+rm ${redis}
 rm -r redis-stable
 
-# pyenv
-git clone https://github.com/yyuu/pyenv.git ~/.pyenv
-echo '\n# Setup pyenv' >> $HOME/.bashrc
-echo 'export PATH=/usr/local/p/versions/python:$PATH' >> $HOME/.bashrc
-echo 'export PYENV_ROOT="$HOME/.pyenv"' >> $HOME/.bashrc
-echo 'export PATH="$PYENV_ROOT/bin:$PATH"' >> $HOME/.bashrc
-echo 'eval "$(pyenv init -)"' >> $HOME/.bashrc
-exec $SHELL
-
-git clone https://github.com/yyuu/pyenv-virtualenvwrapper.git ~/.pyenv/plugins/pyenv-virtualenvwrapper
-pyenv virtualenvwrapper
-echo 'export PYENV_VIRTUALENVWRAPPER_PREFER_PYVENV="true"' >> $HOME/.bashrc
-
-pyenv install 2.7.11
-pyenv global 2.7.11
-
+sudo pip install virtualenvwrapper
+source /usr/local/bin/virtualenvwrapper.sh
+mkvirtualenv 2L
 pip install --upgrade pip
-
+pip install -r requirements.txt
 ln -s $(pwd)/tpl_settings.py $(pwd)/app/settings.py
-
 pip install -e .
 
 2L initdb
