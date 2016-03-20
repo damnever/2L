@@ -57,7 +57,7 @@ source /usr/local/bin/virtualenvwrapper.sh
 mkvirtualenv 2L
 pip install --upgrade pip
 pip install -r requirements.txt
-ln -s $(pwd)/tpl_settings.py $(pwd)/app/settings.py
+ln -sf $(pwd)/tpl_settings.py $(pwd)/app/settings.py
 pip install -e .
 
 2L initdb

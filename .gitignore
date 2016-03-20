@@ -9,3 +9,4 @@ dev_settings.py
 build/
 *.egg-info/
 app/settings.py
+daemonize.py

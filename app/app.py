@@ -4,7 +4,6 @@
 from __future__ import print_function, division, absolute_import
 
 #  import signal
-import os
 import atexit
 
 from tornado.web import Application
@@ -13,7 +12,7 @@ from tornado.ioloop import IOLoop, PeriodicCallback
 from tornado.log import enable_pretty_logging
 
 from app.libs.db import shutdown_session, ping_db
-from app.settings import Tornado, PID_FILE
+from app.settings import Tornado
 from app.cache import session, gold
 
 
@@ -29,27 +28,18 @@ class App(Application):
         super(App, self).__init__(urls, **settings)
 
 
-#  def signal_handler(signum, frame):
-    #  shutdown_session()
-    #  print(' Stoping...')
-    #  IOLoop.instance().stop()
-
 def exit_func():
     print(' Stoping...')
     IOLoop.current().stop()
     shutdown_session()
     session.delete_all()
     gold.delete_all()
-    with open(PID_FILE, 'rb') as f:
-        os.kill(9, int(f.read()))
 
 
 def run_server(host='127.0.0.1', port=9487):
     enable_pretty_logging()
     #  for sig in (signal.SIGINT, signal.SIGTERM):
     #      signal.signal(sig, signal_handler)
-    os.environ['NO_SERVICE_HOST'] = host
-    os.environ['NO_SERVICE_PORT'] = str(port + 1)
     atexit.register(exit_func)
 
     # Do not make MySQL goaway.

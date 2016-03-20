@@ -6,7 +6,6 @@ import os.path
 
 
 ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
-PID_FILE = os.path.join(ROOT_DIR, 'daemon.pid')
 
 
 def read_img(path):
