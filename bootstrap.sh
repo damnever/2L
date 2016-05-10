@@ -6,9 +6,10 @@
 redis="http://download.redis.io/redis-stable.tar.gz"
 
 sudo apt-get update
-sudo apt-get -y install make build-essential wget curl git python-pip \
+sudo apt-get -y install make build-essential wget curl python-pip python-dev \
     libssl-dev zlib1g-dev libbz2-dev libreadline-dev libsqlite3-dev \
     llvm libncurses5-dev nginx
+sudo locale-gen zh_CN.UTF-8
 
 # mysql
 sudo debconf-set-selections <<< 'mysql-server mysql-server/root_password password DXC'
@@ -49,24 +50,28 @@ sudo sed -i '/^dir*/c\dir \/var\/redis\/6379' /etc/redis/6379.conf
 sudo update-rc.d redis_6379 defaults
 sudo /etc/init.d/redis_6379 start
 cd -
-rm ${redis}
+rm redis-stable.tar.gz
 rm -r redis-stable
 
 sudo pip install virtualenvwrapper
 source /usr/local/bin/virtualenvwrapper.sh
 mkvirtualenv 2L
+workon 2L
 pip install --upgrade pip
+cd /vagrant
 pip install -r requirements.txt
-ln -sf $(pwd)/tpl_settings.py $(pwd)/app/settings.py
-pip install -e .
+cp $(pwd)/tpl_settings.py $(pwd)/app/settings.py
+pip install .
 
 2L initdb
 
 
 # supervisor
-pip install supervisor
+sudo pip install supervisor
 sudo mkdir /var/log/supervisor/
-sudo supervisord -c $(pwd)/supervisord.conf
+sudo cp $(pwd)/supervisord.conf /etc/
+sudo supervisord
 
 # nginx
-sudo nginx -c $(pwd)/nginx.conf
+sudo cp $(pwd)/nginx.conf /etc/nginx/
+sudo kill -HUP $(ps -aux | grep nginx | grep master | awk '{ print $2 }')

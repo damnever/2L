@@ -3,7 +3,7 @@
 import os
 import fnmatch
 
-from setuptools import setup
+from setuptools import setup, find_packages
 from pip.req import parse_requirements
 from Cython.Build import cythonize
 
@@ -34,6 +34,8 @@ setup(
         'Programming Language :: Python :: 2',
         'Programming Language :: Python :: 3',
     ],
+    packages=find_packages(),
+    include_package_data=True,
     install_requires=reqs,
     ext_modules=pyx_extensions,
     entry_points={

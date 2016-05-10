@@ -12,4 +12,9 @@ Vagrant.configure(GRANTFILE_API_VERSION) do |config|
 
   config.vm.network :forwarded_port, guest: 80, host: 9487
   config.vm.network :forwarded_port, guest: 8888, host: 8888
+
+  # DNS problem
+  config.vm.provider "virtualbox" do |v|
+      v.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
+  end
 end
