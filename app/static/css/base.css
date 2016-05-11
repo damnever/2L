@@ -1,0 +1,503 @@
+html, body {
+	font-family: 'Helvetica Neue',Helvetica,Arial,sans-serif;
+	background-color: #fff;
+}
+
+/*** Footer align the bottom. ***/
+html, body, #container {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+body > #container {
+    height: auto;
+    min-height: 100%;
+}
+
+#content {
+    padding-bottom: 80px;
+}
+
+#footer {
+    clear: both;
+    position: relative;
+    z-index: 10;
+    height: 60px;
+    margin-top: -60px;
+}
+
+body {
+	padding-top: 70px;
+}
+
+/*** NAVBAR ***/
+.navbar {
+	background-color: rgba(255,255,255,0.4);
+	border-bottom: 1px solid rgba(220, 220, 220, 0.4);
+    box-shadow: 0 1px 5px rgba(0, 0, 0, 0.12);
+}
+
+.navbar-default .navbar-nav>.active>a,
+.navbar-default .navbar-nav>.active>a:focus,
+.navbar-default .navbar-nav>.active>a:hover {
+    color: #222;
+    background-color: rgba(220, 220, 220, 0.3);
+}
+.navbar-default .navbar-nav>li>a {
+    color: #555;
+}
+
+#user-area,
+#auth-area {
+	margin-top: 14px;
+	padding-top: 14px;
+}
+#user-area li,
+#auth-area li {
+	display: inline;
+	color: #555;
+}
+#user-area li a,
+#auth-area li a {
+	color: #555;
+	font-size: 14px;
+}
+
+
+/*** POST LIST ***/
+.list-group-item {
+	border-top: 1px solid transparent;
+	border-left: 1px solid transparent;
+	border-right: 1px solid transparent;
+	border-bottom: 1px solid #e5e5e5;
+	margin-bottom: 1px;
+}
+.list-group-item:hover {
+	background-color: rgba(220, 220, 220, 0.1);
+}
+.list-group-item:first-child {
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+}
+.list-group-item:last-child {
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+label {
+	color: #666;
+	font-weight: normal;
+	font-size: 14px;
+}
+
+.post {
+	min-height: 72px;
+}
+
+.post-avatar {
+	float: left;
+}
+
+.post-info {
+	margin-left: 64px;
+}
+
+.post-title {
+	font-size: 18px;
+	color: #222222;
+}
+.post-title:hover {
+	color: #1abc9c;
+}
+
+.post-other-info {
+    bottom: 10px;
+}
+
+.label-default {
+	padding: 2px 5px 2px 5px;
+	color: #444444;
+    font-weight: normal;
+    background-color: #eeeeee;
+    border-radius: 0;
+}
+.label-default:hover {
+	color: #333333;
+	background-color: #999999;
+}
+
+.post-other-info .post-author,
+.post-other-info .post-user {
+	color: #444444;
+}
+.post-other-info .post-author:hover,
+.post-other-info .post-user:hover {
+	color: #111111;
+}
+.post-other-info .post-date,
+.post-other-info .comment-date {
+	color: #888888;
+}
+
+.post-comments {
+	margin-top: 16px;
+	color: #fff;
+	background-color: #aab0c6;
+}
+.post-comments:visited {
+	color: #fff;
+	background-color: #e5e5e5;
+}
+
+/*** Topics ***/
+.topics {
+	margin-bottom: 3px;
+}
+.topics .topic-avatar {
+	float: left;
+}
+.topic-text {
+	margin-left: 72px;
+}
+.topic-text .header {
+	margin-bottom: 3px;
+}
+.topic-text .header a {
+	color: #444444;
+	font-size: 16px;
+}
+.topic-text .header a:hover {
+	color: #000000;
+}
+.topic-text .header button {
+	float: right;
+	margin-right: 20px;
+	font-size: 10px;
+}
+.topic-text .description {
+	color: #555555;
+	font-size: 13px;
+}
+
+/*** SUBSCRIBED TOPICS ***/
+#subscribed-topics .panel {
+	border-radius: 0;
+	border-color: #e5e5e5;
+}
+#subscribed-topics .panel .panel-body {
+	padding: 0;
+}
+#subscribed-topics .list-group {
+	margin: 0;
+}
+#subscribed-topics .list-group-item {
+	border: 1px solid transparent;
+}
+#subscribed-topics .list-group-item:hover {
+	background-color: rgba(230, 230, 230, 0.3);
+}
+#subscribed-topics .list-group-item:first-child {
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+}
+#subscribed-topics .list-group-item:last-child {
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+}
+#subscribed-topics .list-group-item img {
+	float: left;
+}
+#subscribed-topics .list-group-item a {
+	margin-left: 10px;
+	color: #444444;
+}
+#subscribed-topics .list-group-item a:hover {
+	color: #222222;
+}
+
+/*** Topic ***/
+.topic {
+	padding: 10px 12px 10px 12px;
+	border: 1px solid rgba(240, 234, 240, 0.7);
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+.header img {
+	float: left;
+}
+.header .text {
+	margin-left: 72px;
+}
+.header .text .title {
+	color: #222;
+	font-size: 20px;
+	margin-bottom: 5px;
+}
+.header .text .title button {
+	float: right;
+	margin-right: 5px;
+}
+.header .text .admin {
+	color: #555;
+	font-size: 12px;
+}
+.header .text .admin:hover {
+	color: #333;
+}
+.description {
+	color: #444;
+	font-size: 15px;
+	margin-bottom: 14px;
+}
+.rules .rule {
+	color: #555;
+}
+
+/*** COMMENTS ***/
+.comment-up-votes,
+.comment-down-votes {
+	color: #555555;
+	margin-right: 3px;
+}
+.comment-up-votes:hover,
+.comment-down-votes:hover {
+	color: #000000;
+	text-decoration: none;
+}
+.comment-user:hover {
+	color: #111111;
+}
+.comment-date {
+	color: #888888;
+	font-size: 13px;
+}
+.comment-user {
+	color: #333333;
+	font-size: bold;
+}
+.comment-left {
+	float: left;
+}
+.comment-info {
+	margin-left: 50px;
+}
+.comment-content {
+	margin-top: 3px;
+	color: #333333;
+	font-size: 14px;
+}
+.comment-reply {
+	color: #555555;
+	font-size: 13px;
+}
+.comment-reply:hover {
+	color: #333333;
+}
+#comments .list-group-item {
+	padding: 10px 5px 10px 5px;
+}
+.comment-submit {
+
+}
+.comment-submit button {
+}
+.comment-submit .comment-tip {
+	margin-top: 15px;
+	color: #555555;
+	font-size: 12px;
+	float: right;
+}
+
+/*** ANNOUNCEMENT ***/
+#announcement .panel-group .panel {
+    border-radius: 0;
+    border-color: #e5e5e5;
+}
+#subscribed-topics .panel-default>.panel-heading,
+#announcement .panel-default>.panel-heading {
+    color: #777777;
+    background-color: rgba(230, 230, 230, 0.1);
+}
+#announcement .panel-default>.panel-heading:hover {
+    color: #222222;
+    background-color: rgba(230, 230, 230, 0.1);
+}
+#announcement .panel-body {
+	color: #444444;
+}
+
+/*** Custom Button ***/
+.btn-default {
+	color: #565656;
+    background-image: linear-gradient(#fdfdfd, #efefef);
+    border: 1px solid #eee;
+}
+
+.btn-default:hover,
+.btn-default:active {
+    color: #000;
+    background: #eee;
+    background-image: linear-gradient(#fcfcfc, #dfdfdf);
+    border-color: #cfcfcf;
+}
+
+/*** clear float ***/
+.clearfix:before,
+.clearfix:after {
+    display: table;
+    content: " ";
+}
+
+.clearfix:after {
+    clear: both;
+}
+
+blockquote {
+	color: #555555;
+	font-size: 14px;
+	padding-right: 0;
+}
+
+/* Markdown */
+.markdown-body {
+	color: #333333;
+	font-size: 14px;
+	padding: 5px 5px 8px 5px;
+	border-bottom: 1px solid #ccc;
+}
+.markdown-body .highlight pre,
+.markdown-body pre {
+	background-color: rgba(230, 230, 230, 0.3);
+}
+.markdown-body img {
+	max-height: 200px;
+}
+pre {
+	border: 1px solid #fafafa;
+}
+
+/* footer */
+#footer {
+    padding-top: 18px;
+    padding-bottom: 32px;
+    color: #767676;
+    font-size: 12px;
+    border-top: 1px solid #e5e5e5;
+    zoom: 1;
+}
+
+.footer-link {
+    padding-left: 0;
+    margin-top: 5px;
+}
+
+.copyright {
+    padding-left: 96px;
+    float: left;
+}
+
+.right-link {
+    padding-right: 96px;
+    float: right;
+}
+
+.footer-link li {
+    display: inline;
+    padding: 0 2px;
+}
+
+.footer-link a {
+    color: #767676;
+}
+
+.footer-link a:hover{
+    color: #222;
+}
+
+/* http://prismjs.com/download.html?themes=prism&languages=markup+css+clike+javascript */
+/**
+ * prism.js default theme for JavaScript, CSS and HTML
+ * Based on dabblet (http://dabblet.com)
+ * @author Lea Verou
+ */
+ @font-face {
+   font-family: 'icon';
+   src: url('../fonts/icon.eot?70502573');
+   src: url('../fonts/icon.eot?70502573#iefix') format('embedded-opentype'),
+        url('../fonts/icon.woff?70502573') format('woff'),
+        url('../fonts/icon.ttf?70502573') format('truetype'),
+        url('../fonts/icon.svg?70502573#icon') format('svg');
+   font-weight: normal;
+   font-style: normal;
+ }
+ /* Chrome hack: SVG is rendered more smooth in Windozze. 100% magic, uncomment if you need it. */
+ /* Note, that will break hinting! In other OS-es font will be not as sharp as it could be */
+ /*
+ @media screen and (-webkit-min-device-pixel-ratio:0) {
+   @font-face {
+     font-family: 'icon';
+     src: url('../font/icon.svg?70502573#icon') format('svg');
+   }
+ }
+ */
+
+ [class^="icon-"]:before, [class*=" icon-"]:before {
+   font-family: "icon";
+   font-style: normal;
+   font-weight: normal;
+   speak: none;
+
+   display: inline-block;
+   text-decoration: inherit;
+   width: 1em;
+   margin-right: .2em;
+   text-align: center;
+   /* opacity: .8; */
+
+   /* For safety - reset parent styles, that can break glyph codes*/
+   font-variant: normal;
+   text-transform: none;
+
+   /* fix buttons height, for twitter bootstrap */
+   line-height: 1em;
+
+   /* Animation center compensation - margins should be symmetric */
+   /* remove if not needed */
+   margin-left: .2em;
+
+   /* you can be more comfortable with increased icons size */
+   /* font-size: 120%; */
+
+   /* Font smoothing. That was taken from TWBS */
+   -webkit-font-smoothing: antialiased;
+   -moz-osx-font-smoothing: grayscale;
+
+   /* Uncomment for 3D effect */
+   /* text-shadow: 1px 1px 1px rgba(127, 127, 127, 0.3); */
+ }
+
+ .icon-ok-circled:before { content: '\e800'; } /* '' */
+ .icon-ok-circled2:before { content: '\e801'; } /* '' */
+ .icon-info-circled:before { content: '\e802'; } /* '' */
+ .icon-help-circled:before { content: '\e803'; } /* '' */
+ .icon-github-circled:before { content: '\e804'; } /* '' */
+ .icon-git:before { content: '\e805'; } /* '' */
+ .icon-ellipsis:before { content: '\e806'; } /* '' */
+ .icon-ellipsis-vert:before { content: '\e807'; } /* '' */
+ .icon-cancel-circled:before { content: '\e808'; } /* '' */
+ .icon-cancel-circled2:before { content: '\e809'; } /* '' */
+ .icon-cancel:before { content: '\e80a'; } /* '' */
+ .icon-ok:before { content: '\e80b'; } /* '' */
+ .icon-attention-circled:before { content: '\e80c'; } /* '' */
+ .icon-star-empty:before { content: '\e80d'; } /* '' */
+ .icon-star:before { content: '\e80e'; } /* '' */
+
+ .alert-icon-float-left {
+    font-size: 32px;
+    float: left;
+    margin-right: 5px;
+}
+
+.comment-voted {
+	color: #111;
+}

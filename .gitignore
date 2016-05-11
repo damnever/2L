@@ -1,4 +1,12 @@
-*.p[ocd]
+*.py[ocd]
+*.so
 *~
+*.dir
+*.bat
+app/daemon.pid
 __pycache__/
-2L/dev_settings.py
+dev_settings.py
+build/
+*.egg-info/
+app/settings.py
+daemonize.py

@@ -1,0 +1,193 @@
+{% extends "_base.html" %}
+
+{% block head %}
+
+{% end %}
+
+{% block content %}
+<div class="row">
+    <div id="posts" class="list-group col-md-5 col-md-offset-2">
+        <post-component :tag="tag" v-for="item in items"
+             :post-id="item.id"
+             :post-title="item.title"
+             :post-date="item.created_date"
+             :topic-id="item.topic_id"
+             :topic-name="item.topic_name"
+             :author-avatar="item.author_avatar"
+             :author-name="item.author_name"
+             :last-comment-name="item.latest_comment_user"
+             :last-comment-date="item.latest_comment_date"
+             :comment-count="item.comment_count">
+        </post-component>
+        <ul v-show="pages > 1" class="pagination pagination-sm">
+            <li :class="{'disabled': !hasPrev}"><a href="javascript:;" @click="prev">&laquo;</a></li>
+            <li v-for="idx in pagesList" :class="{'active': (page == idx)}"><a href="javascript:;" @click="currentPage(idx)">${ idx }</a></li>
+            <li :class="{'disabled': !hasNext}"><a href="javascript:;" @click="next">&raquo;</a></li>
+        </ul>
+        <div v-show="total <= 0">
+            赶紧来一发吧！还等什么？？？
+        </div>
+    </div>
+    <div id="right" class="col-md-3" style="background-color: #fff;padding:0 0 0 24px;">
+        <div id="announcement">
+            <accordion :one-at-atime="true">
+                <panel v-for="(index, item) in announcements" :header="'公告 #' + (index + 1)" :is-open="index == 0">
+                {!! item.content | toHTML !!}
+                </panel>
+            </accordion>
+        </div>
+        <div>
+            <button id="rob-gold" class="btn btn-default" style="width: 100%; margin-bottom: 20px;" @click="rob">抢金币</button>
+        </div>
+        <div id="subscribed-topics">
+            <div class="panel panel-default">
+                <div class="panel-heading">${ title }</div>
+                <div class="panel-body" style="padding:0;">
+                    <ul class="list-group col-md-6">
+                        <li class="list-group-item" v-for="item in leftItems">
+                            <img src="${ 'data:image/*;base64,' + item.avatar }" class="thumbnail" alt="${ item.name }" width="20" height="20">
+                            <a href="/topic/${ item.id }">${ item.name }</a>
+                        </li>
+                    </ul>
+                    <ul class="list-group col-md-6">
+                        <li class="list-group-item" v-for="item in rightItems">
+                            <img src="${ 'data:image/*;base64,' + item.avatar }" class="thumbnail" alt="${ item.name }" width="20" height="20">
+                            <a href="/topic/${ item.id }">${ item.name }</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% end %}
+
+{% block script %}
+<script type="text/javascript">
+    var perPage = 20
+    var allPostURL = '/api/posts/all'
+
+    var pList = new Vue({
+        el: '#posts',
+        data: {
+            tag: true,
+            total: 0,
+            items: [],
+            pages: 0,
+            page: 1,
+            hasPrev: false,
+            hasNext: false,
+        },
+        computed: {
+            pagesList: function() {
+                if (this.pages <= 0) {
+                    return []
+                }
+                return range(1, this.pages);
+            },
+        },
+        methods: {
+            prev: function() {
+                if (!this.hasPrev) {
+                    return
+                }
+                getListByPage(this, allPostURL, this.page - 1, perPage, 'posts')
+            },
+            next: function() {
+                if (!this.hasNext) {
+                    return
+                }
+                getListByPage(this, allPostURL, this.page + 1, perPage, 'posts')
+            },
+            currentPage: function(idx) {
+                if (this.page == idx) {
+                    return
+                }
+                getListByPage(this, allPostURL, idx, perPage, 'posts')
+            },
+        }
+    })
+
+    getListByPage(pList, allPostURL, 1, perPage, 'posts')
+
+    ///////////////////////////////////////////////////////////////////////////
+    var ann = new Vue({
+        el: '#announcement',
+        data: {
+            announcements: [],
+        },
+        components: {
+            accordion: VueStrap.accordion,
+            panel: VueStrap.panel
+        }
+    })
+
+    getJSON('/api/notifications/announcement', {}, function(response) {
+        if (response.status == 1) {
+            ann.announcements = response.announcements
+        } else {
+            console.log('GET ANNOUNCEMENTS ERROR: ', response.code, response.reason)
+        }
+    })
+
+    ///////////////////////////////////////////////////////////////////////////
+    new Vue({
+        el: '#rob-gold',
+        methods: {
+            rob: function() {
+                postJSON('/rob/gold', {'token': getCookieByName('token')}, function(response) {
+                    if (response.status == 1) {
+                        vAlert.success('您抢到了 ' + response.gold.toString() + ' 个金币！')
+                    } else {
+                        if (response.code == 403) {
+                            vAlert.danger('您还未登录，没有权限枪金币！')
+                        } else if (response.code == 1030) {
+                            vAlert.warning('很遗憾，今天的金币已经抢完了！')
+                        } else if (response.code == 1031) {
+                            vAlert.warning('您今天已经抢过一次了，明天在来吧O(∩_∩)O~')
+                        }
+                    }
+                })
+            }
+        }
+    })
+
+    ///////////////////////////////////////////////////////////////////////////
+    var tList = new Vue({
+        el: '#subscribed-topics',
+        data: {
+            title: '订阅的主题',
+            leftItems: [],
+            rightItems: [],
+        },
+    })
+    getJSON('/api/subscribed/topics', {'token': getCookieByName('token')}, function(response) {
+        var next = false
+        if (response.status == 1 && response.total != 0) {
+            var mid = Math.round(response.total / 2)
+            for (var i = 0; i < response.total; i++) {
+                if (i < mid) {
+                    tList.leftItems.push(response.topics[i].topic)
+                } else {
+                    tList.rightItems.push(response.topics[i].topic)
+                }
+            }
+        } else {
+            next = true
+            console.log("GET SUBSCRIBED TOPICS ERROR: ", response.code, " ", response.reason)
+        }
+        if (next) {
+            getJSON('/api/topics/accepted', undefined, function(response) {
+                tList.title = '推荐的主题'
+                if (response.status == 1 && response.total != 0) {
+                    var mid = Math.round(response.total / 2)
+                    tList.leftItems = response.topics.slice(0, mid)
+                    tList.rightItems = response.topics.slice(mid)
+                } else {
+                    console.log("GET ALL TOPICS ERROR: ", response.code, " ", response.reason)
+                }
+            })
+        }
+    })
+</script>
+{% end %}

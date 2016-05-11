@@ -1,0 +1,178 @@
+{% extends "_base.html" %}
+
+{% block head %}
+<style type="text/css">
+#proposals .avatar {
+    float: left;
+}
+#proposals .proposal {
+    min-height: 72px;
+}
+#proposals .content {
+    float: left;
+}
+#proposals .info {
+    margin-left: 64px;
+}
+
+#proposals .title {
+    font-size: 18px;
+    color: #222222;
+}
+#proposals .title:hover {
+    color: #1abc9c;
+}
+
+#proposals .other-info {
+    bottom: 10px;
+}
+#proposals .state {
+    float: right;
+    vertical-align: baseline;
+}
+#proposals .other-info .author {
+    color: #444444;
+}
+#proposals .other-info .author:hover {
+    color: #111111;
+}
+#proposals .other-info .date {
+    color: #888888;
+}
+.topic-title {
+    font-size: 20px;
+    border: 1px solid #e5e5e5;
+    padding: 2px 3px;
+    margin-bottom: 5px;
+}
+</style>
+{% end %}
+
+{% block content %}
+<div class="row">
+    <div id="proposals" class="list-group col-md-5 col-md-offset-2">
+        <proposal-component v-for="item in items"
+         :topic-id="item.id"
+         :topic-name="item.name"
+         :topic-avatar="item.avatar"
+         :topic-date="item.date"
+         :topic-state="item.state"
+         :author-name="item.administer"
+         :topic-description="item.description">
+        </proposal-component>
+        <ul v-show="pages > 1" class="pagination pagination-sm">
+            <li :class="{'disabled': !hasPrev}"><a href="javascript:;" @click="prev">&laquo;</a></li>
+            <li v-for="idx in pagesList" :class="{'active': (page == idx)}"><a href="javascript:;" @click="currentPage(idx)">${ idx }</a></li>
+            <li :class="{'disabled': !hasNext}"><a href="javascript:;" @click="next">&raquo;</a></li>
+        </ul>
+    </div>
+    <div class="col-md-3" style="background-color: #fff;padding:0 0 0 24px;">
+        <div class="topic">
+            <div class="topic-title">我要</div>
+            <div class="description">{{ description }}</div>
+            <div class="rules">
+                {% for rule in rules.split('\n') %}
+                <div class="rule">
+                    <span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span> {{ rule }}
+                </div>
+                {% end %}
+                <a href="/topic/new" class="btn btn-default" style="margin-top:10px;width:100%;" @click="newPost">提交新的主题</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% end %}
+
+{% block script %}
+<script type="text/javascript">
+    Vue.component('proposalComponent', {
+        template: (function () {/*
+            <li class="list-group-item proposal">
+                <div class="content">
+                    <div class="avatar">
+                        <img src="${ 'data:image/*;base64,' + topicAvatar }" class="thumbnail" alt="${ topicName }" width="50" height="50">
+                    </div>
+                    <div class="info">
+                        <a class="title" href="/proposal/${ topicId }">${ topicName }</a>
+                        &ensp;
+                        <small>(${ topicDescription | limitStr })</small>
+                        <div class="other-info">
+                            <a class="author" href="/user/${ authorName }">${ authorName }</a>
+                            <span class="date" style="margin-right: 10px;"> 发布于 ${ topicDate }</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="state">
+                    <span class="label" :class="{'label-warning': topicState==0, 'label-success': topicState==1, 'label-default': topicState==-1}">${ state }</span>
+                </div>
+            </li>
+        */}).toString().split('\n').slice(1,-1).join(''),
+        props: {
+            topicId: Number,
+            topicName: String,
+            topicDescription: String,
+            topicAvatar: String,
+            topicDate: String,
+            topicState: Number,
+            authorName: String,
+        },
+        computed: {
+            state: function() {
+                switch (this.topicState) {
+                    case 0:
+                        return '投票中'
+                    case 1:
+                        return '已创建'
+                    case -1:
+                        return '已回绝'
+                }
+            }
+        }
+    })
+
+    var perPage = 20
+    var topicURL = '/api/topics'
+
+    var p = new Vue({
+        el: '#proposals',
+        data: {
+            total: 0,
+            items: [],
+            pages: 0,
+            page: 1,
+            hasPrev: false,
+            hasNext: false,
+        },
+        computed: {
+            pagesList: function() {
+                if (this.pages <= 0) {
+                    return []
+                }
+                return range(1, this.pages);
+            },
+        },
+        methods: {
+            prev: function() {
+                if (!this.hasPrev) {
+                    return
+                }
+                getListByPage(this, topicURL, this.page - 1, perPage, 'topics')
+            },
+            next: function() {
+                if (!this.hasNext) {
+                    return
+                }
+                getListByPage(this, topicURL, this.page + 1, perPage, 'topics')
+            },
+            currentPage: function(idx) {
+                if (this.page == idx) {
+                    return
+                }
+                getListByPage(this, topicURL, idx, perPage, 'topics')
+            },
+        }
+    })
+
+    getListByPage(p, topicURL, 1, perPage, 'topics')
+</script>
+{% end %}

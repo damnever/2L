@@ -1,0 +1,119 @@
+{% extends "_base.html" %}
+
+{% block head %}
+<style type="text/css">
+    .up-vote-num,
+    .down-vote-num {
+        margin-left: 30px;
+        margin-right: 5px;
+        font-size: 20px;
+    }
+</style>
+{% end %}
+
+{% block content %}
+<div class="row">
+    <div class="list-group col-md-5 col-md-offset-2" id="proposal-vote">
+        <div class="alert {% if state == 1%}alert-success{% elif state == -1 %}alert-danger{% else %}alert-warning{% end %}"><a href="/user/{{ user }}">{{ user }}</a>{% if state == 1%} 提出的主题《{{ title }}》于 {{ date }} 被创建了！{% elif state == -1 %} 提出的主题《{{ title }}》于 {{ date }} 被丢弃了！{% else %} 于 {{ date }} 提出的主题《{{ title }}》正在投票中...{% end %}</div>
+        <table class="table">
+            <tr>
+                <td>标题</td>
+                <td>{{ title }}</td>
+            </tr>
+            <tr>
+                <td>图标</td>
+                <td><img src="data:image/*;base64,{{ avatar }}" class="thumbnail" alt="{{ title }}" width="60" height="60"></td>
+            </tr>
+            <tr>
+                <td>描述</td>
+                <td>{{ description }}</td>
+            </tr>
+            <tr>
+                <td>规则</td>
+                <td>{% for rule in rules.split('\n') %}{{ rule }}<br/>{% end %}</td>
+            </tr>
+            <tr>
+                <td>因由</td>
+                <td>{% for w in why.split('\n') %}{{ w }}<br/>{% end %}</td>
+            </tr>
+        </table>
+        {% if state == 0 %}
+        <div class="jumbotron">
+            <h2>请投票：</h2>
+            <span class="up-vote-num badge">${ upVotes }</span>
+            <a class="btn btn-info" :class="{'btn-success': upVoted, 'btn-info': !upVoted}" role="button" @click="voteUp"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span></a>
+            <span class="down-vote-num badge">${ downVotes }</span>
+            <a class="btn" :class="{'btn-danger': downVoted, 'btn-warning': !downVoted}" role="button" @click="voteDown"><span class="glyphicon glyphicon-minus" aria-hidden="true"></span></a>
+        </div>
+        {% end %}
+    </div>
+    <div class="col-md-3" style="background-color: #fff;padding:0 0 0 24px;">
+    </div>
+</div>
+{% end %}
+
+{% block script %}
+<script type="text/javascript">
+    var id = {{ id }}
+
+    new Vue({
+        el: '#proposal-vote',
+        data: {
+            upVotes: {{ up_votes }},
+            downVotes: {{ down_votes }},
+            upVoted: Boolean({{ up_voted }}),
+            downVoted: Boolean({{ down_voted }}),
+        },
+        methods: {
+            voteUp: function() {
+                var self = this
+                var token = getCookieByName('token')
+
+                if (self.upVoted) {
+                    DELETE('/api/votes/topic/'+ id +'/up', {'token': token}, function(response) {
+                        if (response.status === 1) {
+                            self.upVotes = response.count
+                            self.upVoted = false
+                        } else {
+                            console.log("VOTES TOPIC #" + id + " UP GOT ERROR: ", response.code, " ", response.reason)
+                        }
+                    })
+                } else {
+                    postJSON('/api/votes/topic/'+ id +'/up', {'token': token}, function(response) {
+                        if (response.status === 1) {
+                            self.upVotes = response.count
+                            self.upVoted = true
+                        } else {
+                            console.log("VOTES TOPIC #" + id + " UP GOT ERROR: ", response.code, " ", response.reason)
+                        }
+                    })
+                }
+            },
+            voteDown: function() {
+                var self = this
+                var token = getCookieByName('token')
+
+                if (self.downVoted) {
+                    DELETE('/api/votes/topic/'+ id +'/down', {'token': token}, function(response) {
+                        if (response.status === 1) {
+                            self.downVotes = response.count
+                            self.downVoted = false
+                        } else {
+                            console.log("VOTES TOPIC #" + id + " UP GOT ERROR: ", response.code, " ", response.reason)
+                        }
+                    })
+                } else {
+                    postJSON('/api/votes/topic/'+ id +'/down', {'token': token}, function(response) {
+                        if (response.status === 1) {
+                            self.downVotes = response.count
+                            self.downVoted = true
+                        } else {
+                            console.log("VOTES TOPIC #" + id + " UP GOT ERROR: ", response.code, " ", response.reason)
+                        }
+                    })
+                }
+            }
+        }
+    })
+</script>
+{% end %}

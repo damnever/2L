@@ -1,0 +1,71 @@
+{% extends "_base.html" %}
+
+{% block head %}
+{% end %}
+{% block content %}
+<div class="row">
+    <ul id="posts" class="list-group col-md-5 col-md-offset-2">
+        <post-component :tag="tag" v-for="item in items"
+         :post-id="item.id"
+         :post-title="item.title"
+         :post-date="item.created_date"
+         :topic-id="item.topic_id"
+         :topic-name="item.topic_name"
+         :author-avatar="item.author_avatar"
+         :author-name="item.author_name"
+         :last-comment-name="item.last_comment_user"
+         :last-comment-date="item.last_comment_date"
+         :comment-count="item.comment_count">
+        </post-component>
+        <span v-show="items.length == 0">赶紧做第一个发帖的人吧！</span>
+    </ul>
+    <div id="topic-info" class="col-md-3" style="background-color: #fff;padding:0 0 0 24px;">
+        <topic-component
+         :id="id"
+         :name="name"
+         :admin="admin"
+         :avatar="avatar"
+         :description="description"
+         :rules="rules"
+         :b-post="bPost">
+        </topic-component>
+    </div>
+</div>
+{% end %}
+
+{% block script %}
+<script type="text/javascript">
+    var topicID = {{ topic_id }}
+    new Vue({
+        el: '#topic-info',
+        data: {
+            id: {{ topic_id }},
+            name: '{{ title }}',
+            avatar: '{{ avatar }}',
+            admin: '{{ admin }}',
+            description: '{{ description }}',
+            rules: (function () {/*
+{{ rules }}
+*/}).toString().split('\n').slice(1,-1).join('\n'),
+            bPost: true,
+        }
+    })
+
+    ///////////////////////////////////////////////////////////////////////////
+    var pList = new Vue({
+        el: '#posts',
+        data: {
+            tag: false,
+            items: []
+        }
+    })
+
+    getJSON('/api/posts/topic/' + topicID, undefined, function(response) {
+        if (response.status == 1) {
+            pList.items = response.posts
+        } else {
+            console.log('GET #' +  + ' POSTS ERROR: ', response.code, response.reason)
+        }
+    })
+</script>
+{% end %}

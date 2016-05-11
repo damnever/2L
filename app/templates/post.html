@@ -1,0 +1,334 @@
+{% extends "_base.html" %}
+
+{% block head %}
+<link rel="stylesheet" type="text/css" href="{{ static_url("css/github-markdown.min.css") }}"/>
+<style type="text/css">
+    #post-info {
+        height: 70px;
+        border-bottom: 1px solid #d8d8d8;
+        padding: 10px 5px 10px 5px;
+    }
+    .info-left {
+        float: left;
+    }
+    .favorite,
+    .post-up-votes,
+    .post-down-votes {
+        color: #555555;
+        margin-right: 3px;
+    }
+    .favorite:hover,
+    .post-up-votes:hover,
+    .post-down-votes:hover,
+    .post-voted {
+        color: #000000;
+        text-decoration: none;
+    }
+    .post-author:hover {
+        color: #111111;
+    }
+    .post-date {
+        color: #888888;
+        font-size: 13px;
+    }
+    .post-author {
+        margin-left: 5px;
+        margin-right: 5px;
+    }
+    .post-author {
+        color: #333333;
+        font-size: bold;
+    }
+    .info-right {
+        float: right;
+    }
+    .post-voted,
+    .comment-voted {
+        color: #111;
+    }
+</style>
+{% end %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-5 col-md-offset-2">
+        <div id="post-info">
+            <div class="info-left">
+                <a class="post-title" href="/post/{{ post_id }}">{{ title }}</a>
+                <div style="margin-top:5px;">
+                    <a class="favorite" href="javascript:;" @click="favorite"><span class="glyphicon" :class="{'glyphicon-heart-empty': !isFavorited, 'glyphicon-heart': isFavorited}" aria-hidden="true"></span> ${ favorites }</a>
+                    <a class="post-up-votes" :class="{'post-voted': isUpVoted}" href="javascript:;" @click="upVote"><span class="glyphicon glyphicon-thumbs-up" aria-hidden="true"></span> ${ upVotes }</a>
+                    <a class="post-down-votes" :class="{'post-voted': isDownVoted}" href="javascript:;" @click="downVote"><span class="glyphicon glyphicon-thumbs-down" aria-hidden="true"></span> ${ downVotes }</a>
+                    <a class="post-author" href="/user/{{ author }}">{{ author }}</a>
+                    <span class="post-date">发布于 {{ date }}</span>
+                </div>
+            </div>
+            <div class="info-right">
+                <img src="data:image/*;base64,{{ avatar }}" class="thumbnail" alt="{{ author }}" width="50" height="50">
+            </div>
+        </div>
+        <div class="clearfix"></div>
+        <article id="post-content" class="markdown-body"></article>
+        <ul id="comments" class="list-group">
+            <comment-component :at-users.sync="atUsers"
+             v-for="(index, item) in items"
+             :comment-index="index + 1"
+             :comment-id="item.id"
+             :comment-avatar="item.avatar"
+             :comment-user="item.author"
+             :comment-date="item.date"
+             :comment-content="item.content"
+             :comment-up-votes="item.up_votes"
+             :comment-down-votes="item.down_votes"
+             :is-up-voted="item.up_voted"
+             :is-down-voted="item.down_voted">
+            </comment-component>
+            <ul v-if="pages > 1" class="pagination pagination-sm">
+                <li :class="{'disabled': !hasPrev}"><a href="javascript:;" @click="prev">&laquo;</a></li>
+                <li v-for="idx in pagesList" :class="{'active': (page == idx)}"><a href="javascript:;" @click="currentPage(idx)">${ idx }</a></li>
+                <li :class="{'disabled': !hasNext}"><a href="javascript:;" @click="next">&raquo;</a></li>
+            </ul>
+            <div id="comment" style="margin-top:10px;">
+                <textarea id="comment-area" class="form-control" rows="3" v-model="content">${ atUsers.join(" ") + " " }</textarea>
+                <div class="comment-submit">
+                    <button class="btn btn-default btn-sm" style="margin-top:5px;" @click="comment">评&ensp;论</button>
+                    <span class="comment-tip">回答会扣除一定的金币哦！</span>
+                </label>
+            </div>
+        </ul>
+    </div>
+    <div id="topic-info" class="col-md-3" style="background-color: #fff;padding:0 0 0 24px;">
+        <topic-component
+         :id="id"
+         :name="name"
+         :admin="administer"
+         :avatar="avatar"
+         :description="description"
+         :rules="rules"
+         :is-subscribed.sync="isSubscribed"
+         :b-post="bPost">
+        </topic-component>
+    </div>
+</div>
+{% end %}
+
+{% block script %}
+<script type="text/javascript">
+    var topicID = {{ topic_id }}
+    var postID = {{ post_id }}
+    var content = (function () {/*
+    {% raw content %}
+    */}).toString().split('\n').slice(1,-1).join('\n')
+    $('#post-content').html(marked(content))
+
+    new Vue({
+        el: '#post-info',
+        data: {
+            upVotes: {{ up_votes }},
+            downVotes: {{ down_votes }},
+            favorites: {{ favorites }},
+            isUpVoted: Boolean({{ up_voted }}),
+            isDownVoted: Boolean({{ down_voted }}),
+            isFavorited: Boolean({{ favorited }}),
+        },
+        methods: {
+            favorite: function() {
+                var self = this
+                var token = getCookieByName('token')
+
+                if (self.isFavorited) {
+                    DELETE('/api/favorite/post/' + postID, {'token': token}, function(response) {
+                        if (response.status === 1) {
+                            self.favorites = response.count
+                            self.isFavorited = false
+                        } else {
+                            if (response.code == 403) {
+                                vAlert.danger('您没有权限收藏这个帖子！')
+                            }
+                            console.log("VOTES POST #" + postID + " DOWN GOT ERROR: ", response.code, response.reason)
+                        }
+                    })
+                } else {
+                    postJSON('/api/favorite/post/' + postID, {'token': token}, function(response) {
+                        if (response.status === 1) {
+                            self.favorites = response.count
+                            self.isFavorited = true
+                        } else {
+                            if (response.code == 403) {
+                                vAlert.danger('您没有权限收藏这个帖子！')
+                            }
+                            console.log("VOTES POST #" + postID + " DOWN GOT ERROR: ", response.code, response.reason)
+                        }
+                    })
+                }
+            },
+            upVote: function() {
+                var self = this
+                var token = getCookieByName('token')
+
+                if (self.isUpVoted) {
+                    DELETE('/api/votes/post/'+ postID +'/up', {'token': token}, function(response) {
+                        if (response.status === 1) {
+                            self.upVotes = response.count
+                            self.isUpVoted = false
+                        } else {
+                            if (response.code == 403) {
+                                vAlert.danger('您没有权限投票！')
+                            }
+                            console.log("VOTES POST #" + postID + " DOWN GOT ERROR: ", response.code, response.reason)
+                        }
+                    })
+                } else {
+                    postJSON('/api/votes/post/'+ postID +'/up', {'token': token}, function(response) {
+                        if (response.status === 1) {
+                            self.upVotes = response.count
+                            self.isUpVoted = true
+                        } else {
+                            if (response.code == 403) {
+                                vAlert.danger('您没有权限投票！')
+                            }
+                            console.log("VOTES POST #" + postID + " UP GOT ERROR: ", response.code, response.reason)
+                        }
+                    })
+                }
+            },
+            downVote: function() {
+                var self = this
+                var token = getCookieByName('token')
+
+                if (self.isDownVoted) {
+                    DELETE('/api/votes/post/'+ postID +'/down', {'token': token}, function(response) {
+                        if (response.status === 1) {
+                            self.downVotes = response.count
+                            self.isDownVoted = false
+                        } else {
+                            if (response.code == 403) {
+                                vAlert.danger('您没有权限投票！')
+                            }
+                            console.log("VOTES POST #" + postID + " DOWN GOT ERROR: ", response.code, " ", response.reason)
+                        }
+                    })
+                } else {
+                    postJSON('/api/votes/post/'+ postID +'/down', {'token': token}, function(response) {
+                        if (response.status === 1) {
+                            self.downVotes = response.count
+                            self.isDownVoted = true
+                        } else {
+                            if (response.code == 403) {
+                                vAlert.danger('您没有权限投票！')
+                            }
+                            console.log("VOTES POST #" + postID + " DOWN GOT ERROR: ", response.code, " ", response.reason)
+                        }
+                    })
+                }
+            }
+        }
+    })
+
+    ///////////////////////////////////////////////////////////////////////////
+    var topicInfo = new Vue({
+        el: '#topic-info',
+        data: {
+            bPost: true,
+            id: 0,
+            name: '',
+            administer: '',
+            avatar: '',
+            description: '',
+            rules: '',
+            isSubscribed: false,
+        },
+    })
+    getJSON('/api/topics/' + topicID, undefined, function(response) {
+        if (response.status === 1) {
+            topicInfo.id = response.id
+            topicInfo.name = response.name
+            topicInfo.administer = response.administer
+            topicInfo.avatar = response.avatar
+            topicInfo.description = response.description
+            topicInfo.rules = response.rules
+            topicInfo.isSubscribed = response.is_subscribed
+        } else {
+            console.log('GET TOPIC #' + topicID + ' ERROR: ' + response.code, response.reason)
+        }
+    })
+
+    ///////////////////////////////////////////////////////////////////////////
+    var perPage = 20
+    var commentsURL = '/api/comments/post/' + postID
+
+    var comments = new Vue({
+        el: '#comments',
+        data: {
+            tag: false,
+            total: 0,
+            page: 1,
+            hasPrev: false,
+            hasNext: false,
+            pages: 0,
+            items: [],
+            content: '',
+            atUsers: [],
+        },
+        computed: {
+            pagesList: function() {
+                if (this.pages <= 0) {
+                    return []
+                }
+                return range(1, this.pages);
+            },
+        },
+        methods: {
+            comment: function() {
+                if (this.content === "") {
+                    vAlert.warning("内容不能为空")
+                    return
+                }
+                var data = {
+                    'token': getCookieByName('token'),
+                    'content': this.content,
+                }
+                postJSON(commentsURL, data, this.handleResp)
+            },
+            handleResp: function(response) {
+                if (response.status === 1) {
+                    var item = {
+                        'id': response.id,
+                        'author': response.author,
+                        'avatar': response.avatar,
+                        'content': response.content,
+                        'date': response.date,
+                    }
+                    this.items.push(item)
+                    this.content = ""
+                    this.atUsers = []
+                } else if (response.code === 403) {
+                    vAlert.danger("您暂时还没有评论权限")
+                } else {
+                    console.log("COMMENT POST #" + postID + " FAILED", response.code, response.reason)
+                }
+            },
+            prev: function() {
+                if (!this.hasPrev) {
+                    return
+                }
+                getListByPage(this, commentsURL, this.page - 1, perPage, 'comments')
+            },
+            next: function() {
+                if (!this.hasNext) {
+                    return
+                }
+                getListByPage(this, commentsURL, this.page + 1, perPage, 'comments')
+            },
+            currentPage: function(idx) {
+                if (this.page == idx) {
+                    return
+                }
+                getListByPage(this, commentsURL, idx, perPage, 'comments')
+            }
+        }
+    })
+    getListByPage(comments, commentsURL, 1, 20, 'comments')
+    
+</script>
+{% end %}

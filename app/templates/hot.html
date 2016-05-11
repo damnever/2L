@@ -1,0 +1,46 @@
+{% extends "_base.html" %}
+
+{% block head %}
+
+{% end %}
+
+{% block content %}
+<div class="row">
+    <ul id="posts" class="list-group col-md-5 col-md-offset-2">
+        <post-component :tag="tag" v-for="item in items"
+         :post-id="item.id"
+         :post-title="item.title"
+         :post-date="item.created_date"
+         :topic-id="item.topic_id"
+         :topic-name="item.topic_name"
+         :author-avatar="item.author_avatar"
+         :author-name="item.author_name"
+         :last-comment-name="item.latest_comment_user"
+         :last-comment-date="item.latest_comment_date"
+         :comment-count="item.comment_count">
+        </post-component>
+    </ul>
+</div>
+{% end %}
+
+{% block script %}
+<script type="text/javascript">
+    var pList = new Vue({
+        el: '#posts',
+        data: {
+            tag: true,
+            total: 0,
+            items: [],
+        },
+    })
+
+    getJSON('/api/posts/hot', undefined, function(response) {
+        if (response.status == 1) {
+            pList.total = response.total
+            pList.items = response.posts
+        } else {
+            console.log('GET ALL POSTS ERROR: ', response.code, response.reason)
+        }
+    })
+</script>
+{% end %}
