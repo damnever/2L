@@ -4,6 +4,7 @@ from __future__ import print_function, division, absolute_import
 
 import functools
 import json
+import time
 from datetime import datetime
 
 from tornado import gen
@@ -31,6 +32,14 @@ def as_json(method):
     @functools.wraps(method)
     @gen.coroutine
     def wrapper(self, *args, **kwargs):
+        start = time.time()
+        api_name = "{0}.{1}".format(self.__class__.__name__, method.__name__)
+        timed = "{0}.timed".format(api_name)
+        success = "{0}.success".format(api_name)
+        permission_err = "{0}.permission_error".format(api_name)
+        http_err = "{0}.http_error".format(api_name)
+        internal_err = "{0}.internal_error".format(api_name)
+
         try:
             result = yield gen.maybe_future(method(self, *args, **kwargs))
             # Wait future complete.
@@ -44,6 +53,10 @@ def as_json(method):
                 'code': e.status_code,
                 'reason': e.reason,
             }))
+            if e.status_code == 403:
+                self.statsd_client.incr(permission_err, 1)
+            else:
+                self.statsd_client.incr(http_err, 1)
         except Exception:
             self.log.error('Unexpected error', exc_info=True)
             self.finish({
@@ -51,10 +64,14 @@ def as_json(method):
                 'code': 500,
                 'reason': 'Unknown server error.',
             })
+            self.statsd_client.incr(internal_err, 1)
         else:
             result = result or dict()
             result.update({'status': 1})
             self.finish(json_encode(result))
+            self.statsd_client.incr(success, 1)
+        finally:
+            self.statsd_client.timing_since(timed, start)
     return wrapper
 
 

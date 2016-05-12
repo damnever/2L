@@ -66,6 +66,15 @@ pip install .
 2L initdb
 
 
+# graphite statsd
+sudo apt-get install -y graphite-web graphite-carbon sqlite3
+sudo service carbon-cache start
+sudo sed -i '/^CARBON_CACHE_ENABLED*/c\CARBON_CACHE_ENABLED=true' /etc/default/graphite-carbon
+sudo graphite-manage syncdb
+sudo chown _graphite:_graphite /var/lib/graphite/graphite.db
+sudo pip install pystatsd
+
+cd /vagrant
 # supervisor
 sudo pip install supervisor
 sudo mkdir /var/log/supervisor/

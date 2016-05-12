@@ -19,6 +19,7 @@ from app.base.decorators import as_json
 from app.cache import session
 from app.settings import ThreadPoolMaxWorkers, DefaultAvatar
 from app.libs.db import db_session
+from app.libs.statsd import statsd_client
 
 
 class AsyncTaskMixIn(object):
@@ -28,6 +29,7 @@ class AsyncTaskMixIn(object):
     ``io_loop`` and ``executor`` attributes of ``self``.
 
     TODO: MAKE IT WORK WITH SCOPED SQLALCHEMY SESSION!!!
+    MAYBE USE THREAD IDENTIFY.
     """
     executor = ThreadPoolExecutor(max_workers=ThreadPoolMaxWorkers)
 
@@ -37,6 +39,10 @@ class AsyncTaskMixIn(object):
 
 
 class BaseHandler(AsyncTaskMixIn, RequestHandler):
+
+    @property
+    def statsd_client(self):
+        return statsd_client
 
     @property
     def log(self):
