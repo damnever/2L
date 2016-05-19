@@ -15,6 +15,7 @@ from app.models import (
     PostDownVote,
     TopicUpVote,
     TopicDownVote,
+    Subscription,
 )
 
 
@@ -26,6 +27,10 @@ class TopicHandler(BaseHandler):
         if not topic:
             raise HTTPError(404)
         admin = yield gen.maybe_future(User.get(topic.admin_id))
+        is_subscribed = False
+        if self.current_user:
+            is_subscribed = yield gen.maybe_future(
+                Subscription.get_by_user_topic(self.current_user, topic.id))
         self.render(
             'topic.html',
             title=topic.name,
@@ -35,6 +40,7 @@ class TopicHandler(BaseHandler):
             admin=admin.username,
             avatar=topic.avatar,
             rules=topic.rules,
+            is_subscribed=int(bool(is_subscribed)),
         )
 
 
@@ -136,14 +142,21 @@ class NewPostHandler(BaseHandler):
         if not topic:
             raise HTTPError(404)
         admin = yield gen.maybe_future(User.get(topic.admin_id))
-        self.render('new_post.html',
-                    title=topic.name,
-                    keywords=topic.name + ', 2L',
-                    description=topic.description,
-                    topic_id=topic_id,
-                    rules=topic.rules,
-                    admin=admin.username,
-                    avatar=topic.avatar)
+        is_subscribed = False
+        if self.current_user:
+            is_subscribed = yield gen.maybe_future(
+                Subscription.get_by_user_topic(self.current_user, topic.id))
+        self.render(
+            'new_post.html',
+            title=topic.name,
+            keywords=topic.name + ', 2L',
+            description=topic.description,
+            topic_id=topic_id,
+            rules=topic.rules,
+            admin=admin.username,
+            avatar=topic.avatar,
+            is_subscribed=int(bool(is_subscribed)),
+        )
 
 
 urls = [

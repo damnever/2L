@@ -27,7 +27,8 @@
          :avatar="avatar"
          :description="description"
          :rules="rules"
-         :b-post="bPost">
+         :b-post="bPost"
+         :is-subscribed="isSubscribed">
         </topic-component>
     </div>
 </div>
@@ -48,6 +49,7 @@
 {{ rules }}
 */}).toString().split('\n').slice(1,-1).join('\n'),
             bPost: true,
+            isSubscribed: Boolean({{ is_subscribed }}),
         }
     })
 
