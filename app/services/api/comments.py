@@ -37,6 +37,31 @@ def _comment_info(username, comment):
     return info
 
 
+class AllCommentsAPIHandler(APIHandler):
+
+    @as_json
+    @need_permissions(Roles.Admin)
+    @gen.coroutine
+    def get(self):
+        page = int(self.get_argument('page', 1))
+        per_page = int(self.get_argument('per_page', 20))
+
+        pagination = yield gen.maybe_future(Comment.page_list(page, per_page))
+        comments = list()
+        for comment in pagination.items:
+            info = yield gen.maybe_future(_comment_info(None, comment))
+            comments.append(info)
+        result = {
+            'page': page,
+            'pages': pagination.pages,
+            'has_prev': pagination.has_prev,
+            'has_next': pagination.has_next,
+            'total': pagination.total,
+            'comments': comments,
+        }
+        raise gen.Return(result)
+
+
 class PostCommentsAPIHandler(APIHandler):
 
     @as_json
@@ -118,12 +143,26 @@ class UserCommentsAPIHandler(APIHandler):
         raise gen.Return(result)
 
 
+class CommentAPIHandler(APIHandler):
+
+    @as_json
+    @need_permissions(Roles.Admin)
+    @gen.coroutine
+    def delete(self, comment_id):
+        comment = yield gen.maybe_future(Comment.get(comment_id))
+        yield gen.maybe_future(comment.delete())
+
+
 urls = [
-    # NOTE: comment can not be modified and deleted...
+    # NOTE: comment can not be modified and deleted, except admin...
+    # `GET /api/comments/all`, get all comments.
+    (r'/api/comments/all', AllCommentsAPIHandler),
     # `GET /api/comments/post/:post_id`, get all comments of the post.
     # For authenticated user:
     #   `POST /api/comments/post/:post_id`, add a new comments to post.
     (r'/api/comments/post/(\d+)', PostCommentsAPIHandler),
     # `GET /api/comments/user/:username`, get all comments of the user.
     (r'/api/comments/user/(\w+)', UserCommentsAPIHandler),
+    # `DELETE /api/comment/delete/:id`, delete comment.
+    (r'/api/comment/delete/(\d+)', CommentAPIHandler),
 ]

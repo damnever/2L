@@ -25,6 +25,10 @@ class User(Model):
     profile = relationship('Profile', uselist=False, backref='user')
 
     @classmethod
+    def list_all(cls):
+        return cls.query
+
+    @classmethod
     def get_by_name(cls, username):
         return cls.query.filter(cls.username==username).first()
 
@@ -83,7 +87,10 @@ class User(Model):
             raise
 
     def has_permission(self, role):
-        r = self.query.filter(self.role&Permission.get_by_role(role).bit>0)
+        per = Permission.get_by_role(role)
+        if not per:
+            return None
+        r = self.query.filter((self.role&per.bit)>0)
         return r.first()
 
     def information(self):

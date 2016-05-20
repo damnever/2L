@@ -6,7 +6,8 @@
 
 {% block content %}
 <div class="row">
-    <div id="posts" class="list-group col-md-5 col-md-offset-2">
+    {% include "index.html" %}
+    <div id="announcement" class="list-group col-md-5 col-md-offset-1">
         <div id="new">
             <legend>新广播</legend>
             <form class="form-horizontal" role="form" id="new-post" v-on:submit.prevent="ignore">

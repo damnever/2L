@@ -1,16 +1,35 @@
-{% extends "../_base.html" %}
-
-{% block head %}
-
-{% end %}
-
-{% block content %}
-<div class="row">
-	<div id="posts" class="list-group col-md-5 col-md-offset-2">
-		<a class="btn btn-primary" href="/admin/announcement/new">广播</a>
-	</div>
+<div id="admin-nav" class="col-md-1 col-md-offset-2">
+    <ul class="nav nav-pills nav-stacked">
+        <li role="presentation" :class="{'active': announcement}"><a href="/admin/announcement">广播</a></li>
+        <li role="presentation" :class="{'active': users}"><a href="/admin/users">用户</a></li>
+        <li role="presentation" :class="{'active': topics}"><a href="/admin/topics">主题</a></li>
+        <li role="presentation" :class="{'active': posts}"><a href="/admin/posts">帖子</a></li>
+        <li role="presentation" :class="{'active': comments}"><a href="/admin/comments">评论</a></li>
+    </ul>
 </div>
-{% end %}
 
-{% block script %}
-{% end %}
+<script type="text/javascript">
+    new Vue({
+        el: '#admin-nav',
+        data: {
+            url: window.location.href.toString().split(window.location.host)[1],
+        },
+        computed: {
+            announcement: function() {
+                return (this.url === '/admin/announcement')
+            },
+            users: function() {
+                return (this.url === '/admin/users')
+            },
+            topics: function() {
+                return (this.url === '/admin/topics')
+            },
+            posts: function() {
+                return (this.url === '/admin/posts')
+            },
+            comments: function() {
+                return (this.url === '/admin/comments')
+            }
+        },
+    })
+</script>

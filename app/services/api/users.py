@@ -8,8 +8,27 @@ from app.base.handlers import APIHandler
 from app.base.decorators import as_json
 from app.services.api import exceptions
 from app.models import User, Following, Blocked
-from app.base.decorators import authenticated
+from app.base.roles import Roles
+from app.base.decorators import authenticated, need_permissions
 
+
+class AllUsersAPIHandler(APIHandler):
+
+    @as_json
+    @need_permissions(Roles.Admin)
+    @gen.coroutine
+    def get(self):
+        users = yield gen.maybe_future(User.list_all())
+        users_infos = list()
+        for user in users:
+            users_infos.append({
+                'id': user.id,
+                'username': user.username,
+                'join_date': user.profile.join_date,
+                'gold': user.profile.gold,
+                'is_admin': bool(user.has_permission(Roles.Admin)),
+            })
+        raise gen.Return({'users': users_infos})
 
 class UsersAPIHandler(APIHandler):
 
@@ -146,6 +165,8 @@ class UnblockOneAPIHandler(APIHandler):
 
 
 urls = [
+    # `GET /api/users/all`, get information of all users.
+    (r'/api/users/all', AllUsersAPIHandler),
     # `GET /api/users/:username`, get information of username.
     (r'/api/users/(\w+)', UsersAPIHandler),
 

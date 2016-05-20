@@ -122,8 +122,8 @@ class TopicPostsAPIHandler(APIHandler):
         title = self.get_argument('title', None)
         keywords = self.get_argument('keywords', None)
         content = self.get_argument('content', '')
-        keep_silent = bool(self.get_argument('keep_silent', False))
-        is_draft = bool(self.get_argument('is_draft', False))
+        keep_silent = int(self.get_argument('keep_silent', 0))
+        is_draft = int(self.get_argument('is_draft', 0))
 
         if not all([title, keywords]):
             raise exceptions.EmptyFields()
@@ -186,8 +186,8 @@ class PostAPIHandler(APIHandler):
     def patch(self, post_id):
         keywords = self.get_argument('keywords', None)
         content = self.get_argument('content', None)
-        keep_silent = self.get_argument('keep_silent', None)
-        is_draft = self.get_argument('is_draft', None)
+        keep_silent = int(self.get_argument('keep_silent', 0))
+        is_draft = int(self.get_argument('is_draft', 0))
 
         if keywords is None and content is None and keep_silent is None:
             raise exceptions.EmptyFields()

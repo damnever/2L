@@ -1,0 +1,65 @@
+{% extends "../_base.html" %}
+
+{% block head %}
+{% end %}
+
+{% block content %}
+<div class="row">
+    {% include "index.html" %}
+    <div id="comments" class="list-group col-md-5 col-md-offset-1">
+        <legend>管理评论 (共 ${ items.length } 帖子)</legend>
+        <table class="table">
+            <tr>
+                <th>#</th>
+                <th>作者</th>
+                <th>内容</th>
+                <th>时间</th>
+                <th>删除</th>
+            </tr>
+            <tr v-for="(index, item) in items">
+                <td>${ item.id }</td>
+                <td>${ item.author }</td>
+                <td>${ item.content }</td>
+                <td>${ item.date }</td>
+                <td><a href="javascript:;" @click="remove(index)">删除</a></td>
+            </tr>
+        </table>
+    </div>
+</div>
+{% end %}
+
+{% block script %}
+<script type="text/javascript">
+    var perPage = 40
+    var allCommentsURL = '/api/comments/all'
+    var comments = new Vue({
+        el: '#comments',
+        data: {
+            total: 0,
+            items: [],
+            pages: 0,
+            page: 1,
+            hasPrev: false,
+            hasNext: false,
+        },
+        methods: {
+            remove: function(idx) {
+                var self = this
+                var comment = self.items[idx]
+                var url = '/api/comment/delete/' + comment.id
+                DELETE(url, {'token': getCookieByName('token')}, function(response) {
+                    if (response.status == 1) {
+                        self.items.splice(idx, 1)
+                        vAlert.success('删除成功 #' + comment.id)
+                    } else {
+                        vAlert.warning('删除失败 #' + comment.id + ' ' + response.code + ' :' + response.reason)
+                    }
+                })
+            }
+        }
+    })
+
+    getListByPage(comments, allCommentsURL, 1, perPage, 'comments')
+
+</script>
+{% end %}
