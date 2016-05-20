@@ -93,6 +93,12 @@ class User(Model):
         r = self.query.filter((self.role&per.bit)>0)
         return r.first()
 
+    def update_permission(self, role):
+        p = Permission.create(role)
+        self.role |= p.bit
+        db_session.add(self)
+        db_session.commit()
+
     def information(self):
         info = {
             'id': self.id,

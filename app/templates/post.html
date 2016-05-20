@@ -88,13 +88,18 @@
                 <li v-for="idx in pagesList" :class="{'active': (page == idx)}"><a href="javascript:;" @click="currentPage(idx)">${ idx }</a></li>
                 <li :class="{'disabled': !hasNext}"><a href="javascript:;" @click="next">&raquo;</a></li>
             </ul>
-            <div id="comment" style="margin-top:10px;">
-                <textarea id="comment-area" class="form-control" rows="3" v-model="content">${ atUsers.join(" ") + " " }</textarea>
-                <div class="comment-submit">
-                    <button class="btn btn-default btn-sm" style="margin-top:5px;" @click="comment">评&ensp;论</button>
-                    <span class="comment-tip">回答会扣除一定的金币哦！</span>
-                </label>
-            </div>
+            <span v-if="{{ 'true' if keep_silent else 'false' }}">
+                <div class="alert alert-warning" style="margin-top:10px;">该主题已被禁言，不能发表评论！</div>
+            </span>
+            <span v-else>
+                <div id="comment" style="margin-top:10px;">
+                    <textarea id="comment-area" class="form-control" rows="3" v-model="content">${ atUsers.join(" ") + " " }</textarea>
+                    <div class="comment-submit">
+                        <button class="btn btn-default btn-sm" style="margin-top:5px;" @click="comment">评&ensp;论</button>
+                        <span class="comment-tip">回答会扣除一定的金币哦！</span>
+                    </label>
+                </div>
+            </span>
         </ul>
     </div>
     <div id="topic-info" class="col-md-3" style="background-color: #fff;padding:0 0 0 24px;">

@@ -8,6 +8,7 @@ from sqlalchemy import Column, Integer, String, Text, DateTime, Boolean
 from sqlalchemy.sql import functions, expression
 from sqlalchemy.exc import DataError, IntegrityError, ProgrammingError
 
+from app.base.roles import Roles
 from app.models.base import Model
 from app.models.user import User
 from app.libs.db import db_session
@@ -63,6 +64,7 @@ class Topic(Model):
         try:
             db_session.add(t)
             db_session.commit()
+            user.update_permission(Roles.TopicEdit.format(t.id))
         except (DataError, IntegrityError, ProgrammingError):
             cls.rollback()
             raise
@@ -172,9 +174,10 @@ class Post(Model):
     @classmethod
     def create(cls, author_name, topic_id, title, keywords,
                content='', keep_silent=False, is_draft=False):
+        user = User.get_by_name(author_name)
         p = cls(
             topic_id=topic_id,
-            author_id=User.get_by_name(author_name).id,
+            author_id=user.id,
             title=title,
             keywords=keywords,
             content=content,
@@ -184,19 +187,18 @@ class Post(Model):
         try:
             db_session.add(p)
             db_session.commit()
+            user.update_permission(Roles.PostEdit.format(p.id))
         except (DataError, IntegrityError, ProgrammingError):
             db_session.rollback()
             raise
         return p
 
     def update(self, keywords=None, content=None,
-               keep_silent=None, is_draft=None):
+               keep_silent=False, is_draft=None):
         if keywords:
             self.keywords = keywords
-        if content:
-            self.content = content
-        if keep_silent:
-            self.keep_silent = keep_silent
+        self.content = content
+        self.keep_silent = keep_silent
         if is_draft:
             self.is_draft = is_draft
         try:

@@ -131,6 +131,7 @@ class PostHandler(BaseHandler):
             favorited=int(favorited),
             up_voted=int(up_voted),
             down_voted=int(down_voted),
+            keep_silent=post.keep_silent,
         )
 
 

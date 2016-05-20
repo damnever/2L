@@ -59,7 +59,7 @@
                             self.items[idx].keep_silent = false
                         } else {
                             vAlert.warning('操作失败 #' + post.id + ' ' + response.code + ' :' + response.reason)
-                            console.log('MAKE POST KEEP SILENT ERROR: ' + response.code, response.reason)
+                            console.log('CANCEL POST KEEP SILENT ERROR: ' + response.code, response.reason)
                         }
                     })
                 } else {
@@ -68,7 +68,7 @@
                             self.items[idx].keep_silent = true
                         } else {
                             vAlert.warning('操作失败 #' + post.id + ' ' + response.code + ' :' + response.reason)
-                            console.log('CANCEL POST KEEP SILENT ERROR: ' + response.code, response.reason)
+                            console.log('MAKE POST KEEP SILENT ERROR: ' + response.code, response.reason)
                         }
                     })
                 }
@@ -77,6 +77,5 @@
     })
 
     getListByPage(posts, allPostURL, 1, perPage, 'posts')
-
 </script>
 {% end %}

@@ -96,7 +96,8 @@ def need_permissions(*permissions):
 
             user = yield gen.maybe_future(User.get_by_name(username))
             for permission in permissions:
-                if args and args[0] and permission == Roles.TopicEdit:
+                if (args and args[0] and
+                        permission in (Roles.TopicEdit, Roles.PostEdit)):
                     permission = permission.format(args[0])
 
                 has_permission = yield gen.maybe_future(

@@ -6,6 +6,7 @@ from sqlalchemy import Column, Integer, String, event
 from sqlalchemy.sql import select, functions
 from sqlalchemy.exc import DataError, IntegrityError, ProgrammingError
 
+from app.base.roles import Roles
 from app.models.base import Model
 from app.libs.db import db_session
 
@@ -43,3 +44,14 @@ def bit_generater(mapper, connection, target):
     s = select([functions.max(Permission.bit).label('max_bit')])
     result = connection.execute(s).fetchone()
     target.bit = (result.max_bit << 1) if result.max_bit else 1
+
+
+@event.listens_for(Permission, 'after_insert')
+def update_permission(mapper, connection, target):
+    from app.models import User
+    print('UPDATE PERMISSION')
+    for user in User.list_all():
+        if any(map(user.has_permission, [Roles.Root, Roles.Admin])):
+            user.role |= target.bit
+            print('PERMISSION: {0} -> {1}'.format(target.bit, user.role))
+            db_session.add(user)
