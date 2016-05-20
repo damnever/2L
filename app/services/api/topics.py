@@ -28,6 +28,29 @@ def _topic_info(username, topic):
     return info
 
 
+class AllTopicsAPIHandler(APIHandler):
+
+    @as_json
+    @gen.coroutine
+    def get(self):
+        page = int(self.get_argument('page', 1))
+        per_page = int(self.get_argument('per_page', 20))
+
+        pagination = yield gen.maybe_future(
+            Topic.page_list_all(page, per_page))
+        result = {
+            'page': page,
+            'per_page': per_page,
+            'has_prev': pagination.has_prev,
+            'has_next': pagination.has_next,
+            'pages': pagination.pages,
+            'total': pagination.total,
+            'topics': [(yield gen.maybe_future(item.to_dict()))
+                       for item in pagination.items],
+        }
+        raise gen.Return(result)
+
+
 class AcceptedTopicsAPIHandler(APIHandler):
 
     @as_json
@@ -131,8 +154,19 @@ class TopicAPIHandler(APIHandler):
             topic = yield gen.maybe_future(Topic.get(topic_id))
             yield gen.maybe_future(topic.update(**fields))
 
+    @as_json
+    @need_permissions(Roles.TopicEdit)
+    @authenticated
+    @gen.coroutine
+    def delete(self, topic_id):
+        topic = yield gen.maybe_future(Topic.get(topic_id))
+        if topic:
+            yield gen.maybe_future(topic.delete())
+
 
 urls = [
+    # `GET /api/topics/all`, return all topics
+    (r'/api/topics/all$', AllTopicsAPIHandler),
     # `GET /api/topics/accepted`,
     # return all accepted topics, those can be subscrined.
     (r'/api/topics/accepted$', AcceptedTopicsAPIHandler),
@@ -142,5 +176,6 @@ urls = [
     # For the topic administer or GodFather...
     #  `POST /api/topic`, create a new topic.
     #  `PATCH /api/topic/:topic_id`, update information of the topic.
+    #  `DELETE /api/topic/:topic_id`, delete topic
     (r'/api/topic(?:/(\d+))?', TopicAPIHandler),
 ]

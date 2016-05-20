@@ -255,6 +255,7 @@
             myPostsCount: 0,
             postsCount: 0,
             myTopicsCount: 0,
+            topicsCount: 0,
             topcisCount: 0,
             myCommentsCount: 0,
             commentsCount: 0,
@@ -314,7 +315,7 @@
     getJSON(countURL, {'page': 1, 'pages': 20}, function(response) {
         if (response.status === 1) {
             userProfile.usersCount = response.users_count
-            userProfile.topcisCount = response.topics_count
+            userProfile.topicsCount = response.topics_count
             userProfile.postsCount = response.posts_count
             userProfile.commentsCount = response.comments_count
         } else {

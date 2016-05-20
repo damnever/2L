@@ -34,6 +34,16 @@ class UsersHandler(BaseHandler):
                     title='后台管理·用户')
 
 
+class TopicsHandler(BaseHandler):
+
+    @need_permissions(Roles.Admin)
+    def get(self):
+        self.render('admin/topics.html',
+                    keywords=None,
+                    description=None,
+                    title='后台管理·用户')
+
+
 class PostsHandler(BaseHandler):
 
     @need_permissions(Roles.Admin)
@@ -58,7 +68,7 @@ urls = [
     (r'/admin', AdminIndexHandler),
     (r'/admin/announcement', NewAnnouncementHandler),
     (r'/admin/users', UsersHandler),
-    (r'/admin/topics', NewAnnouncementHandler),
+    (r'/admin/topics', TopicsHandler),
     (r'/admin/posts', PostsHandler),
     (r'/admin/comments', CommentsHandler),
 ]

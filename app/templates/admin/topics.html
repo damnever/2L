@@ -1,0 +1,78 @@
+{% extends "../_base.html" %}
+
+{% block head %}
+{% end %}
+
+{% block content %}
+<div class="row">
+    {% include "index.html" %}
+    <div id="topics" class="list-group col-md-5 col-md-offset-1">
+        <legend>管理主题 (共 ${ items.length } 主题)</legend>
+        <table class="table">
+            <tr>
+                <th>#</th>
+                <th>主题名称</th>
+                <th>状态</th>
+                <th>状态变更日期</th>
+                <th>作者</th>
+                <th>删除</th>
+            </tr>
+            <tr v-for="(index, item) in items">
+                <td>${ item.id }</td>
+                <td><a target="_blank" href="/proposal/${ item.id }">${ item.name }</a></td>
+                <td>
+                    <span v-if="item.state >= 0">
+                        <span v-if="item.state == 1">
+                            已接受
+                        </span>
+                        <span v-else>
+                            投票中
+                        </span>
+                    </span>
+                    <span v-else>
+                        已拒绝
+                    </span>
+                </td>
+                <td>${ item.date }</td>
+                <td>${ item.administer }</td>
+                <td><a href="javascript:;" @click="remove(index)">删除</a></td>
+            </tr>
+        </table>
+    </div>
+</div>
+{% end %}
+
+{% block script %}
+<script type="text/javascript">
+    var perPage = 40
+    var allTopicsURL = '/api/topics/all'
+    var topics = new Vue({
+        el: '#topics',
+        data: {
+            total: 0,
+            items: [],
+            pages: 0,
+            page: 1,
+            hasPrev: false,
+            hasNext: false,
+        },
+        methods: {
+            remove: function(idx) {
+                var self = this
+                var topic = self.items[idx]
+                var url = '/api/topic/' + topic.id
+                DELETE(url, {'token': getCookieByName('token')}, function(response) {
+                    if (response.status == 1) {
+                        self.items.splice(idx, 1)
+                        vAlert.success('删除成功 #' + topic.id)
+                    } else {
+                        vAlert.warning('删除失败 #' + topic.id + ' ' + response.code + ' :' + response.reason)
+                    }
+                })
+            }
+        }
+    })
+
+    getListByPage(topics, allTopicsURL, 1, perPage, 'topics')
+</script>
+{% end %}
