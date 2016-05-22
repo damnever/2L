@@ -38,8 +38,7 @@ def update_permission(user, role):
 @app.task(name='check_proposal', max_retries=5)
 def check_proposal(topic_id):
     from app.libs.db import db_session
-    from app.models import Topic, User, Permission, TopicUpVote, TopicDownVote
-    from app.base.roles import Roles
+    from app.models import Topic, User, TopicUpVote, TopicDownVote
     from app.settings import Gold
 
     user_count = User.count()
@@ -51,10 +50,6 @@ def check_proposal(topic_id):
     # Check if the proposal can be accepted or rejected.
     if (up_votes - down_votes) > (user_count / 2):
         topic.state = 1
-        # Update permission.
-        permission = Roles.TopicEdit.format(topic.name)
-        p = Permission.create(permission)
-        user.role |= p.bit
         user.profile.gold += Gold['proposal_accepted']
     else:
         topic.state = -1

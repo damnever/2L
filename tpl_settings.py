@@ -72,7 +72,7 @@ Gold = {
     'register': 50,
     '2L': [2, 22],
     'new_proposal': -50,
-    'proposal_acceptd': +60,
+    'proposal_accepted': +60,
     'proposal_rejected': +10,
     'new_post': -10,
     'delete_post': -30,
