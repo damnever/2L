@@ -103,7 +103,7 @@
                     </div>
                 </div>
                 <div class="state">
-                    <span class="label" :class="{'label-warning': topicState==0, 'label-success': topicState==1, 'label-default': topicState==-1}">${ state }</span>
+                    <span class="label" :class="{'label-warning': topicState==0, 'label-success': topicState==1, 'label-danger': topicState==-1}">${ state }</span>
                 </div>
             </li>
         */}).toString().split('\n').slice(1,-1).join(''),

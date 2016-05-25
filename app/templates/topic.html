@@ -13,8 +13,8 @@
          :topic-name="item.topic_name"
          :author-avatar="item.author_avatar"
          :author-name="item.author_name"
-         :last-comment-name="item.last_comment_user"
-         :last-comment-date="item.last_comment_date"
+         :last-comment-name="item.latest_comment_user"
+         :last-comment-date="item.latest_comment_date"
          :comment-count="item.comment_count">
         </post-component>
         <span v-show="items.length == 0">赶紧做第一个发帖的人吧！</span>
