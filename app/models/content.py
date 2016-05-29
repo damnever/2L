@@ -3,16 +3,24 @@
 from __future__ import print_function, division, absolute_import
 
 import heapq
+from datetime import datetime
 
 from sqlalchemy import Column, Integer, String, Text, DateTime, Boolean
 from sqlalchemy.sql import functions, expression
 from sqlalchemy.exc import DataError, IntegrityError, ProgrammingError
+from tzlocal import get_localzone
 
 from app.base.roles import Roles
 from app.models.base import Model
 from app.models.user import User
 from app.libs.db import db_session
 from app.libs.sorts import hot
+
+
+def _datetime_convert(date):
+    return datetime(date.year, date.month, date.day, date.hour,
+                    date.minute, date.second, date.microsecond,
+                    get_localzone())
 
 
 class Topic(Model):
@@ -130,17 +138,22 @@ class Post(Model):
         # Use heapsort and query iterator to cut down memory usage...
         # http://stackoverflow.com/questions/1078383/sqlalchemy-difference-between-query-and-query-all-in-for-loops
         for post in cls.query:
-            post_id, post_date = post.id, post.update_date
+            post_id, post_date = post.id, _datetime_convert(post.update_date)
             ups = PostUpVote.count_by_post(post_id)
             downs = PostDownVote.count_by_post(post_id)
             score = hot(ups, downs, post_date)
+            print('SCORE: {0}'.format(score))
             if count < num:
-                heapq.heappush(hots, {'post': post, 'score': score})
+                heapq.heappush(hots, (score, post))
                 count += 1
-            elif score > hots[0]['score']:
-                heapq.heappushpop(hots, {'post': post, 'score': score})
+            elif score > hots[0][0]:
+                heapq.heappushpop(hots, (score, post))
 
-        return [item['post'] for item in hots[::-1]]
+        posts = list()
+        while hots:
+            item = heapq.heappop(hots)
+            posts.append(item[1])
+        return posts[::-1]
 
     @classmethod
     def page_list(cls, username, page, per_page):
