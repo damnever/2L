@@ -142,7 +142,6 @@ class Post(Model):
             ups = PostUpVote.count_by_post(post_id)
             downs = PostDownVote.count_by_post(post_id)
             score = hot(ups, downs, post_date)
-            print('SCORE: {0}'.format(score))
             if count < num:
                 heapq.heappush(hots, (score, post))
                 count += 1

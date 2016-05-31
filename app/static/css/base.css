@@ -1,6 +1,6 @@
 html, body {
-	font-family: 'Helvetica Neue',Helvetica,Arial,sans-serif;
-	background-color: #fff;
+    font-family: 'Helvetica Neue',Helvetica,Arial,sans-serif;
+    background-color: #fff;
 }
 
 /*** Footer align the bottom. ***/
@@ -28,13 +28,13 @@ body > #container {
 }
 
 body {
-	padding-top: 70px;
+    padding-top: 70px;
 }
 
 /*** NAVBAR ***/
 .navbar {
-	background-color: rgba(255,255,255,0.4);
-	border-bottom: 1px solid rgba(220, 220, 220, 0.4);
+    background-color: rgba(255,255,255,0.4);
+    border-bottom: 1px solid rgba(220, 220, 220, 0.4);
     box-shadow: 0 1px 5px rgba(0, 0, 0, 0.12);
 }
 
@@ -50,31 +50,31 @@ body {
 
 #user-area,
 #auth-area {
-	margin-top: 14px;
-	padding-top: 14px;
+    margin-top: 14px;
+    padding-top: 14px;
 }
 #user-area li,
 #auth-area li {
-	display: inline;
-	color: #555;
+    display: inline;
+    color: #555;
 }
 #user-area li a,
 #auth-area li a {
-	color: #555;
-	font-size: 14px;
+    color: #555;
+    font-size: 14px;
 }
 
 
 /*** POST LIST ***/
 .list-group-item {
-	border-top: 1px solid transparent;
-	border-left: 1px solid transparent;
-	border-right: 1px solid transparent;
-	border-bottom: 1px solid #e5e5e5;
-	margin-bottom: 1px;
+    border-top: 1px solid transparent;
+    border-left: 1px solid transparent;
+    border-right: 1px solid transparent;
+    border-bottom: 1px solid #e5e5e5;
+    margin-bottom: 1px;
 }
 .list-group-item:hover {
-	background-color: rgba(220, 220, 220, 0.1);
+    background-color: rgba(220, 220, 220, 0.1);
 }
 .list-group-item:first-child {
     border-top-left-radius: 0;
@@ -86,29 +86,29 @@ body {
 }
 
 label {
-	color: #666;
-	font-weight: normal;
-	font-size: 14px;
+    color: #666;
+    font-weight: normal;
+    font-size: 14px;
 }
 
 .post {
-	min-height: 72px;
+    min-height: 72px;
 }
 
 .post-avatar {
-	float: left;
+    float: left;
 }
 
 .post-info {
-	margin-left: 64px;
+    margin-left: 64px;
 }
 
 .post-title {
-	font-size: 18px;
-	color: #222222;
+    font-size: 18px;
+    color: #222222;
 }
 .post-title:hover {
-	color: #1abc9c;
+    color: #1abc9c;
 }
 
 .post-other-info {
@@ -116,86 +116,87 @@ label {
 }
 
 .label-default {
-	padding: 2px 5px 2px 5px;
-	color: #444444;
+    padding: 2px 5px 2px 5px;
+    color: #444444;
     font-weight: normal;
     background-color: #eeeeee;
     border-radius: 0;
 }
 .label-default:hover {
-	color: #333333;
-	background-color: #999999;
+    color: #333333;
+    background-color: #999999;
 }
 
 .post-other-info .post-author,
 .post-other-info .post-user {
-	color: #444444;
+    color: #444444;
 }
 .post-other-info .post-author:hover,
 .post-other-info .post-user:hover {
-	color: #111111;
+    color: #111111;
 }
 .post-other-info .post-date,
 .post-other-info .comment-date {
-	color: #888888;
+    color: #888888;
 }
 
 .post-comments {
-	margin-top: 16px;
-	color: #fff;
-	background-color: #aab0c6;
+    margin-top: 16px;
+    color: #fff;
+    background-color: #aab0c6;
 }
 .post-comments:visited {
-	color: #fff;
-	background-color: #e5e5e5;
+    color: #fff;
+    background-color: #e5e5e5;
 }
 
 /*** Topics ***/
 .topics {
-	margin-bottom: 3px;
+    height: 60px;
+    margin-bottom: 3px;
 }
 .topics .topic-avatar {
-	float: left;
+    float: left;
 }
 .topic-text {
-	margin-left: 72px;
+    margin-left: 72px;
 }
 .topic-text .header {
-	margin-bottom: 3px;
+    margin-bottom: 3px;
 }
 .topic-text .header a {
-	color: #444444;
-	font-size: 16px;
+    color: #444444;
+    font-size: 16px;
 }
 .topic-text .header a:hover {
-	color: #000000;
+    color: #000000;
 }
 .topic-text .header button {
-	float: right;
-	margin-right: 20px;
-	font-size: 10px;
+    float: right;
+    margin-right: 20px;
+    font-size: 10px;
 }
 .topic-text .description {
-	color: #555555;
-	font-size: 13px;
+    color: #555555;
+    font-size: 13px;
 }
 
 /*** SUBSCRIBED TOPICS ***/
 #subscribed-topics .panel {
-	border-radius: 0;
-	border-color: #e5e5e5;
+    border-radius: 0;
+    border-color: #e5e5e5;
 }
 #subscribed-topics .panel .panel-body {
-	padding: 0;
+    padding: 0;
 }
 #subscribed-topics .list-group {
-	margin: 0;
+    margin: 0;
 }
 #subscribed-topics .list-group-item {
-	border: 1px solid transparent;
+    border: 1px solid transparent;
 }
 #subscribed-topics .list-group-item:hover {
-	background-color: rgba(230, 230, 230, 0.3);
+    background-color: rgba(230, 230, 230, 0.3);
 }
 #subscribed-topics .list-group-item:first-child {
     border-top-left-radius: 0;
@@ -206,95 +207,95 @@ label {
     border-bottom-right-radius: 0;
 }
 #subscribed-topics .list-group-item img {
-	float: left;
+    float: left;
 }
 #subscribed-topics .list-group-item a {
-	margin-left: 10px;
-	color: #444444;
+    margin-left: 10px;
+    color: #444444;
 }
 #subscribed-topics .list-group-item a:hover {
-	color: #222222;
+    color: #222222;
 }
 
 /*** Topic ***/
 .topic {
-	padding: 10px 12px 10px 12px;
-	border: 1px solid rgba(240, 234, 240, 0.7);
-	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    padding: 10px 12px 10px 12px;
+    border: 1px solid rgba(240, 234, 240, 0.7);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
 }
 .header img {
-	float: left;
+    float: left;
 }
 .header .text {
-	margin-left: 72px;
+    margin-left: 72px;
 }
 .header .text .title {
-	color: #222;
-	font-size: 20px;
-	margin-bottom: 5px;
+    color: #222;
+    font-size: 20px;
+    margin-bottom: 5px;
 }
 .header .text .title button {
-	float: right;
-	margin-right: 5px;
+    float: right;
+    margin-right: 5px;
 }
 .header .text .admin {
-	color: #555;
-	font-size: 12px;
+    color: #555;
+    font-size: 12px;
 }
 .header .text .admin:hover {
-	color: #333;
+    color: #333;
 }
 .description {
-	color: #444;
-	font-size: 15px;
-	margin-bottom: 14px;
+    color: #444;
+    font-size: 15px;
+    margin-bottom: 14px;
 }
 .rules .rule {
-	color: #555;
+    color: #555;
 }
 
 /*** COMMENTS ***/
 .comment-up-votes,
 .comment-down-votes {
-	color: #555555;
-	margin-right: 3px;
+    color: #555555;
+    margin-right: 3px;
 }
 .comment-up-votes:hover,
 .comment-down-votes:hover {
-	color: #000000;
-	text-decoration: none;
+    color: #000000;
+    text-decoration: none;
 }
 .comment-user:hover {
-	color: #111111;
+    color: #111111;
 }
 .comment-date {
-	color: #888888;
-	font-size: 13px;
+    color: #888888;
+    font-size: 13px;
 }
 .comment-user {
-	color: #333333;
-	font-size: bold;
+    color: #333333;
+    font-size: bold;
 }
 .comment-left {
-	float: left;
+    float: left;
 }
 .comment-info {
-	margin-left: 50px;
+    margin-left: 50px;
 }
 .comment-content {
-	margin-top: 3px;
-	color: #333333;
-	font-size: 14px;
+    margin-top: 3px;
+    color: #333333;
+    font-size: 14px;
 }
 .comment-reply {
-	color: #555555;
-	font-size: 13px;
+    color: #555555;
+    font-size: 13px;
 }
 .comment-reply:hover {
-	color: #333333;
+    color: #333333;
 }
 #comments .list-group-item {
-	padding: 10px 5px 10px 5px;
+    padding: 10px 5px 10px 5px;
 }
 .comment-submit {
 
@@ -302,10 +303,10 @@ label {
 .comment-submit button {
 }
 .comment-submit .comment-tip {
-	margin-top: 15px;
-	color: #555555;
-	font-size: 12px;
-	float: right;
+    margin-top: 15px;
+    color: #555555;
+    font-size: 12px;
+    float: right;
 }
 
 /*** ANNOUNCEMENT ***/
@@ -323,12 +324,12 @@ label {
     background-color: rgba(230, 230, 230, 0.1);
 }
 #announcement .panel-body {
-	color: #444444;
+    color: #444444;
 }
 
 /*** Custom Button ***/
 .btn-default {
-	color: #565656;
+    color: #565656;
     background-image: linear-gradient(#fdfdfd, #efefef);
     border: 1px solid #eee;
 }
@@ -353,27 +354,27 @@ label {
 }
 
 blockquote {
-	color: #555555;
-	font-size: 14px;
-	padding-right: 0;
+    color: #555555;
+    font-size: 14px;
+    padding-right: 0;
 }
 
 /* Markdown */
 .markdown-body {
-	color: #333333;
-	font-size: 14px;
-	padding: 5px 5px 8px 5px;
-	border-bottom: 1px solid #ccc;
+    color: #333333;
+    font-size: 14px;
+    padding: 5px 5px 8px 5px;
+    border-bottom: 1px solid #ccc;
 }
 .markdown-body .highlight pre,
 .markdown-body pre {
-	background-color: rgba(230, 230, 230, 0.3);
+    background-color: rgba(230, 230, 230, 0.3);
 }
 .markdown-body img {
-	max-height: 200px;
+    max-height: 200px;
 }
 pre {
-	border: 1px solid #fafafa;
+    border: 1px solid #fafafa;
 }
 
 /* footer */
@@ -499,5 +500,5 @@ pre {
 }
 
 .comment-voted {
-	color: #111;
+    color: #111;
 }

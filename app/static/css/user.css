@@ -1,30 +1,30 @@
 #user {
-	color: #222222;
+    color: #222222;
 }
 
 #info {
-	border: 1px solid rgba(240, 234, 240, 0.7);
-	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
-	padding: 10px 30px 20px 30px;
-	margin-bottom: 30px;
+    border: 1px solid rgba(240, 234, 240, 0.7);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    padding: 10px 30px 20px 30px;
+    margin-bottom: 30px;
 }
 .username {
-	font-size: 20px;
+    font-size: 20px;
 }
 
 .intro {
-	font-size: 16px;
-	color: #666666;
+    font-size: 16px;
+    color: #666666;
 }
 
 .info-header .left {
-	float: left;
+    float: left;
 }
 .info-header .right {
-	float: right;
+    float: right;
 }
 .info-header .right .btn-default {
-	color: #666666;
+    color: #666666;
 }
 
 .detail {
@@ -32,36 +32,36 @@
 }
 
 .detail img {
-	float: left;
+    float: left;
 }
 
 .detail .other {
-	color: #666666;
-	margin-left: 90px;
+    color: #666666;
+    margin-left: 90px;
 }
 
 .detail .other .gold {
-	margin-top: 10px;
+    margin-top: 10px;
 }
 
 .detail .other .date {
-	margin-top: 8px;
+    margin-top: 8px;
 }
 
 .detail .other .location {
-	margin-top: 8px;
+    margin-top: 8px;
 }
 
 #activity {
-	color: #222222;
+    color: #222222;
 }
 
 #progress {
-	color: #666666;
+    color: #666666;
 }
 
 #progress .progress {
-	margin-left: 4px;
+    margin-left: 4px;
     height: 20px;
     margin-bottom: 20px;
     overflow: hidden;
@@ -72,10 +72,10 @@
 }
 
 #progress .progress-bar-info {
-	background-color: rgba(51, 204, 51, 0.65);
+    background-color: rgba(51, 204, 51, 0.65);
 }
 
 .raquo {
-	color: #ff6633;
-	font-weight: bold;
+    color: #ff6633;
+    font-weight: bold;
 }
